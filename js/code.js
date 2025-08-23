@@ -164,7 +164,8 @@ function searchContacts()
 				if (jsonObject.results && jsonObject.results.length > 0) {
 					for (let i = 0; i < jsonObject.results.length; i++)
 					{
-						contactList += jsonObject.results[i];
+						let contact = jsonObject.results[i];
+						contactList += `Name: ${contact.FirstName} ${contact.LastName}, Phone: ${contact.Phone}, Email: ${contact.Email}, Address: ${contact.Address}`;
 						if (i < jsonObject.results.length - 1)
 						{
 							contactList += "<br />\r\n";
