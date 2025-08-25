@@ -5,7 +5,6 @@ function addContact() {
     let phone = document.getElementById("phone").value;
     let email = document.getElementById("email").value;
     let address = document.getElementById("address").value;
-    let userId = localStorage.getItem("ID");
 
     alert(userId)
     /*
