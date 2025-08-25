@@ -6,6 +6,7 @@ function addContact() {
     let email = document.getElementById("email").value;
     let address = document.getElementById("address").value;
 
+    readCookie();
     alert(userId)
     /*
     let url = urlBase + '/AddContact.' + extension;
