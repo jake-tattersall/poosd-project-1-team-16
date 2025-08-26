@@ -1,25 +1,77 @@
 body 
 {
-    background-color: #707070;
+    background-color: #0f172a;
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
 }
 
 #title 
 {
     font-size: 40px;
     width: 100%;
-    margin: 2% 5%;
+    margin: 0 0 24px 0;
     text-align: center;
     font-family: 'Ubuntu', sans-serif;
-    color: #FFFFFF;
+    color: #e2e8f0;
+}
+
+/* Theme switch (top-right) */
+.theme-switch{
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 4;
+}
+.theme-switch input{
+    position: absolute;
+    opacity: 0;
+}
+.theme-switch label{
+    width: 56px;
+    height: 30px;
+    display: inline-block;
+    background: rgba(15,23,42,0.6);
+    border: 1px solid rgba(148,163,184,0.35);
+    border-radius: 9999px;
+    position: relative;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+}
+.theme-switch label:after{
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    background: #e2e8f0;
+    border-radius: 9999px;
+    transition: transform 200ms ease;
+}
+.theme-switch input:checked + label{
+    background: rgba(255,255,255,0.7);
+}
+.theme-switch input:checked + label:after{
+    transform: translateX(26px);
 }
 
 #loginDiv
 {
     font-size: 30px;
-    width: 70%;
-    margin-left: 15%;
-    padding: 25px;
-    background-color: #b2b2b2;
+    width: 360px;
+    max-width: 92vw;
+    padding: 32px;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.6);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+    backdrop-filter: blur(8px);
+    position: relative;
+    z-index: 2;
 }
 
 #loggedInDiv
@@ -42,26 +94,34 @@ body
 
 .buttons
 {
-    font-size: 30px;
-    border-radius: 25px;
-    width: 50%;
-    margin-left: 25%;
+    font-size: 18px;
+    border-radius: 12px;
+    width: 100%;
+    margin: 12px 0 0 0;
+    padding: 12px 16px;
+    border: 1px solid rgba(148,163,184,0.25);
+    background: linear-gradient(135deg, #6366f1 0%, #22c55e 100%);
+    color: #0b1220;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
     font-family: 'Ubuntu', sans-serif;
 }
 
 .buttons:hover{
-    background-color: #00d5124f;
-    color: #FFFFFF;
-    opacity: 50%;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(99,102,241,0.35);
+    opacity: 0.95;
 }
 
 #loginName
 {
-	font-size: 30px;
+	font-size: 18px;
 }
 #loginPassword
 {
-	font-size: 30px;
+	font-size: 18px;
 }
 #searchText
 {
@@ -73,34 +133,144 @@ body
 }
 
 input[type="text"],input[type="password"]{
-    border-radius: 25px;
-    text-align: center;
-    width: 80%;
-    margin-left: 10%;
-    margin-bottom: 2%;
+    border-radius: 12px;
+    text-align: left;
+    width: 100%;
+    margin: 10px 0 0 0;
+    padding: 12px 14px;
+    border: 1px solid rgba(148,163,184,0.35);
+    outline: none;
+    background: rgba(2,6,23,0.6);
+    color: #e2e8f0;
     font-family: 'Ubuntu', sans-serif;
 }
 
 #inner-title{
-    display: inline-block;
-    font-size: 0.8em;
-    width: 90%;
+    display: block;
+    font-size: 0.9em;
+    width: 100%;
     text-align: center;
-    margin-left: 5%;
-    margin-bottom: 2%;
+    margin: 0 0 10px 0;
     font-family: 'Ubuntu', sans-serif;
-    color: #95060a;
+    color: #a5b4fc;
+    letter-spacing: 1px;
 }
 
 #loginResult{
-    display: inline-block;
+    display: block;
     font-size: 0.8em;
-    width: 90%;
+    width: 100%;
     text-align: center;
-    margin-left: 5%;
-    margin-bottom: 2%;
+    margin: 12px 0 0 0;
     font-family: 'Ubuntu', sans-serif;
-    color: #95060a;
+    color: #f43f5e;
+}
+
+/* Waves background: bottom half animated, top half static */
+.waves-container{
+    position: absolute;
+    inset: 50% 0 0 0; /* bottom half */
+    z-index: 1;
+    overflow: hidden;
+}
+
+.waves{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+}
+
+/* Using three layers to create parallax-like wave movement */
+.wave{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 60%;
+    background-repeat: repeat-x;
+    opacity: 0.9;
+    will-change: background-position;
+}
+
+.wave.wave1{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 100 C 150 150 350 50 600 100 C 850 150 1050 50 1200 100 L1200 200 L0 200 Z" fill="%236366f1"/></svg>');
+    animation: waveMove1 12s ease-in-out infinite alternate;
+    opacity: 0.55;
+}
+
+.wave.wave2{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 120 C 200 80 400 160 600 120 C 800 80 1000 160 1200 120 L1200 200 L0 200 Z" fill="%235a62ea"/></svg>');
+    animation: waveMove2 18s ease-in-out infinite alternate;
+    opacity: 0.6;
+}
+
+.wave.wave3{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 140 C 250 190 450 110 600 140 C 750 170 1000 110 1200 140 L1200 200 L0 200 Z" fill="%234f58e5"/></svg>');
+    animation: waveMove3 28s ease-in-out infinite alternate;
+    opacity: 0.7;
+}
+
+@keyframes waveMove1{
+    from{ background-position-x: 0; }
+    to{ background-position-x: 1200px; }
+}
+@keyframes waveMove2{
+    from{ background-position-x: 0; }
+    to{ background-position-x: -1200px; }
+}
+@keyframes waveMove3{
+    from{ background-position-x: 0; }
+    to{ background-position-x: 2400px; }
+}
+
+/* Light theme overrides (beach palette) */
+body.light{
+    background-color: #e0f2fe; /* light sky */
+    color: #0f172a;
+}
+
+body.light #title{
+    color: #0f172a;
+}
+
+body.light #loginDiv{
+    background: rgba(255,255,255,0.85);
+    box-shadow: 0 10px 30px rgba(2,6,23,0.15), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+body.light .buttons{
+    border: 1px solid rgba(2,6,23,0.08);
+    background: linear-gradient(135deg, #38bdf8 0%, #22c55e 100%);
+    color: #052e47;
+}
+
+body.light input[type="text"], body.light input[type="password"]{
+    background: rgba(255,255,255,0.95);
+    color: #0f172a;
+    border: 1px solid rgba(2,6,23,0.15);
+}
+
+/* Lighter wave colors for beach feel */
+body.light .wave.wave1{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 100 C 150 150 350 50 600 100 C 850 150 1050 50 1200 100 L1200 200 L0 200 Z" fill="%2360a5fa"/></svg>');
+}
+body.light .wave.wave2{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 120 C 200 80 400 160 600 120 C 800 80 1000 160 1200 120 L1200 200 L0 200 Z" fill="%2338bdf8"/></svg>');
+}
+body.light .wave.wave3{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 140 C 250 190 450 110 600 140 C 750 170 1000 110 1200 140 L1200 200 L0 200 Z" fill="%2322d3ee"/></svg>');
+}
+
+/* Light mode toggle button colors */
+/* Light mode switch colors */
+body.light .theme-switch label{
+    background: rgba(255,255,255,0.85);
+    border: 1px solid rgba(2,6,23,0.15);
+}
+body.light .theme-switch label:after{
+    background: #0f172a;
 }
 
 #userName{

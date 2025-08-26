@@ -4,6 +4,30 @@ const extension = 'php';
 let userId = 0;
 let firstName = "";
 let lastName = "";
+let theme = localStorage.getItem('theme') || 'dark';
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Apply saved theme on load
+    if (theme === 'light') {
+        document.body.classList.add('light');
+    } else {
+        document.body.classList.remove('light');
+    }
+    // Wire checkbox switch if present
+    var toggle = document.getElementById('themeToggle');
+    if (toggle) {
+        toggle.checked = (theme === 'light');
+        toggle.addEventListener('change', function(e) {
+            if (e.target.checked) {
+                document.body.classList.add('light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.body.classList.remove('light');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    }
+});
 
 function doLogin()
 {
