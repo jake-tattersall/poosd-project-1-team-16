@@ -28,7 +28,7 @@ Contacts = [
     ('UniqueTo', 'Test', '777-888-9999', '3@ucf.edu', '3 Boulevard, City, State', 3),
 ]
 
-with open('jake\\create_db_cmds.txt', 'w') as f:
+with open('database\\create_db_cmds.txt', 'w') as f:
     f.write(INITIAL_CMDS)
     for user in Users:
         f.write(f"INSERT INTO Users (`FirstName`, `LastName`, `Login`, `Password`) VALUES ('{user[0]}', '{user[1]}', '{user[2]}', '{user[3]}');\n")
