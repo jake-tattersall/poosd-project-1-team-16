@@ -72,7 +72,7 @@ body
 	font-size: 30px;
 }
 
-input[type="text"],input[type="password"]{
+input[type="text"],input[type="password"],input[type="email"]{
     border-radius: 25px;
     text-align: center;
     width: 80%;
@@ -137,4 +137,5 @@ select{
     margin-bottom: 1%;
     font-family: 'Ubuntu', sans-serif;
     color: #95060a;
+
 }
