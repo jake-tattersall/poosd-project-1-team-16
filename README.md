@@ -25,4 +25,24 @@ There are two tables: Users and Contacts
 
 ## API
 
+There are 6 API endpoints: CRUD + Login, Register.
+- Create: AddContact.php
+- Read: SearchContacts.php
+- Update: UpdateContact.php
+- Delete: DeleteContact.php
+- Login: Login.php
+- Register: register.php
+
 ## Front-End
+
+- HTML Files:
+    - index.html (Login Page)
+    - register.html (Registration Page)
+    - color.html (Contact Operations)
+- JavaScript Files:
+    - AddContact.js (Adding Contact)
+    - code.js (Main JS File)
+    - md5.js (Generate MD5 Hash for Password Storage)
+    - register.js (Registering User)
+- CSS Files:
+    - styles.css (Stylesheet)
