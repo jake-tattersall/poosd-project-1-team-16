@@ -37,7 +37,7 @@ function addContact() {
             } catch (e) {
                 result = "Failed to add contact.";
             }
-            document.getElementById("addContactResult").innerHTML = result;
+            document.getElementById("contactAddResult").innerHTML = result;
         }
     };
     xhr.send(jsonPayload);
