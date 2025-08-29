@@ -15,7 +15,7 @@ function addContact() {
         phone: add_phone,
         email: add_email,
         address: add_address,
-        userId: UserID // assumes UserID is set globally by readCookie()
+        userId: userID // assumes UserID is set globally by readCookie()
     };
     
     let jsonPayload = JSON.stringify(tmp);
