@@ -7,7 +7,7 @@ function addContact() {
     let add_address = document.getElementById("address").value;
     readCookie(); // This will update UserID
 
-    document.getElementById("addContactResult").innerHTML = ""; // Clear previous result
+    document.getElementById("contactAddResult").innerHTML = ""; // Clear previous result
 
     let tmp = {
         firstName: add_firstName,
