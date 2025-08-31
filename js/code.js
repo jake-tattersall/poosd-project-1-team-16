@@ -190,7 +190,7 @@ function searchContacts()
 function listContacts()
 {
 	document.getElementById("contactsError").innerHTML = "";
-	document.getElementById("contactList").innerHTML = "";
+	document.getElementById("contactsList").innerHTML = "";
 
 	let contactList = "";
 	let tmp = {search: "*", userId: userId};
@@ -223,7 +223,7 @@ function listContacts()
 					contactList = "No contacts found.";
 					document.getElementById("contactsError").innerHTML = "No contacts found.";
 				}
-				document.getElementById("contactList").innerHTML = contactList;
+				document.getElementById("contactsList").innerHTML = contactList;
 			}
 		};
 		xhr.send(jsonPayload);
@@ -233,4 +233,5 @@ function listContacts()
 		document.getElementById("contactsError").innerHTML = err.message;
 	}
 }
+
 
