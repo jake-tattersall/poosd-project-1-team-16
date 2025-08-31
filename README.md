@@ -4,6 +4,19 @@
 
 This is Project 1 Team 16's repo.
 
+## To-Do
+
+Week 2
+- [ ] All website features work
+    - [X] Create
+    - [X] Read (Search, List)
+    - [ ] Update
+    - [ ] Delete
+    - [x] Login
+    - [x] Registration
+
+Week 3
+
 ## Database
 
 There are two tables: Users and Contacts
@@ -27,13 +40,21 @@ There are two tables: Users and Contacts
 
 There are 6 API endpoints: CRUD + Login, Register.
 - **C**reate: AddContact.php
-- **R**ead: SearchContacts.php
+- **R**ead: SearchContacts.php, ListContacts.php
 - **U**pdate: UpdateContact.php
 - **D**elete: DeleteContact.php
 - Login: Login.php
 - Register: register.php
 
 ## Front-End
+
+**Current HTTP Verbs (Javascript)**
+- **C**: POST
+- **R**: POST
+- **U**: PUT, PATCH
+- **D**: DELETE
+- Login: POST
+- Register: POST
 
 **HTML Files**
 - index.html (Login Page)
