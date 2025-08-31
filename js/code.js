@@ -167,8 +167,8 @@ function searchContacts()
 					document.getElementById("contactSearchResult").innerHTML = "Contact(s) have been retrieved.";
 					for (let i = 0; i < jsonObject.results.length; i++)
 					{
-						let contact = JSON.parse(jsonObject.results[i]);
-						contactList += `Name: ${contact.FirstName} ${contact.LastName}, Phone: ${contact.Phone}, Email: ${contact.Email}, Address: ${contact.Address}`;
+						let contact = jsonObject.results[i];
+						contactList += `Name: ${contact.firstName} ${contact.lastName}, Phone: ${contact.phone}, Email: ${contact.email}, Address: ${contact.address}`;
 						if (i < jsonObject.results.length - 1)
 						{
 							contactList += "<br />\r\n";
@@ -238,6 +238,7 @@ function listContacts()
 	}
 }
 */
+
 
 
 
