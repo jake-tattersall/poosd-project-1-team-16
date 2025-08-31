@@ -163,7 +163,7 @@ function searchContacts()
 			{
 				//document.getElementById("contactSearchResult").innerHTML = "Contact(s) have been retrieved.";
 				let jsonObject = JSON.parse(xhr.responseText);
-				const container = document.getElementById("contactListResults");
+				const container = document.getElementById("table1");
 				const table = document.createElement("table");
 				const tblBody = document.createElement("tbody");
 				
@@ -240,7 +240,7 @@ function listContacts()
 			{
 				//document.getElementById("contactsList").innerHTML = "Contact(s) have been retrieved.";
 				let jsonObject = JSON.parse(xhr.responseText);
-				const container = document.getElementById("contactListResults");
+				const container = document.getElementById("table2");
 				const table = document.createElement("table");
 				const tblBody = document.createElement("tbody");
 				
@@ -293,6 +293,7 @@ function listContacts()
 		document.getElementById("contactsList").innerHTML = err.message;
 	}
 }
+
 
 
 
