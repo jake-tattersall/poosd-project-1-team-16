@@ -217,7 +217,7 @@ function searchContacts()
 	}
 }
 
-function searchContacts()
+function listContacts()
 {
 	//let srch = document.getElementById("searchText").value;
 	//document.getElementById("contactSearchResult").innerHTML = "";
@@ -293,5 +293,6 @@ function searchContacts()
 		document.getElementById("contactsList").innerHTML = err.message;
 	}
 }
+
 
 
