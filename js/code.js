@@ -205,6 +205,11 @@ function searchContacts()
 						row.appendChild(cell2); 
 						tblBody.appendChild(row);
 						contactList += `Name: ${contact.firstName} ${contact.lastName}, Phone: ${contact.phone}, Email: ${contact.email}, Address: ${contact.address}`;
+						if (i < jsonObject.results.length - 1)
+						{
+							contactList += "<br />\r\n";
+						}
+					}
 				} else {
 					contactList = "No contacts found.";
 					//document.getElementById("contactSearchResult").innerHTML = "No contacts found.";
@@ -312,6 +317,7 @@ function listContacts()
 		document.getElementById("contactsList").innerHTML = err.message;
 	}
 }
+
 
 
 
