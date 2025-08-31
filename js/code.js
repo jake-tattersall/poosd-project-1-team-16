@@ -239,6 +239,54 @@ function listContacts()
 }
 */
 
+function listContacts()
+{
+	document.getElementById("contactsList").innerHTML = "";
+	//document.getElementById("contactListResults").innerHTML = "";
+
+	let contactList = "";
+	let tmp = {search: "*", userId: userId};
+	let jsonPayload = JSON.stringify(tmp);
+
+	let url = urlBase + '/SearchContacts.' + extension;
+
+	let xhr = new XMLHttpRequest();
+	xhr.open("POST", url, true);
+	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+	try
+	{
+		xhr.onreadystatechange = function()
+		{
+			if (this.readyState == 4 && this.status == 200)
+			{
+				document.getElementById("contactsList").innerHTML = "Contact(s) have been retrieved.";
+				let jsonObject = JSON.parse(xhr.responseText);
+				if (jsonObject.results && jsonObject.results.length > 0) {
+					document.getElementById("contactsList").innerHTML = "Contact(s) have been retrieved.";
+					for (let i = 0; i < jsonObject.results.length; i++)
+					{
+						let contact = jsonObject.results[i];
+						contactList += `Name: ${contact.firstName} ${contact.lastName}, Phone: ${contact.phone}, Email: ${contact.email}, Address: ${contact.address}`;
+						if (i < jsonObject.results.length - 1)
+						{
+							contactList += "<br />\r\n";
+						}
+					}
+				} else {
+					contactList = "No contacts found.";
+					//document.getElementById("contactSearchResult").innerHTML = "No contacts found.";
+				}
+				document.getElementsByTagName("p")[0].innerHTML = contactList;
+				document.getElementById("contactsList").innerHTML = contactList;
+			}
+		};
+		xhr.send(jsonPayload);
+	}
+	catch(err)
+	{
+		document.getElementById("contactsList").innerHTML = err.message;
+	}
+}
 
 
 
