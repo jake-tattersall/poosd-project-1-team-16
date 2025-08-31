@@ -1,3 +1,4 @@
+
 const urlBase = 'http://167.71.243.49/LAMPAPI';
 const extension = 'php';
 
@@ -196,7 +197,7 @@ function listContacts()
 	let tmp = {search: "*", userId: userId};
 	let jsonPayload = JSON.stringify(tmp);
 
-	let url = urlBase + '/ListContacts.' + extension;
+	let url = urlBase + '/SearchContacts.' + extension;
 
 	let xhr = new XMLHttpRequest();
 	xhr.open("POST", url, true);
