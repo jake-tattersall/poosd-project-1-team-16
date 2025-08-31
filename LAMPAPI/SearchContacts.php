@@ -14,7 +14,7 @@
     else
     {
         //searches for contacts that match the search string in either first or last name
-        $stmt = $conn->prepare("SELECT FirstName, LastName FROM Contacts WHERE (FirstName LIKE ? OR LastName LIKE ?) AND UserID = ?");
+        $stmt = $conn->prepare("SELECT FirstName, LastName, Phone, Email, Address FROM Contacts WHERE (FirstName LIKE ? OR LastName LIKE ?) AND UserID = ?");
         
         //search for any partcial matches
         $contactName = "%" . $inData["search"] . "%";
@@ -34,7 +34,7 @@
             $searchCount++;
             
             //returns the first and last names of the matching contacts
-            $searchResults .= '{"firstName": "' . $row["FirstName"] . '", "lastName": "' . $row["LastName"] . '"}';
+            $searchResults .= '{"firstName": "' . $row["FirstName"] . '", "lastName": "' . $row["LastName"] . '", "phone": "' . $row["Phone"] . '", "email": "' . $row["Email"] . '", "address": "' . $row["Address"] . '"}';
         }
         
         //if no records were found, return an error message
