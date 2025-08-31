@@ -165,11 +165,10 @@ function searchContacts()
 				let jsonObject = JSON.parse(xhr.responseText);
 				if (jsonObject.results && jsonObject.results.length > 0) {
 					document.getElementById("contactSearchResult").innerHTML = "Contact(s) have been retrieved.";
-					//let contact = JSON.parse(jsonObject.results[i]);
 					for (let i = 0; i < jsonObject.results.length; i++)
 					{
-						contactList += jsonObject.results[i];
-						//contactList += `Name: ${contact.FirstName} ${contact.LastName}, Phone: ${contact.Phone}, Email: ${contact.Email}, Address: ${contact.Address}`;
+						let contact = JSON.parse(jsonObject.results[i]);
+						contactList += `Name: ${contact.FirstName} ${contact.LastName}, Phone: ${contact.Phone}, Email: ${contact.Email}, Address: ${contact.Address}`;
 						if (i < jsonObject.results.length - 1)
 						{
 							contactList += "<br />\r\n";
@@ -239,5 +238,6 @@ function listContacts()
 	}
 }
 */
+
 
 
