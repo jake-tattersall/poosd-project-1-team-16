@@ -172,9 +172,9 @@ function searchContacts()
 					document.getElementById("contactSearchResult").innerHTML = "Contact(s) have been retrieved.";
 
 					var row = document.createElement("tr");
-					for (let i = 0; i < 5; i++) {
+					for (let i = 0; i < 7; i++) {
 						const cell = document.createElement("th");
-						const names = ['First Name', 'Last Name', 'Phone', 'Email', 'Address'];
+						const names = ['First Name', 'Last Name', 'Phone', 'Email', 'Address', 'Edit', 'Delete'];
 						const cellText = document.createTextNode(`${names[i]}`);
 						cell.appendChild(cellText);
 						row.appendChild(cell);
@@ -189,16 +189,22 @@ function searchContacts()
 							const cell = document.createElement("td");   
 							const fields = [contact.firstName,contact.lastName,contact.phone,contact.email,contact.address];
 							const cellText = document.createTextNode(`${fields[j]}`);            
-							cell.appendChild(cellText);            
-							row.appendChild(cell);        
+							cell.appendChild(cellText);
+							row.appendChild(cell); 
 						}
+						const button1 = document.createElement('button');
+						let cell1 = document.createElement("td");
+						button1.textContent = 'Edit';
+						// Buttons do not do anything yet
+						cell1.append(button1);
+						row.appendChild(cell1); 
+						const button2 = document.createElement('button');
+						let cell2 = document.createElement("td");
+						button2.textContent = 'Delete';
+						cell2.append(button2);
+						row.appendChild(cell2); 
 						tblBody.appendChild(row);
 						contactList += `Name: ${contact.firstName} ${contact.lastName}, Phone: ${contact.phone}, Email: ${contact.email}, Address: ${contact.address}`;
-						if (i < jsonObject.results.length - 1)
-						{
-							contactList += "<br />\r\n";
-						}
-					}
 				} else {
 					contactList = "No contacts found.";
 					//document.getElementById("contactSearchResult").innerHTML = "No contacts found.";
@@ -250,9 +256,9 @@ function listContacts()
 					document.getElementById("contactsList").innerHTML = "Contact(s) have been retrieved.";
 
 					var row = document.createElement("tr");
-					for (let i = 0; i < 5; i++) {
+					for (let i = 0; i < 7; i++) {
 						const cell = document.createElement("th");
-						const names = ['First Name', 'Last Name', 'Phone', 'Email', 'Address'];
+						const names = ['First Name', 'Last Name', 'Phone', 'Email', 'Address', 'Edit', 'Delete'];
 						const cellText = document.createTextNode(`${names[i]}`);
 						cell.appendChild(cellText);
 						row.appendChild(cell);
@@ -267,9 +273,20 @@ function listContacts()
 							const cell = document.createElement("td");   
 							const fields = [contact.firstName,contact.lastName,contact.phone,contact.email,contact.address];
 							const cellText = document.createTextNode(`${fields[j]}`);            
-							cell.appendChild(cellText);            
-							row.appendChild(cell);        
+							cell.appendChild(cellText);
+							row.appendChild(cell); 
 						}
+						const button1 = document.createElement('button');
+						let cell1 = document.createElement("td");
+						button1.textContent = 'Edit';
+						// Buttons do not do anything yet
+						cell1.append(button1);
+						row.appendChild(cell1); 
+						const button2 = document.createElement('button');
+						let cell2 = document.createElement("td");
+						button2.textContent = 'Delete';
+						cell2.append(button2);
+						row.appendChild(cell2); 
 						tblBody.appendChild(row);
 						contactList += `Name: ${contact.firstName} ${contact.lastName}, Phone: ${contact.phone}, Email: ${contact.email}, Address: ${contact.address}`;
 						if (i < jsonObject.results.length - 1)
@@ -295,6 +312,13 @@ function listContacts()
 		document.getElementById("contactsList").innerHTML = err.message;
 	}
 }
+
+
+
+
+
+
+
 
 
 
