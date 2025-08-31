@@ -1,3 +1,4 @@
+
 const urlBase = 'http://167.71.243.49/LAMPAPI';
 const extension = 'php';
 
@@ -143,7 +144,7 @@ function searchContacts()
 {
 	let srch = document.getElementById("searchText").value;
 	document.getElementById("contactSearchResult").innerHTML = "";
-	document.getElementById("contactListResults").innerHTML = "";
+	//document.getElementById("contactListResults").innerHTML = "";
 
 	let contactList = "";
 	let tmp = {search: srch, userId: userId};
@@ -160,22 +161,24 @@ function searchContacts()
 		{
 			if (this.readyState == 4 && this.status == 200)
 			{
+				document.getElementById("contactSearchResult").innerHTML = "Contact(s) have been retrieved.";
 				let jsonObject = JSON.parse(xhr.responseText);
 				if (jsonObject.results && jsonObject.results.length > 0) {
+					document.getElementById("contactSearchResult").innerHTML = "Contact(s) have been retrieved.";
 					for (let i = 0; i < jsonObject.results.length; i++)
 					{
-						let contact = JSON.parse(jsonObject.results[i]);
-						contactList += `Name: ${contact.FirstName} ${contact.LastName}, Phone: ${contact.Phone}, Email: ${contact.Email}, Address: ${contact.Address}`;
+						let contact = jsonObject.results[i];
+						contactList += `Name: ${contact.firstName} ${contact.lastName}, Phone: ${contact.phone}, Email: ${contact.email}, Address: ${contact.address}`;
 						if (i < jsonObject.results.length - 1)
 						{
 							contactList += "<br />\r\n";
 						}
 					}
-					document.getElementById("contactSearchResult").innerHTML = "Contact(s) have been retrieved.";
 				} else {
 					contactList = "No contacts found.";
-					document.getElementById("contactSearchResult").innerHTML = "No contacts found.";
+					//document.getElementById("contactSearchResult").innerHTML = "No contacts found.";
 				}
+				document.getElementsByTagName("p")[0].innerHTML = contactList;
 				document.getElementById("contactListResults").innerHTML = contactList;
 			}
 		};
@@ -189,14 +192,14 @@ function searchContacts()
 
 function listContacts()
 {
-	document.getElementById("contactsError").innerHTML = "";
-	document.getElementById("contactList").innerHTML = "";
+	document.getElementById("contactsList").innerHTML = "";
+	//document.getElementById("contactListResults").innerHTML = "";
 
 	let contactList = "";
-	let tmp = {search: "*", userId: userId};
+	let tmp = {search: "", userId: userId};
 	let jsonPayload = JSON.stringify(tmp);
 
-	let url = urlBase + '/ListContacts.' + extension;
+	let url = urlBase + '/SearchContacts.' + extension;
 
 	let xhr = new XMLHttpRequest();
 	xhr.open("POST", url, true);
@@ -207,30 +210,35 @@ function listContacts()
 		{
 			if (this.readyState == 4 && this.status == 200)
 			{
+				document.getElementById("contactsList").innerHTML = "Contact(s) have been retrieved.";
 				let jsonObject = JSON.parse(xhr.responseText);
 				if (jsonObject.results && jsonObject.results.length > 0) {
+					document.getElementById("contactsList").innerHTML = "Contact(s) have been retrieved.";
 					for (let i = 0; i < jsonObject.results.length; i++)
 					{
-						let contact = JSON.parse(jsonObject.results[i]);
-						contactList += `Name: ${contact.FirstName} ${contact.LastName}, Phone: ${contact.Phone}, Email: ${contact.Email}, Address: ${contact.Address}`;
+						let contact = jsonObject.results[i];
+						contactList += `Name: ${contact.firstName} ${contact.lastName}, Phone: ${contact.phone}, Email: ${contact.email}, Address: ${contact.address}`;
 						if (i < jsonObject.results.length - 1)
 						{
 							contactList += "<br />\r\n";
 						}
 					}
-					document.getElementById("contactsError").innerHTML = "Contact(s) have been retrieved.";
 				} else {
 					contactList = "No contacts found.";
-					document.getElementById("contactsError").innerHTML = "No contacts found.";
+					//document.getElementById("contactSearchResult").innerHTML = "No contacts found.";
 				}
-				document.getElementById("contactList").innerHTML = contactList;
+				document.getElementsByTagName("p")[1].innerHTML = contactList;
+				document.getElementById("contactsList").innerHTML = contactList;
 			}
 		};
 		xhr.send(jsonPayload);
 	}
 	catch(err)
 	{
-		document.getElementById("contactsError").innerHTML = err.message;
+		document.getElementById("contactsList").innerHTML = err.message;
 	}
 }
+
+
+
 
