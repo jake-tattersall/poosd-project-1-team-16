@@ -143,8 +143,9 @@ function addColor()
 function searchContacts()
 {
 	let srch = document.getElementById("searchText").value;
-	//document.getElementById("contactSearchResult").innerHTML = "";
-	//document.getElementById("contactListResults").innerHTML = "";
+	document.getElementById("contactSearchResult").innerHTML = "";
+	document.getElementById("contactListResults").innerHTML = "";
+	document.getElementById("table1").innerHTML="";
 
 	let contactList = "";
 	let tmp = {search: srch, userId: userId};
@@ -220,8 +221,9 @@ function searchContacts()
 function listContacts()
 {
 	//let srch = document.getElementById("searchText").value;
-	//document.getElementById("contactSearchResult").innerHTML = "";
+	document.getElementById("contactsList").innerHTML = "";
 	//document.getElementById("contactListResults").innerHTML = "";
+	document.getElementById("table2").innerHTML="";
 
 	let contactList = "";
 	let tmp = {search: "", userId: userId};
@@ -293,6 +295,7 @@ function listContacts()
 		document.getElementById("contactsList").innerHTML = err.message;
 	}
 }
+
 
 
 
