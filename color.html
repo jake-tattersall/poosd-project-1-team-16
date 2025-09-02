@@ -1,12 +1,22 @@
 <html>
 <head>
-	<title>COP 4331 LAMP Stack Demo</title>
-	<!-- Defer needed here for listContacts() to work -->
-	<script type="text/javascript" src="js/code.js" defer></script>
+	<title>Sea Contacts</title>
+	<script type="text/javascript" src="js/code.js"></script>
 	<script type="text/javascript" src="js/AddContact.js"></script>
 
     <link href="css/styles.css" rel="stylesheet">	
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+    <link rel="icon" href="data:,">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <script type="text/javascript">
+    // Simple fix for back button - remove fade-out class when page shows
+    window.addEventListener('pageshow', function() {
+        document.body.classList.remove('fade-out');
+    });
+    
+
+    </script>
 	
 	<script type="text/javascript">
 	document.addEventListener('DOMContentLoaded', function() 
@@ -15,47 +25,98 @@
 	}, false);
 	</script>
 	
-</head>
-<body>
 
-<h1 id="title">COP 4331 LAMP Stack Demo</h1>
+</head>
+<body class="scrollable colors-page">
+
+
+<div class="menu-button" onclick="toggleMenu()">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+<div class="menu-dropdown" id="menuDropdown">
+    <div class="theme-switch">
+        <span>Light/Dark Mode</span>
+        <input type="checkbox" id="themeToggle" aria-label="Toggle theme">
+        <label for="themeToggle"></label>
+    </div>
+</div>
+
+<div class="waves-container" aria-hidden="true">
+    <div class="waves">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+        <div class="wave wave3"></div>
+    </div>
+    <!-- Static top half remains background-color from body -->
+    
+</div>
+
+
+
+<div id="searchDropdownContainer">
+	<button type="button" id="searchToggleButton" class="buttons" onclick="toggleSearchDropdown();">
+		Contact Management
+	</button>
+	
+	<div id="searchDropdown" style="display: none;">
+		<!-- Search Contacts -->
+		<div class="dropdown-section">
+			<h3>Search Contacts</h3>
+			<input type="text" id="searchText" placeholder="Search Contacts (name, email, phone)"/>
+			<button type="button" id="searchContactButton" class="buttons" onclick="searchContacts();"> Search </button>
+			<span id="contactSearchResult"></span>
+			<p id="contactListResults"></p>
+		</div>
+
+		<!-- Add Contact -->
+		<div class="dropdown-section">
+			<h3>Add New Contact</h3>
+			<input type="text" id="firstName" placeholder="First Name" />
+			<input type="text" id="lastName" placeholder="Last Name" />
+			<input type="text" id="phone" placeholder="Phone" />
+			<input type="email" id="email" placeholder="Email" />
+			<input type="text" id="address" placeholder="Address" />
+			<button type="button" id="addContactButton" class="buttons" onclick="addContact();"> Add Contact </button>
+			<span id="contactAddResult"></span>
+		</div>
+
+		<!-- List Contacts -->
+		<div class="dropdown-section">
+			<h3>All Contacts</h3>
+			<button type="button" id="listContactsButton" class="buttons" onclick="listContacts();"> List My Contacts </button>
+			<span id="contactsError"></span>
+			<p id="contactsList"></p>
+		</div>
+	</div>
+</div>
 
 <div id="loggedInDiv">
-	<span id="userName"></span><br />
-	<button type="button" id="logoutButton" class="buttons" onclick="doLogout();"> Log Out </button>
+	<span id="userName"></span>
 </div>
 
-<div id="accessUIDiv">
-	<br />
-
-	<!-- Search Contacts -->
-	<input type="text" id="searchText" placeholder="Search Contacts (name, email, phone)"/>
-	<button type="button" id="searchContactButton" class="buttons" onclick="searchContacts();"> Search Contacts </button><br />
-	<span id="contactSearchResult"></span>
-	<p id="contactListResults">
-	<div id="table1"></div>
-	</p><br /><br />
-
-	<!-- Add Contact -->
-	<input type="text" id="firstName" placeholder="First Name" /><br />
-	<input type="text" id="lastName" placeholder="Last Name" /><br />
-	<input type="text" id="phone" placeholder="Phone" /><br />
-	<input type="email" id="email" placeholder="Email" /><br />
-	<input type="text" id="address" placeholder="Address" /><br />
-	<button type="button" id="addContactButton" class="buttons" onclick="addContact();"> Add Contact </button><br />
-	<span id="contactAddResult"></span>
-	<br /><br />
-
-	<!-- Current Contacts List (with error area) -->
-	<button type="button" id="listContactsButton" class="buttons" onclick="listContacts();"> List My Contacts </button><br />
-	<span id="contactsError"></span>
-	<p id="contactsList"></p>
-	<div id="table2"></div>
+<!-- Floating bubbles for underwater effect -->
+<div class="bubbles-container">
+    <div class="bubble bubble-1"></div>
+    <div class="bubble bubble-2"></div>
+    <div class="bubble bubble-3"></div>
+    <div class="bubble bubble-4"></div>
+    <div class="bubble bubble-5"></div>
+    <div class="bubble bubble-6"></div>
+    <div class="bubble bubble-7"></div>
+    <div class="bubble bubble-8"></div>
+    <div class="bubble bubble-9"></div>
+    <div class="bubble bubble-10"></div>
+    <div class="bubble bubble-11"></div>
+    <div class="bubble bubble-12"></div>
+    <div class="bubble bubble-13"></div>
+    <div class="bubble bubble-14"></div>
+    <div class="bubble bubble-15"></div>
 </div>
+
 
 </body>
 
 </html>
-
-
-

@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>COP 4331 Registration</title>
+	<title>Sea Contacts</title>
 	<script type="text/javascript" src="js/md5.js"></script>
 	<script type="text/javascript" src="js/code.js"></script>
 	<script type="text/javascript" src="js/register.js"></script>
@@ -8,13 +8,63 @@
 
     <link href="css/styles.css" rel="stylesheet">	
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+    <link rel="icon" href="data:,">
+    
+    <script type="text/javascript">
+    // Simple fix for back button - remove fade-out class when page shows
+    window.addEventListener('pageshow', function() {
+        document.body.classList.remove('fade-out');
+    });
+    
+
+    </script>
+	
+	<script type="text/javascript">
+	document.addEventListener('DOMContentLoaded', function() 
+	{
+		readCookie();
+		// Show register form
+		document.getElementById("registerDiv").style.display = "block";
+	}, false);
+	</script>
 </head>
 <body>
 
-<h1 id="title">Register</h1>
+<div class="menu-button" onclick="toggleMenu()">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+<div class="menu-dropdown" id="menuDropdown">
+    <div class="theme-switch">
+        <span>Light/Dark Mode</span>
+        <input type="checkbox" id="themeToggle" aria-label="Toggle theme">
+        <label for="themeToggle"></label>
+    </div>
+</div>
+
+<!-- Stars in the sky -->
+<div class="star"></div>
+<div class="star"></div>
+<div class="star"></div>
+<div class="star"></div>
+<div class="star"></div>
+<div class="star"></div>
+<div class="star"></div>
+<div class="star"></div>
+
+<div class="waves-container" aria-hidden="true">
+    <div class="waves">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+        <div class="wave wave3"></div>
+    </div>
+</div>
 
 <div id="registerDiv">
-	<span id="inner-title">CREATE AN ACCOUNT</span><br />
+	<h1 id="title">Sea Contacts</h1>
+	<span id="inner-title">CREATE AN ACCOUNT</span>
 	<input type="text" id="firstName" placeholder="First Name" /><br />
 	<input type="text" id="lastName" placeholder="Last Name" /><br />
 	<input type="text" id="loginName" placeholder="Username" /><br />
@@ -22,7 +72,7 @@
 	<button type="button" id="registerButton" class="buttons" onclick="doRegister();"> Register </button>
 	<br /><br />
 	<!-- Button to return to login -->
-	<button type="button" class="buttons" onclick="window.location.href='index.html';"> Back to Login </button>
+	<button type="button" class="buttons" onclick="smoothTransition('index.html');"> Back to Login </button>
 	<span id="registerResult"></span>
 </div>
 

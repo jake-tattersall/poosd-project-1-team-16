@@ -1,67 +1,678 @@
 body 
 {
-    background-color: #707070;
+    background-color: #0f172a;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0 0 80px 0; /* Add bottom padding for fixed logout button */
+    position: relative;
+    overflow: hidden; /* Prevent all scrolling by default */
+    transition: background-color 0.8s ease, color 0.8s ease;
+    opacity: 1;
+    animation: fadeIn 0.8s ease-out;
+}
+
+/* Ocean wipe overlay for transitions to colors page */
+.ocean-wipe{
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: 0;
+    background: linear-gradient(180deg, rgba(99,102,241,1) 0%, rgba(90,98,234,1) 50%, rgba(79,88,229,1) 100%);
+    z-index: 50;
+    pointer-events: none;
+    will-change: transform, height;
+    opacity: 0.95;
+}
+
+/* Wavy crest at the top of the wipe using the same wave path */
+.ocean-wipe::before{
+    content: "";
+    position: absolute;
+    left: 0; right: 0; top: -140px; /* lift crest slightly above */
+    height: 200px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 100 C 150 150 350 50 600 100 C 850 150 1050 50 1200 100 L1200 200 L0 200 Z" fill="%236366f1"/></svg>');
+    background-repeat: repeat-x;
+    background-position: top center;
+    background-size: 1200px 200px;
+    pointer-events: none;
+}
+
+/* Light-mode variant for wipe colors and crest */
+body.light .ocean-wipe{
+    background: linear-gradient(180deg, rgba(96,165,250,1) 0%, rgba(56,189,248,1) 50%, rgba(34,211,238,1) 100%);
+}
+body.light .ocean-wipe::before{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 100 C 150 150 350 50 600 100 C 850 150 1050 50 1200 100 L1200 200 L0 200 Z" fill="%2360a5fa"/></svg>');
+}
+
+body.scene-transition.to-colors .ocean-wipe{
+    animation: oceanWipeUp 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes oceanWipeUp{
+    from{ height: 0; opacity: 0.95; }
+    to{ height: 100vh; opacity: 0.7; }
+}
+
+/* Allow scrolling specifically on pages that opt in */
+body.scrollable{
+    overflow: auto;
+}
+
+/* Page transition animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+body.fade-out {
+    animation: fadeOut 0.5s ease-out forwards;
+}
+
+/* Moon icon for dark mode */
+body::before {
+    content: "";
+    position: fixed;
+    top: 8vh;
+    right: 8vw;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, transparent 40%, #e2e8f0 41%);
+    opacity: 1;
+    transition: none; /* disabled by default; enabled when theme-animated is present */
+    transform: translateY(0) rotate(0deg);
+    z-index: 3;
+}
+
+/* Sun icon for light mode - soft style */
+body::after {
+    content: "";
+    position: fixed;
+    top: 8vh;
+    left: 8vw;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #fde047;
+    box-shadow: 
+        /* Soft glowing rays */
+        0 -35px 20px -25px rgba(253, 224, 71, 0.6),
+        0 35px 20px -25px rgba(253, 224, 71, 0.6),
+        35px 0 20px -25px rgba(253, 224, 71, 0.6),
+        -35px 0 20px -25px rgba(253, 224, 71, 0.6),
+        25px -25px 20px -25px rgba(253, 224, 71, 0.6),
+        -25px 25px 20px -25px rgba(253, 224, 71, 0.6),
+        25px 25px 20px -25px rgba(253, 224, 71, 0.6),
+        -25px -25px 20px -25px rgba(253, 224, 71, 0.6),
+        /* Central glow */
+        0 0 50px rgba(253, 224, 71, 0.4),
+        0 0 80px rgba(234, 179, 8, 0.2);
+    opacity: 0;
+    transition: none; /* disabled by default; enabled when theme-animated is present */
+    transform: translateY(-50px) rotate(0deg);
+    z-index: 3;
+}
+
+/* Enable icon transitions only during explicit theme toggles */
+body.theme-animated::before,
+body.theme-animated::after{
+    transition: opacity 0.8s ease, transform 2s ease;
+}
+
+/* Stars in the sky for dark mode */
+.star {
+    position: fixed;
+    width: 3px;
+    height: 3px;
+    background: #e2e8f0;
+    border-radius: 50%;
+    z-index: 2;
+    opacity: 1;
+    animation: twinkle 3s ease-in-out infinite;
+    transition: opacity 0.8s ease;
+}
+
+.star:nth-child(1) {
+    top: 8vh;
+    left: 15vw;
+    animation-delay: 0s;
+}
+
+.star:nth-child(2) {
+    top: 12vh;
+    left: 25vw;
+    animation-delay: -1s;
+    width: 4px;
+    height: 4px;
+}
+
+.star:nth-child(3) {
+    top: 18vh;
+    left: 35vw;
+    animation-delay: -2s;
+}
+
+.star:nth-child(4) {
+    top: 10vh;
+    left: 45vw;
+    animation-delay: -0.5s;
+    width: 3.5px;
+    height: 3.5px;
+}
+
+.star:nth-child(5) {
+    top: 22vh;
+    left: 55vw;
+    animation-delay: -1.5s;
+}
+
+.star:nth-child(6) {
+    top: 14vh;
+    left: 65vw;
+    animation-delay: -2.5s;
+    width: 4px;
+    height: 4px;
+}
+
+.star:nth-child(7) {
+    top: 20vh;
+    left: 75vw;
+    animation-delay: -0.8s;
+}
+
+.star:nth-child(8) {
+    top: 16vh;
+    left: 85vw;
+    animation-delay: -1.8s;
+    width: 3.5px;
+    height: 3.5px;
+}
+
+@keyframes twinkle {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.3;
+        transform: scale(0.8);
+    }
+}
+
+/* Hide stars in light mode */
+body.light .star {
+    opacity: 0;
+}
+
+/* Contact Grid Styles */
+.contacts-grid {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.grid-header {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1.5fr 2fr;
+    gap: 1px;
+    background: rgba(255, 255, 255, 0.2);
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    letter-spacing: 0.5px;
+}
+
+.grid-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1.5fr 2fr;
+    gap: 1px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: background-color 0.3s ease;
+}
+
+.grid-row:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.grid-cell {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.header-cell {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-weight: 600;
+    text-align: center;
+}
+
+.name-cell {
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.phone-cell {
+    font-family: 'Courier New', monospace;
+    color: #a8a8ff;
+}
+
+.email-cell {
+    color: #8dd3c7;
+    font-style: italic;
+}
+
+.address-cell {
+    color: #ffc0cb;
+    font-size: 0.9em;
+}
+
+/* Light mode grid styles */
+body.light .contacts-grid {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+body.light .grid-header {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+body.light .grid-row {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+body.light .grid-row:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+body.light .grid-cell {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+body.light .header-cell {
+    background: rgba(0, 0, 0, 0.05);
+    color: #333333;
+}
+
+body.light .name-cell {
+    color: #333333;
+}
+
+body.light .phone-cell {
+    color: #4a5568;
+}
+
+body.light .email-cell {
+    color: #2d5a87;
+}
+
+body.light .address-cell {
+    color: #6b5b95;
+}
+
+/* Responsive grid */
+@media (max-width: 768px) {
+    .contacts-grid {
+        margin: 10px;
+        font-size: 0.9em;
+    }
+    
+    .grid-header,
+    .grid-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    
+    .grid-cell {
+        padding: 8px 12px;
+        text-align: left;
+    }
+    
+    .header-cell {
+        display: none;
+    }
+    
+    .grid-cell:before {
+        font-weight: bold;
+        margin-right: 8px;
+    }
+    
+    .name-cell:before {
+        content: "Name: ";
+    }
+    
+    .phone-cell:before {
+        content: "Phone: ";
+    }
+    
+    .email-cell:before {
+        content: "Email: ";
+    }
+    
+    .address-cell:before {
+        content: "Address: ";
+    }
 }
 
 #title 
 {
     font-size: 40px;
     width: 100%;
-    margin: 2% 5%;
+    margin: 0 auto 24px auto;
     text-align: center;
     font-family: 'Ubuntu', sans-serif;
-    color: #FFFFFF;
+    color: #e2e8f0;
+    display: block;
+}
+
+/* Hamburger menu button */
+.menu-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(148,163,184,0.35);
+    border-radius: 8px;
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 1 !important;
+    visibility: visible !important;
+    gap: 4px;
+    transition: background 0.8s ease;
+}
+
+.menu-button span {
+    width: 20px;
+    height: 2px;
+    background: #e2e8f0;
+    border-radius: 1px;
+    transition: background 0.8s ease;
+}
+
+/* Menu dropdown */
+.menu-dropdown {
+    position: fixed;
+    top: 70px;
+    left: 20px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(148,163,184,0.35);
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    padding: 15px;
+    z-index: 26;
+    display: none;
+    min-width: 200px;
+    transition: background 0.8s ease;
+}
+
+/* Simple button styling inside menu */
+.menu-dropdown .menu-item{
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(148,163,184,0.25);
+    background: linear-gradient(135deg, #f43f5e 0%, #dc2626 100%);
+    color: #ffffff;
+    font-family: 'Ubuntu', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+body.light .menu-dropdown .menu-item{
+    border: 1px solid rgba(2,6,23,0.08);
+}
+
+.menu-dropdown.show {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+}
+
+/* Theme switch inside menu */
+.theme-switch{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #e2e8f0;
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 14px;
+}
+.theme-switch input{
+    position: absolute;
+    opacity: 0;
+}
+.theme-switch label{
+    width: 56px;
+    height: 30px;
+    display: inline-block;
+    background: rgba(15,23,42,0.6);
+    border: 1px solid rgba(148,163,184,0.35);
+    border-radius: 9999px;
+    position: relative;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+}
+.theme-switch label:after{
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    background: #e2e8f0;
+    border-radius: 9999px;
+    transition: transform 200ms ease;
+}
+.theme-switch input:checked + label{
+    background: rgba(255,255,255,0.7);
+}
+.theme-switch input:checked + label:after{
+    transform: translateX(26px);
 }
 
 #loginDiv
 {
     font-size: 30px;
-    width: 70%;
-    margin-left: 15%;
-    padding: 25px;
-    background-color: #b2b2b2;
+    width: 360px;
+    max-width: 92vw;
+    padding: 32px;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.6);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+    backdrop-filter: blur(8px);
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 25; /* Above waves */
+    pointer-events: auto; /* Ensure this only affects its own content */
+    transition: background 0.8s ease, box-shadow 0.8s ease, color 0.8s ease;
 }
 
-#loggedInDiv
+#registerDiv
 {
     font-size: 30px;
-    width: 70%;
-    margin-left: 15%;
-    padding: 25px;
-    background-color: #b2b2b2;
+    width: 360px;
+    max-width: 92vw;
+    padding: 32px;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.6);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+    backdrop-filter: blur(8px);
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 25; /* Above waves */
+    pointer-events: auto; /* Ensure this only affects its own content */
+    transition: background 0.8s ease, box-shadow 0.8s ease, color 0.8s ease;
+    display: none; /* Hide register form by default */
 }
 
-#accessUIDiv
+#userInfoDiv
 {
-    font-size: 30px;
-    width: 70%;
-    margin-left: 15%;
+    font-size: 18px;
+    width: 90%;
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 15px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(8px);
+    text-align: center;
+    color: #e2e8f0;
+    font-family: 'Ubuntu', sans-serif;
+    position: relative;
+    z-index: 20; /* Above waves */
+}
+
+#searchDropdownContainer
+{
+    width: 90%;
+    max-width: 600px;
+    margin: 20px auto;
+    position: relative;
+    z-index: 20; /* Above waves */
+    text-align: center;
+}
+
+#searchToggleButton
+{
+    width: 100%;
+    font-size: 20px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+#searchDropdown
+{
+    background: rgba(15, 23, 42, 0.9);
+    border-radius: 16px;
     padding: 25px;
-    background-color: #b2b2b2;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+    backdrop-filter: blur(8px);
+    color: #e2e8f0;
+    font-family: 'Ubuntu', sans-serif;
+    animation: slideDown 0.3s ease-out;
+    text-align: center;
+    transition: background 0.8s ease, box-shadow 0.8s ease, color 0.8s ease;
+}
+
+.dropdown-section
+{
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(148,163,184,0.25);
+}
+
+.dropdown-section:last-child
+{
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.dropdown-section h3
+{
+    color: #a5b4fc;
+    font-size: 16px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    text-align: center;
+}
+
+#logoutContainer
+{
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 25; /* Above everything including waves */
+}
+
+#logoutContainer #logoutButton
+{
+    background: linear-gradient(135deg, #f43f5e 0%, #dc2626 100%);
+    padding: 12px 30px;
+    font-size: 16px;
+}
+
+#logoutContainer #logoutButton:hover
+{
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .buttons
 {
-    font-size: 30px;
-    border-radius: 25px;
-    width: 50%;
-    margin-left: 25%;
+    font-size: 18px;
+    border-radius: 12px;
+    width: 100%;
+    margin: 12px 0 0 0;
+    padding: 12px 16px;
+    border: 1px solid rgba(148,163,184,0.25);
+    background: linear-gradient(135deg, #6366f1 0%, #22c55e 100%);
+    color: #0b1220;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
     font-family: 'Ubuntu', sans-serif;
 }
 
 .buttons:hover{
-    background-color: #00d5124f;
-    color: #FFFFFF;
-    opacity: 50%;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(99,102,241,0.35);
+    opacity: 0.95;
 }
 
 #loginName
 {
-	font-size: 30px;
+	font-size: 18px;
 }
 #loginPassword
 {
-	font-size: 30px;
+	font-size: 18px;
 }
 #searchText
 {
@@ -73,52 +684,573 @@ body
 }
 
 input[type="text"],input[type="password"],input[type="email"]{
-    border-radius: 25px;
-    text-align: center;
-    width: 80%;
-    margin-left: 10%;
-    margin-bottom: 2%;
+    border-radius: 12px;
+    text-align: left;
+    width: 100%;
+    margin: 10px 0 0 0;
+    padding: 12px 14px;
+    border: 1px solid rgba(148,163,184,0.35);
+    outline: none;
+    background: rgba(2,6,23,0.6);
+    color: #e2e8f0;
     font-family: 'Ubuntu', sans-serif;
+    font-size: 18px; /* Normalize input font size across pages */
+    box-sizing: border-box;
 }
 
 #inner-title{
-    display: inline-block;
-    font-size: 0.8em;
-    width: 90%;
+    display: block;
+    font-size: 0.9em;
+    width: 100%;
     text-align: center;
-    margin-left: 5%;
-    margin-bottom: 2%;
+    margin: 0 0 10px 0;
     font-family: 'Ubuntu', sans-serif;
-    color: #95060a;
+    color: #a5b4fc;
+    letter-spacing: 1px;
 }
 
 #loginResult{
-    display: inline-block;
+    display: block;
     font-size: 0.8em;
-    width: 90%;
+    width: 100%;
     text-align: center;
-    margin-left: 5%;
-    margin-bottom: 2%;
+    margin: 12px 0 0 0;
     font-family: 'Ubuntu', sans-serif;
-    color: #95060a;
+    color: #f43f5e;
+}
+
+/* Waves background: bottom half animated, top half static */
+.waves-container{
+    position: absolute;
+    inset: 0 0 0 0; /* full-viewport by default */
+    z-index: 15; /* Higher than ball for visual layering */
+    overflow: hidden;
+    pointer-events: none; /* Allow clicks to pass through to ball */
+    will-change: transform;
+}
+
+/* Extend bottom water area without changing crest size */
+.waves-container::after{
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 50vh; /* extend bottom "water" depth */
+    background: linear-gradient(180deg, rgba(79,88,229,0) 0%, rgba(79,88,229,0.85) 50%, rgba(79,88,229,1) 100%);
+    z-index: -1; /* behind wave layers */
+    pointer-events: none;
+}
+
+body.light .waves-container::after{
+    background: linear-gradient(180deg, rgba(34,211,238,0) 0%, rgba(34,211,238,0.85) 50%, rgba(34,211,238,1) 100%);
+}
+
+/* On index/register (non-colors) constrain waves to bottom half to avoid UI overlap */
+/* Revert: keep waves full viewport on all pages */
+body:not(.no-sky) .waves-container{ inset: 0 0 0 0; }
+
+.waves{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+}
+
+/* Using three layers to create parallax-like wave movement */
+.wave{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 60%;
+    background-repeat: repeat-x;
+    opacity: 0.9;
+    will-change: background-position;
+    pointer-events: none; /* Allow mouse events to pass through to ball */
+}
+
+.wave.wave1{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 100 C 150 150 350 50 600 100 C 850 150 1050 50 1200 100 L1200 200 L0 200 Z" fill="%234f58e5"/></svg>');
+    animation: waveMove1 12s ease-in-out infinite alternate;
+    opacity: 0.7;
+    z-index: 0; /* farthest back */
+}
+
+.wave.wave2{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 120 C 200 80 400 160 600 120 C 800 80 1000 160 1200 120 L1200 200 L0 200 Z" fill="%235a62ea"/></svg>');
+    animation: waveMove2 18s ease-in-out infinite alternate;
+    opacity: 0.6;
+    z-index: 1; /* behind ball */
+}
+
+.wave.wave3{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 140 C 250 190 450 110 600 140 C 750 170 1000 110 1200 140 L1200 200 L0 200 Z" fill="%236366f1"/></svg>');
+    animation: waveMove3 28s ease-in-out infinite alternate;
+    opacity: 0.55;
+    z-index: 3; /* top wave */
+}
+
+@keyframes waveMove1{
+    from{ background-position-x: 0; }
+    to{ background-position-x: 1200px; }
+}
+@keyframes waveMove2{
+    from{ background-position-x: 0; }
+    to{ background-position-x: -1200px; }
+}
+@keyframes waveMove3{
+    from{ background-position-x: 0; }
+    to{ background-position-x: 2400px; }
+}
+
+/* Scene transition for going to colors: waves rise, icons fade */
+body.scene-transition.to-colors .waves-container{
+    animation: wavesRise 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes wavesRise{
+    from{ transform: translateY(100vh) scale(1.2); }
+    to{ transform: translateY(-20vh) scale(1.2); }
+}
+
+body.scene-transition.to-colors::before,
+body.scene-transition.to-colors::after{
+    animation: iconFadeOut 0.9s ease-in-out forwards !important;
+}
+
+@keyframes iconFadeOut{
+    from{ opacity: 1; }
+    to{ opacity: 0; }
+}
+
+/* Hide/fade waves during the transition so only the wipe is visible */
+body.scene-transition.to-colors .waves .wave{
+    opacity: 0;
+    animation: none !important;
+    transition: opacity 0.2s ease;
+}
+
+/* Colors page overrides: hide individual waves but keep container for overlay */
+body.colors-page .waves .wave{ display: none; }
+body.colors-page .waves{ display: none; }
+/* Remove ocean wipe on colors page */
+body.colors-page .ocean-wipe{ display: none; }
+body.colors-page::before{ display: none !important; }
+body.colors-page .star{ display: none !important; }
+
+/* Hide sun/moon icons on colors page since we can't use ::after for overlay */
+body.colors-page::after {
+    display: none !important;
+}
+
+/* Create water overlay using the waves-container since waves are hidden */
+body.colors-page .waves-container {
+    display: block !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(99,102,241,0.7) 0%, rgba(90,98,234,0.75) 50%, rgba(79,88,229,0.8) 100%);
+    z-index: 10;
+    pointer-events: none;
+    transform: none;
+}
+
+body.light.colors-page .waves-container {
+    background: linear-gradient(180deg, rgba(96,165,250,0.7) 0%, rgba(56,189,248,0.75) 50%, rgba(34,211,238,0.8) 100%);
+}
+
+/* Underwater bubble effects for colors page */
+.bubbles-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5; /* Above waves but below UI elements */
+    display: none;
+}
+
+body.colors-page .bubbles-container {
+    display: block;
+}
+
+.bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(173, 216, 230, 0.4));
+    box-shadow: 
+        inset 0 0 5px rgba(255, 255, 255, 0.5),
+        0 0 8px rgba(173, 216, 230, 0.3);
+    opacity: 0.7;
+}
+
+/* Individual bubble styles with varying sizes and positions */
+.bubble-1 {
+    width: 8px;
+    height: 8px;
+    left: 10%;
+    bottom: 20vh;
+    animation: bubbleFloat1 8s infinite ease-in-out;
+    animation-delay: 0s;
+}
+
+.bubble-2 {
+    width: 12px;
+    height: 12px;
+    left: 20%;
+    bottom: 45vh;
+    animation: bubbleFloat2 10s infinite ease-in-out;
+    animation-delay: 1s;
+}
+
+.bubble-3 {
+    width: 6px;
+    height: 6px;
+    left: 35%;
+    bottom: 65vh;
+    animation: bubbleFloat3 7s infinite ease-in-out;
+    animation-delay: 2s;
+}
+
+.bubble-4 {
+    width: 15px;
+    height: 15px;
+    left: 45%;
+    bottom: 10vh;
+    animation: bubbleFloat1 12s infinite ease-in-out;
+    animation-delay: 0.5s;
+}
+
+.bubble-5 {
+    width: 9px;
+    height: 9px;
+    left: 60%;
+    bottom: 80vh;
+    animation: bubbleFloat2 9s infinite ease-in-out;
+    animation-delay: 3s;
+}
+
+.bubble-6 {
+    width: 7px;
+    height: 7px;
+    left: 75%;
+    bottom: 35vh;
+    animation: bubbleFloat3 6s infinite ease-in-out;
+    animation-delay: 1.5s;
+}
+
+.bubble-7 {
+    width: 11px;
+    height: 11px;
+    left: 85%;
+    bottom: 55vh;
+    animation: bubbleFloat1 11s infinite ease-in-out;
+    animation-delay: 4s;
+}
+
+.bubble-8 {
+    width: 5px;
+    height: 5px;
+    left: 15%;
+    bottom: 75vh;
+    animation: bubbleFloat2 8s infinite ease-in-out;
+    animation-delay: 2.5s;
+}
+
+.bubble-9 {
+    width: 13px;
+    height: 13px;
+    left: 30%;
+    bottom: 25vh;
+    animation: bubbleFloat3 13s infinite ease-in-out;
+    animation-delay: 0.8s;
+}
+
+.bubble-10 {
+    width: 8px;
+    height: 8px;
+    left: 50%;
+    bottom: 90vh;
+    animation: bubbleFloat1 7s infinite ease-in-out;
+    animation-delay: 3.5s;
+}
+
+.bubble-11 {
+    width: 10px;
+    height: 10px;
+    left: 65%;
+    bottom: 15vh;
+    animation: bubbleFloat2 10s infinite ease-in-out;
+    animation-delay: 1.8s;
+}
+
+.bubble-12 {
+    width: 6px;
+    height: 6px;
+    left: 80%;
+    bottom: 70vh;
+    animation: bubbleFloat3 9s infinite ease-in-out;
+    animation-delay: 4.2s;
+}
+
+.bubble-13 {
+    width: 14px;
+    height: 14px;
+    left: 25%;
+    bottom: 50vh;
+    animation: bubbleFloat1 14s infinite ease-in-out;
+    animation-delay: 0.3s;
+}
+
+.bubble-14 {
+    width: 7px;
+    height: 7px;
+    left: 70%;
+    bottom: 85vh;
+    animation: bubbleFloat2 8s infinite ease-in-out;
+    animation-delay: 2.8s;
+}
+
+.bubble-15 {
+    width: 9px;
+    height: 9px;
+    left: 40%;
+    bottom: 40vh;
+    animation: bubbleFloat3 11s infinite ease-in-out;
+    animation-delay: 1.2s;
+}
+
+/* Bubble floating animations with slight horizontal drift */
+@keyframes bubbleFloat1 {
+    0% {
+        bottom: -20px;
+        transform: translateX(0px);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.7;
+    }
+    90% {
+        opacity: 0.7;
+    }
+    100% {
+        bottom: 110vh;
+        transform: translateX(15px);
+        opacity: 0;
+    }
+}
+
+@keyframes bubbleFloat2 {
+    0% {
+        bottom: -20px;
+        transform: translateX(0px);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.7;
+    }
+    90% {
+        opacity: 0.7;
+    }
+    100% {
+        bottom: 110vh;
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+}
+
+@keyframes bubbleFloat3 {
+    0% {
+        bottom: -20px;
+        transform: translateX(0px);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.7;
+    }
+    50% {
+        transform: translateX(10px);
+    }
+    90% {
+        opacity: 0.7;
+    }
+    100% {
+        bottom: 110vh;
+        transform: translateX(-5px);
+        opacity: 0;
+    }
+}
+
+/* Hide bubbles on non-colors pages */
+body:not(.colors-page) .bubbles-container {
+    display: none;
+}
+
+/* Enhanced bubble visibility for light mode */
+body.light .bubble {
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(70, 130, 180, 0.6));
+    box-shadow: 
+        inset 0 0 8px rgba(255, 255, 255, 0.8),
+        0 0 12px rgba(70, 130, 180, 0.5),
+        0 0 20px rgba(30, 144, 255, 0.3);
+    opacity: 0.85;
+    border: 1px solid rgba(70, 130, 180, 0.4);
+}
+
+/* Move ball up slightly during scene transition to keep it above rising water */
+body.scene-transition.to-colors #ball{
+    z-index: 60;
+    animation: ballRise 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes ballRise{
+    from{ transform: translateY(0); }
+    to{ transform: translateY(-120vh); }
+}
+
+/* Light theme overrides (beach palette) */
+body.light{
+    background-color: #f8ec89; /* light sky */
+    color: #0f172a;
+}
+
+/* Remove special colors page background; use base page background */
+body.no-sky{ background: inherit; color: inherit; }
+
+/* Light mode icon animations */
+body.light::before {
+    /* Moon fades out and falls down in light mode */
+    opacity: 0;
+    transform: translateY(80vh) rotate(-180deg);
+}
+
+body.light::after {
+    /* Sun fades in and falls into position in light mode */
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+}
+
+/* Remove persistent ocean fill (not used) */
+body.colors-page .ocean-fill{ display: none; }
+body.colors-page.light .ocean-fill{ display: none; }
+body.colors-page.light .ocean-cap{ background-image: none; }
+body.colors-page .ocean-cap{ display: none; }
+
+/* Ensure the area below the waves is filled like index (body background shows) */
+
+/* Dark mode icon animations (when switching back) */
+body:not(.light)::after {
+    /* Sun falls down when switching to dark mode */
+    opacity: 0;
+    transform: translateY(80vh) rotate(-180deg);
+}
+
+body.light #title{
+    color: #0f172a;
+}
+
+body.light #loginDiv, body.light #registerDiv{
+    background: rgba(255,255,255,0.85);
+    box-shadow: 0 10px 30px rgba(2,6,23,0.15), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+body.light .buttons{
+    border: 1px solid rgba(2,6,23,0.08);
+    background: linear-gradient(135deg, #38bdf8 0%, #22c55e 100%);
+    color: #052e47;
+}
+
+body.light input[type="text"], body.light input[type="password"], body.light input[type="email"]{
+    background: rgba(255,255,255,0.95);
+    color: #0f172a;
+    border: 1px solid rgba(2,6,23,0.15);
+}
+
+/* Lighter wave colors for beach feel */
+body.light .wave.wave1{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 100 C 150 150 350 50 600 100 C 850 150 1050 50 1200 100 L1200 200 L0 200 Z" fill="%2322d3ee"/></svg>');
+}
+body.light .wave.wave2{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 120 C 200 80 400 160 600 120 C 800 80 1000 160 1200 120 L1200 200 L0 200 Z" fill="%2338bdf8"/></svg>');
+}
+body.light .wave.wave3{
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 140 C 250 190 450 110 600 140 C 750 170 1000 110 1200 140 L1200 200 L0 200 Z" fill="%2360a5fa"/></svg>');
+}
+
+/* Light mode toggle button colors */
+/* Light mode switch colors */
+body.light .theme-switch label{
+    background: rgba(255,255,255,0.85);
+    border: 1px solid rgba(2,6,23,0.15);
+}
+body.light .theme-switch label:after{
+    background: #0f172a;
+}
+
+/* Light theme styles for menu */
+body.light .menu-button {
+    background: rgba(255,255,255,0.85);
+    border: 1px solid rgba(2,6,23,0.15);
+}
+
+body.light .menu-button span {
+    background: #0f172a;
+}
+
+body.light .menu-dropdown {
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(2,6,23,0.15);
+    color: #0f172a;
+}
+
+body.light .theme-switch {
+    color: #0f172a;
+}
+
+/* Light theme styles for contact management dropdown */
+body.light #userInfoDiv{
+    background: rgba(255,255,255,0.85);
+    box-shadow: 0 10px 30px rgba(2,6,23,0.15), inset 0 1px 0 rgba(255,255,255,0.6);
+    color: #0f172a;
+}
+
+body.light #searchDropdown{
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 10px 30px rgba(2,6,23,0.15), inset 0 1px 0 rgba(255,255,255,0.6);
+    color: #0f172a;
+}
+
+body.light .dropdown-section{
+    border-bottom: 1px solid rgba(2,6,23,0.15);
+}
+
+body.light .dropdown-section h3{
+    color: #4f46e5;
 }
 
 #userName{
-    display: inline-block;
-    width: 80%;
-    margin-left: 10%;
+    display: block;
+    width: 100%;
+    margin: 0 auto;
     text-align: center;
+    color: #e2e8f0;
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 14px;
 }
 
 #logoutButton{
-    width: 20%;
-    margin-left: 40%;
+    width: auto;
+    margin: 0 auto;
 }
 
 select{
     width: 30%;
-    margin-left: 35%;
-    margin-top: 2%;
+    margin: 2% auto 0 auto;
     font-size: 0.75em;
     font-family: 'Ubuntu', sans-serif;
 }
@@ -128,14 +1260,38 @@ select{
 }
 
 #colorAddResult{
-    display: inline-block;
+    display: block;
     font-size: 0.8em;
     width: 90%;
     text-align: center;
-    margin-left: 5%;
-    margin-top: 2%;
-    margin-bottom: 1%;
+    margin: 2% auto 1% auto;
     font-family: 'Ubuntu', sans-serif;
     color: #95060a;
+}
 
+#ball {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    position: absolute;
+    left: 200px;
+    top: 200px;
+    cursor: grab;
+    user-select: none;
+    z-index: 0; /* Above back wave (0) but behind front waves (3,1) */
+    background: conic-gradient(
+        from 0deg,
+        #ff4757 0deg 60deg,
+        #ffffff 60deg 120deg,
+        #2ed573 120deg 180deg,
+        #ffffff 180deg 240deg,
+        #ffa502 240deg 300deg,
+        #ffffff 300deg 360deg,
+        #ff4757 360deg
+    );
+    background-size: 100% 100%;
+    background-position: center;
+    /* Flat design - no 3D shadows */
+    border: 2px solid rgba(255,255,255,0.2);
+    pointer-events: auto; /* Ensure ball can be grabbed even behind waves */
 }

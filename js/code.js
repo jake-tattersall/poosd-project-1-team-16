@@ -1,10 +1,41 @@
-
 const urlBase = 'http://167.71.243.49/LAMPAPI';
 const extension = 'php';
 
 let userId = 0;
 let firstName = "";
 let lastName = "";
+let theme = localStorage.getItem('theme') || 'light'; // Default to light mode
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Apply saved theme on load
+    if (theme === 'light') {
+        document.body.classList.add('light');
+    } else {
+        document.body.classList.remove('light');
+    }
+    // Ensure initial page load does not animate sun/moon
+    document.body.classList.remove('theme-animated');
+    // Wire checkbox switch if present
+    var toggle = document.getElementById('themeToggle');
+    if (toggle) {
+        toggle.checked = (theme === 'light');
+        toggle.addEventListener('change', function(e) {
+            // Temporarily enable animations during user-initiated toggle
+            document.body.classList.add('theme-animated');
+            if (e.target.checked) {
+                document.body.classList.add('light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.body.classList.remove('light');
+                localStorage.setItem('theme', 'dark');
+            }
+            // Remove the animation flag after the transition window
+            setTimeout(function(){
+                document.body.classList.remove('theme-animated');
+            }, 2200);
+        });
+    }
+});
 
 function doLogin()
 {
@@ -47,7 +78,8 @@ function doLogin()
 
 				saveCookie();
 	
-				window.location.href = "color.html";
+				// Smooth transition to color.html
+				smoothTransition("color.html");
 			}
 		};
 		xhr.send(jsonPayload);
@@ -90,14 +122,70 @@ function readCookie()
 		}
 	}
 	
+	var path = (typeof window !== 'undefined') ? window.location.pathname : '';
 	if( userId < 0 )
 	{
-		window.location.href = "index.html";
+		// Allow access to register page when not logged in
+		if (path.includes('register.html')) {
+			return;
+		}
+		// Redirect unauthenticated users away from protected pages
+		if (path.includes('color.html')) {
+			smoothTransition("index.html");
+			return;
+		}
 	}
 	else
 	{
-//		document.getElementById("userName").innerHTML = "Logged in as " + firstName + " " + lastName;
+		if (document.getElementById("userName")) {
+			document.getElementById("userName").innerHTML = "Logged in as " + firstName + " " + lastName;
+		}
+		// On colors page, move Logout into the hamburger menu
+		if (path.includes('color.html')) {
+			var menu = document.getElementById('menuDropdown');
+			if (menu && !document.getElementById('logoutMenuButton')) {
+				var btn = document.createElement('button');
+				btn.id = 'logoutMenuButton';
+				btn.type = 'button';
+				btn.className = 'menu-item';
+				btn.textContent = 'Log Out';
+				btn.addEventListener('click', function(){ doLogout(); });
+				menu.appendChild(btn);
+			}
+			var logoutContainer = document.getElementById('logoutContainer');
+			if (logoutContainer && logoutContainer.parentNode) {
+				logoutContainer.parentNode.removeChild(logoutContainer);
+			}
+		}
 	}
+}
+
+function smoothTransition(url) {
+    // Persist ball position if present before navigating
+    try {
+        var ballEl = document.getElementById('ball');
+        if (ballEl) {
+            var left = parseInt(ballEl.style.left || '0', 10);
+            var top = parseInt(ballEl.style.top || '0', 10);
+            if (!isNaN(left) && !isNaN(top)) {
+                localStorage.setItem('ballX', String(left));
+                localStorage.setItem('ballY', String(top));
+            }
+        }
+    } catch(e) {}
+
+    // Special scene transition for moving to color.html
+    if (url.indexOf('color.html') !== -1) {
+        document.body.classList.add('scene-transition', 'to-colors');
+        setTimeout(() => {
+            window.location.href = url;
+        }, 950);
+        return;
+    }
+    document.body.classList.add('fade-out');
+    setTimeout(() => {
+        window.location.href = url;
+    }, 500);
 }
 
 function doLogout()
@@ -106,7 +194,7 @@ function doLogout()
 	firstName = "";
 	lastName = "";
 	document.cookie = "firstName= ; expires = Thu, 01 Jan 1970 00:00:00 GMT";
-	window.location.href = "index.html";
+	smoothTransition("index.html");
 }
 
 function addColor()
@@ -114,7 +202,7 @@ function addColor()
 	let newColor = document.getElementById("colorText").value;
 	document.getElementById("colorAddResult").innerHTML = "";
 
-	let tmp = {color:newColor,userId,userId};
+	let tmp = {color:newColor, userId:userId};
 	let jsonPayload = JSON.stringify( tmp );
 
 	let url = urlBase + '/AddColor.' + extension;
@@ -145,7 +233,6 @@ function searchContacts()
 	let srch = document.getElementById("searchText").value;
 	document.getElementById("contactSearchResult").innerHTML = "";
 	document.getElementById("contactListResults").innerHTML = "";
-	document.getElementById("table1").innerHTML="";
 
 	let contactList = "";
 	let tmp = {search: srch, userId: userId};
@@ -160,65 +247,51 @@ function searchContacts()
 	{
 		xhr.onreadystatechange = function()
 		{
-			if (this.readyState == 4 && this.status == 200)
-			{
-				//document.getElementById("contactSearchResult").innerHTML = "Contact(s) have been retrieved.";
+						if (this.readyState == 4 && this.status == 200) {
 				let jsonObject = JSON.parse(xhr.responseText);
-				const container = document.getElementById("table1");
-				const table = document.createElement("table");
-				const tblBody = document.createElement("tbody");
-				
-				if (jsonObject.results && jsonObject.results.length > 0) {
-					document.getElementById("contactSearchResult").innerHTML = "Contact(s) have been retrieved.";
-
-					var row = document.createElement("tr");
-					for (let i = 0; i < 7; i++) {
-						const cell = document.createElement("th");
-						const names = ['First Name', 'Last Name', 'Phone', 'Email', 'Address', 'Edit', 'Delete'];
-						const cellText = document.createTextNode(`${names[i]}`);
-						cell.appendChild(cellText);
-						row.appendChild(cell);
-					}
-					tblBody.appendChild(row);
 					
+					// Check if there's an error (no results found)
+					if (jsonObject.error && jsonObject.error !== "") {
+					document.getElementById("contactSearchResult").innerHTML = jsonObject.error;
+					document.getElementById("contactListResults").innerHTML = "";
+				}
+				// Check if we have results
+				else if (jsonObject.results && jsonObject.results.length > 0) {
+					// Create grid header
+					contactList = `
+						<div class="contacts-grid">
+							<div class="grid-header">
+								<div class="grid-cell header-cell">Name</div>
+								<div class="grid-cell header-cell">Phone</div>
+								<div class="grid-cell header-cell">Email</div>
+								<div class="grid-cell header-cell">Address</div>
+							</div>
+					`;
+					
+					// Add each contact as a grid row
 					for (let i = 0; i < jsonObject.results.length; i++)
 					{
-						let contact = jsonObject.results[i];
-						const row = document.createElement("tr");
-						for (let j = 0; j < 5; j++) {           
-							const cell = document.createElement("td");   
-							const fields = [contact.firstName,contact.lastName,contact.phone,contact.email,contact.address];
-							const cellText = document.createTextNode(`${fields[j]}`);            
-							cell.appendChild(cellText);
-							row.appendChild(cell); 
-						}
-						const button1 = document.createElement('button');
-						let cell1 = document.createElement("td");
-						button1.textContent = 'Edit';
-						// Buttons do not do anything yet
-						cell1.append(button1);
-						row.appendChild(cell1); 
-						const button2 = document.createElement('button');
-						let cell2 = document.createElement("td");
-						button2.textContent = 'Delete';
-						cell2.append(button2);
-						row.appendChild(cell2); 
-						tblBody.appendChild(row);
-						contactList += `Name: ${contact.firstName} ${contact.lastName}, Phone: ${contact.phone}, Email: ${contact.email}, Address: ${contact.address}`;
-						if (i < jsonObject.results.length - 1)
-						{
-							contactList += "<br />\r\n";
-						}
+						let contact = jsonObject.results[i]; // Already parsed, no need for JSON.parse
+						contactList += `
+							<div class="grid-row">
+								<div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
+								<div class="grid-cell phone-cell">${contact.phone}</div>
+								<div class="grid-cell email-cell">${contact.email}</div>
+								<div class="grid-cell address-cell">${contact.address}</div>
+							</div>
+						`;
 					}
-				} else {
-					contactList = "No contacts found.";
-					//document.getElementById("contactSearchResult").innerHTML = "No contacts found.";
+					
+					contactList += `</div>`; // Close contacts-grid
+					
+					document.getElementById("contactSearchResult").innerHTML = `Found ${jsonObject.results.length} contact(s)`;
+					document.getElementById("contactListResults").innerHTML = contactList;
 				}
-				//document.getElementsByTagName("p")[0].innerHTML = contactList;
-				//document.getElementById("contactListResults").innerHTML = contactList;
-				table.appendChild(tblBody);   
-				container.appendChild(table);
-				table.setAttribute("border", "1");
+				// Fallback case
+				else {
+					document.getElementById("contactSearchResult").innerHTML = "No contacts found.";
+					document.getElementById("contactListResults").innerHTML = "";
+				}
 			}
 		};
 		xhr.send(jsonPayload);
@@ -229,15 +302,14 @@ function searchContacts()
 	}
 }
 
+
 function listContacts()
 {
-	//let srch = document.getElementById("searchText").value;
+	document.getElementById("contactsError").innerHTML = "";
 	document.getElementById("contactsList").innerHTML = "";
-	//document.getElementById("contactListResults").innerHTML = "";
-	document.getElementById("table2").innerHTML="";
 
 	let contactList = "";
-	let tmp = {search: "", userId: userId};
+	let tmp = {search: "", userId: userId}; // Empty search to get all contacts
 	let jsonPayload = JSON.stringify(tmp);
 
 	let url = urlBase + '/SearchContacts.' + extension;
@@ -251,82 +323,397 @@ function listContacts()
 		{
 			if (this.readyState == 4 && this.status == 200)
 			{
-				//document.getElementById("contactsList").innerHTML = "Contact(s) have been retrieved.";
 				let jsonObject = JSON.parse(xhr.responseText);
-				const container = document.getElementById("table2");
-				const table = document.createElement("table");
-				const tblBody = document.createElement("tbody");
-				
 				if (jsonObject.results && jsonObject.results.length > 0) {
-					document.getElementById("contactsList").innerHTML = "Contact(s) have been retrieved.";
-
-					var row = document.createElement("tr");
-					for (let i = 0; i < 7; i++) {
-						const cell = document.createElement("th");
-						const names = ['First Name', 'Last Name', 'Phone', 'Email', 'Address', 'Edit', 'Delete'];
-						const cellText = document.createTextNode(`${names[i]}`);
-						cell.appendChild(cellText);
-						row.appendChild(cell);
-					}
-					tblBody.appendChild(row);
+					// Create grid header
+					contactList = `
+						<div class="contacts-grid">
+							<div class="grid-header">
+								<div class="grid-cell header-cell">Name</div>
+								<div class="grid-cell header-cell">Phone</div>
+								<div class="grid-cell header-cell">Email</div>
+								<div class="grid-cell header-cell">Address</div>
+							</div>
+					`;
 					
+					// Add each contact as a grid row
 					for (let i = 0; i < jsonObject.results.length; i++)
 					{
-						let contact = jsonObject.results[i];
-						const row = document.createElement("tr");
-						for (let j = 0; j < 5; j++) {           
-							const cell = document.createElement("td");   
-							const fields = [contact.firstName,contact.lastName,contact.phone,contact.email,contact.address];
-							const cellText = document.createTextNode(`${fields[j]}`);            
-							cell.appendChild(cellText);
-							row.appendChild(cell); 
-						}
-						const button1 = document.createElement('button');
-						let cell1 = document.createElement("td");
-						button1.textContent = 'Edit';
-						// Buttons do not do anything yet
-						cell1.append(button1);
-						row.appendChild(cell1); 
-						const button2 = document.createElement('button');
-						let cell2 = document.createElement("td");
-						button2.textContent = 'Delete';
-						cell2.append(button2);
-						row.appendChild(cell2); 
-						tblBody.appendChild(row);
-						contactList += `Name: ${contact.firstName} ${contact.lastName}, Phone: ${contact.phone}, Email: ${contact.email}, Address: ${contact.address}`;
-						if (i < jsonObject.results.length - 1)
-						{
-							contactList += "<br />\r\n";
-						}
+						let contact = jsonObject.results[i]; // Already parsed, no need for JSON.parse
+						contactList += `
+							<div class="grid-row">
+								<div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
+								<div class="grid-cell phone-cell">${contact.phone}</div>
+								<div class="grid-cell email-cell">${contact.email}</div>
+								<div class="grid-cell address-cell">${contact.address}</div>
+							</div>
+						`;
 					}
+					
+					contactList += `</div>`; // Close contacts-grid
 				} else {
 					contactList = "No contacts found.";
-					//document.getElementById("contactsList").innerHTML = "No contacts found.";
+					document.getElementById("contactsError").innerHTML = "No contacts found.";
 				}
-				//document.getElementsByTagName("p")[0].innerHTML = contactList;
-				//document.getElementById("contactListResults").innerHTML = contactList;
-				table.appendChild(tblBody);   
-				container.appendChild(table);
-				table.setAttribute("border", "1");
+				document.getElementById("contactsList").innerHTML = contactList;
 			}
 		};
 		xhr.send(jsonPayload);
 	}
 	catch(err)
 	{
-		document.getElementById("contactsList").innerHTML = err.message;
+		document.getElementById("contactsError").innerHTML = err.message;
 	}
 }
 
+// --- Beach Ball Code ---
+document.addEventListener('DOMContentLoaded', function() {
+    // Only create ball on index.html (login page)
+    if (!window.location.pathname.includes('color.html')) {
+    // Ball physics variables - start in water on left side
+    let ballX = 50; // start on left side, in water
+    let ballY = window.innerHeight * 0.8; // start in water area (80% down screen)
+    let velocityX = 12; // good initial momentum to the right
+    let velocityY = -3; // slight upward movement initially
+    const gravity = 0.8; // gravity acceleration per frame
+    const bounce = 0.72; // slightly less bouncy for more realistic damping
+    const friction = 0.985; // a bit more air resistance so it slows more naturally
+    
+    // Water physics variables
+    const waterBuoyancy = 0.18; // Stronger buoyancy for floatier behavior
+    const waterDragBase = 0.65; // Base water drag (used for vertical damping)
+    const waterDragXSurface = 0.5; // Stronger horizontal surface friction
+    let inWater = true; // Start in water since ball spawns in water
+    let prevInWater = false; // Track water entry for splash behavior
+    let waterEntryAt = 0; // Timestamp of when we entered water
+    let restoredFromStorage = false; // Track if we restored position across pages
+    let skipSplash = false; // Skip the water-entry splash after restore
+    
+    // Simplified wave surface calculation for reliable collision
+    function getWaterSurfaceAt(x, containerBounds) {
+        // Start with waves container at 50% of screen height
+        const wavesStartY = containerBounds.height * 0.5;
+        
+        // Add simple animated wave effect for testing
+        const time = Date.now() / 1000;
+        const waveOffset = Math.sin(time + x * 0.01) * 20; // smaller 20px wave amplitude
+        
+        // Base water level near bottom half container plus wave motion
+        const waterSurface = containerBounds.height * 0.9 + waveOffset;
+        
+        return waterSurface;
+    }
+    
+    let isDragging = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+    
+    // Momentum tracking for drag release
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    let mouseHistory = []; // Store recent mouse positions for momentum calculation
+    
+    // Create the ball element
+    const ball = document.createElement("div");
+    ball.id = "ball";
+    
+    // Add to waves container to control layering relative to waves
+    const wavesContainer = document.querySelector('.waves-container');
+    if (wavesContainer) {
+        wavesContainer.appendChild(ball);
+    } else {
+        document.body.appendChild(ball);
+    }
 
+    // Restore persisted ball position if available (login/register navigation)
+    try {
+        var persistedX = parseInt(localStorage.getItem('ballX') || '', 10);
+        var persistedY = parseInt(localStorage.getItem('ballY') || '', 10);
+        if (!isNaN(persistedX) && !isNaN(persistedY)) {
+            ballX = persistedX;
+            ballY = persistedY;
+            updateBallPosition();
+            // Do not reapply initial motion when restored between pages
+            velocityX = 0;
+            velocityY = 0;
+            restoredFromStorage = true;
+            skipSplash = true;
+        }
+    } catch(e) {}
 
+    // Get container dimensions - use full viewport
+    function getContainerBounds() {
+        return {
+            width: window.innerWidth,
+            height: window.innerHeight
+        };
+    }
+    
+    // Update ball position on screen
+    function updateBallPosition() {
+        ball.style.left = ballX + "px";
+        ball.style.top = ballY + "px";
+    }
+    
+    // Mouse event handlers for dragging
+    ball.addEventListener("mousedown", function(e) {
+        isDragging = true;
+        const rect = ball.getBoundingClientRect();
+        
+        dragOffsetX = e.clientX - rect.left;
+        dragOffsetY = e.clientY - rect.top;
+        
+        // Initialize mouse tracking
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        mouseHistory = [];
+        
+        ball.style.cursor = "grabbing";
+        velocityX = 0; // Stop physics while dragging
+        velocityY = 0;
+        e.preventDefault();
+    });
 
+    document.addEventListener("mousemove", function(e) {
+        if (isDragging) {
+            const bounds = getContainerBounds();
+            
+            // Track mouse movement for momentum calculation
+            const currentTime = Date.now();
+            mouseHistory.push({
+                x: e.clientX,
+                y: e.clientY,
+                time: currentTime
+            });
+            
+            // Keep only recent history (last 100ms)
+            mouseHistory = mouseHistory.filter(point => currentTime - point.time < 100);
+            
+            ballX = e.clientX - dragOffsetX;
+            ballY = e.clientY - dragOffsetY;
+            
+            // Keep ball within bounds
+            ballX = Math.max(0, Math.min(bounds.width - 100, ballX));
+            ballY = Math.max(0, Math.min(bounds.height - 100, ballY));
+            
+            updateBallPosition();
+        }
+    });
+    
+    document.addEventListener("mouseup", function() {
+        if (isDragging) {
+        isDragging = false;
+        ball.style.cursor = "grab";
+            
+            // Calculate momentum from mouse movement history
+            if (mouseHistory.length >= 2) {
+                // Use more recent points for better responsiveness
+                const recent = mouseHistory[mouseHistory.length - 1];
+                const older = mouseHistory[Math.max(0, mouseHistory.length - 3)]; // Look at last few points
+                const timeDiff = recent.time - older.time;
+                
+                if (timeDiff > 0) {
+                    // Calculate velocity based on mouse movement (higher responsiveness)
+                    const momentumScale = 1.8; // Increased for better responsiveness
+                    const rawVelX = ((recent.x - older.x) / timeDiff) * momentumScale;
+                    const rawVelY = ((recent.y - older.y) / timeDiff) * momentumScale;
+                    
+                    // Convert to pixels per frame (assuming 60fps)
+                    velocityX = rawVelX * 16.67; // 1000ms / 60fps ≈ 16.67ms per frame
+                    velocityY = rawVelY * 16.67;
+                    
+                    // Cap maximum velocity to prevent ball from going crazy
+                    const maxVelocity = 30; // Increased for more responsive feel
+                    velocityX = Math.max(-maxVelocity, Math.min(maxVelocity, velocityX));
+                    velocityY = Math.max(-maxVelocity, Math.min(maxVelocity, velocityY));
+                }
+            }
+        }
+    });
+    
+    // Main physics animation loop
+    function animate() {
+        if (!isDragging) {
+            const bounds = getContainerBounds();
+            const ballSize = 100;
+            const ballCenterX = ballX + ballSize / 2;
+            const ballCenterY = ballY + ballSize / 2;
+            const ballBottomY = ballY + ballSize; // bottom of ball for wave contact
+            
 
+            
+            // Get dynamic water surface at ball's X position
+            const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+            const currentWaterSurface = getWaterSurfaceAt(ballCenterX, bounds);
+            
+            // Ball considered in water when its bottom touches the surface
+            inWater = ballBottomY >= currentWaterSurface;
+            
+            // On water entry, cut horizontal speed and add a small upward splash
+            if (!prevInWater && inWater && !skipSplash) {
+                velocityX *= 0.8; // allow initial glide
+                velocityY *= 0.5;
+                velocityY -= 2.0; // small lift
+                waterEntryAt = now;
+            }
+            // Only skip splash once after a restore
+            if (skipSplash) {
+                skipSplash = false;
+            }
+            
+            if (inWater) {
+                // Water physics - noticeable slowdown
+                // Apply buoyancy proportional to submerged portion using bottom contact
+                const submersionDepth = Math.max(0, ballBottomY - currentWaterSurface);
+                const submersionRatio = Math.min(1, submersionDepth / ballSize);
+                const buoyancyForce = waterBuoyancy * submersionRatio;
+                velocityY -= buoyancyForce; // Upward force
+                
+                // Apply water drag scaled by submersion depth
+                // Stronger horizontal damping near the surface to reduce sliding
+                const scaledDragY = 1 - (1 - waterDragBase) * submersionRatio;
+                const surfaceFactor = Math.sqrt(Math.min(1, submersionRatio + 0.05));
+                const scaledDragXStrong = 1 - (1 - waterDragXSurface) * surfaceFactor;
+                const isGrace = (now - waterEntryAt) < 500; // ~0.5s of normal sliding
+                const scaledDragX = isGrace ? 0.98 : scaledDragXStrong;
+                velocityX *= scaledDragX;
+                velocityY *= scaledDragY;
+                
+                // Reduced gravity in water (more realistic floating)
+                velocityY += gravity * 0.15; // gentler gravity effect while submerged
+            } else {
+                // Air physics (normal)
+                velocityY += gravity;
+                velocityX *= friction;
+                velocityY *= friction;
+            }
+            
+            // Stop very small movements to prevent infinite gliding
+            if (Math.abs(velocityX) < 0.1) velocityX = 0;
+            if (Math.abs(velocityY) < 0.1 && ballY >= bounds.height - 110) velocityY = 0; // Only stop Y when near ground
+            
+            // Update position with both horizontal and vertical velocity
+            ballX += velocityX;
+            ballY += velocityY;
+            
+            // Water surface collision - enforce the barrier
+            const finalWaterSurface = getWaterSurfaceAt(ballCenterX, bounds);
+            
+            // Prevent the ball from sinking unrealistically below the surface
+            if (ballBottomY > finalWaterSurface) {
+                ballY = finalWaterSurface - ballSize; // sit on the surface
+                if (velocityY > 0) {
+                    velocityY = -velocityY * bounce * 0.35; // slightly bouncier beach-ball feel on water
+                }
+            }
+            
+            // Check for wall collisions (horizontal bounds)
+            if (ballX <= 0) {
+                ballX = 0;
+                velocityX = -velocityX * bounce; // Bounce off left wall
+            } else if (ballX >= bounds.width - ballSize) {
+                ballX = bounds.width - ballSize;
+                velocityX = -velocityX * bounce; // Bounce off right wall
+            }
+            
+            // Check for ground collision (bottom of container)
+            const ground = bounds.height - ballSize;
+            if (ballY >= ground) {
+                ballY = ground;
+                velocityY = -velocityY * bounce; // Bounce with damping
+                
+                // Stop tiny bounces
+                if (Math.abs(velocityY) < 2) {
+                    velocityY = 0;
+                }
+            }
+            
+            // Check for ceiling collision
+            if (ballY <= 0) {
+                ballY = 0;
+                velocityY = -velocityY * bounce;
+            }
+            
+            // Remember water state for next frame
+            prevInWater = inWater;
+            
+            updateBallPosition();
+        }
+        
+        requestAnimationFrame(animate);
+    }
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        const bounds = getContainerBounds();
+        const ballSize = 100;
+        
+        // Adjust position if ball is out of bounds
+        ballX = Math.max(0, Math.min(bounds.width - ballSize, ballX));
+        ballY = Math.max(0, Math.min(bounds.height - ballSize, ballY));
+        
+        updateBallPosition();
+    });
+    
+    // Set initial position and start animation
+    updateBallPosition();
+    animate();
+    } // End of ball creation conditional
+});
 
+// Initialize dropdown state on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdown = document.getElementById('searchDropdown');
+    const button = document.getElementById('searchToggleButton');
+    
+    // Ensure dropdown starts hidden and button shows correct text
+    if (dropdown && button) {
+        dropdown.style.display = 'none';
+        button.innerHTML = 'Contact Management';
+    }
+});
 
+// On entering colors page, fade in underwater cap/fill to feel "under the wave"
+document.addEventListener('DOMContentLoaded', function(){
+    if (window.location.pathname.includes('color.html')){
+        var fill = document.querySelector('.ocean-fill');
+        var cap = document.querySelector('.ocean-cap');
+        if (fill){
+            fill.style.opacity = '0';
+            setTimeout(function(){ fill.style.transition = 'opacity 400ms ease'; fill.style.opacity = '0.7'; }, 60);
+        }
+        if (cap){
+            cap.style.opacity = '0';
+            setTimeout(function(){ cap.style.transition = 'opacity 400ms ease'; cap.style.opacity = '0.7'; }, 60);
+        }
+    }
+});
 
+// Dropdown toggle function for contact management
+function toggleSearchDropdown() {
+    const dropdown = document.getElementById('searchDropdown');
+    const button = document.getElementById('searchToggleButton');
+    
+    // Check if dropdown is currently hidden
+    if (dropdown.style.display === 'none') {
+        dropdown.style.display = 'block';
+        button.innerHTML = 'Hide Contact Management';
+    } else {
+        dropdown.style.display = 'none';
+        button.innerHTML = 'Contact Management';
+    }
+}
 
-
-
-
-
+// Menu toggle function
+function toggleMenu() {
+    const menu = document.getElementById('menuDropdown');
+    menu.classList.toggle('show');
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function closeMenu(e) {
+        if (!e.target.closest('.menu-button') && !e.target.closest('.menu-dropdown')) {
+            menu.classList.remove('show');
+            document.removeEventListener('click', closeMenu);
+        }
+    });
+}
