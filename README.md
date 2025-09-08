@@ -11,7 +11,7 @@ Week 2
     - [X] Create
     - [X] Read (Search, List)
     - [ ] Update
-    - [ ] Delete
+    - [X] Delete
     - [x] Login
     - [x] Registration
 

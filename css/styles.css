@@ -1269,6 +1269,21 @@ select{
     color: #95060a;
 }
 
+/* Generic error text style for inline form errors */
+.error-text{
+    display: block;
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 0.9em;
+    color: #f87171; /* light red */
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* Light theme variant keeps consistency */
+body.light .error-text{
+    color: #b91c1c; /* darker red for light theme */
+}
+
 #ball {
     width: 100px;
     height: 100px;

@@ -43,11 +43,24 @@ function doLogin()
 	firstName = "";
 	lastName = "";
 	
-	let login = document.getElementById("loginName").value;
+	let login = document.getElementById("loginName").value.trim().toLowerCase();
 	let password = document.getElementById("loginPassword").value;
 //	var hash = md5( password );
 	
 	document.getElementById("loginResult").innerHTML = "";
+	// Basic validation
+	if (!login || !password)
+	{
+		document.getElementById("loginResult").innerHTML = "Please enter username and password.";
+		return;
+	}
+	// If username looks like an email, validate format
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	if (login.indexOf('@') !== -1 && !emailRegex.test(login))
+	{
+		document.getElementById("loginResult").innerHTML = "Please enter a valid email address.";
+		return;
+	}
 
 	let tmp = {login:login,password:password};
 //	var tmp = {login:login,password:hash};
@@ -265,6 +278,7 @@ function searchContacts()
 								<div class="grid-cell header-cell">Phone</div>
 								<div class="grid-cell header-cell">Email</div>
 								<div class="grid-cell header-cell">Address</div>
+								<div class="grid-cell header-cell">Actions</div>
 							</div>
 					`;
 					
@@ -278,6 +292,10 @@ function searchContacts()
 								<div class="grid-cell phone-cell">${contact.phone}</div>
 								<div class="grid-cell email-cell">${contact.email}</div>
 								<div class="grid-cell address-cell">${contact.address}</div>
+								<div class="grid-cell actions-cell">
+									<button type="button" class="buttons" onclick="deleteContact(${contact.id});">Delete</button>
+									<button type="button" class="buttons" onclick="modifyContact(${contact.id});">Modify</button>
+								</div>
 							</div>
 						`;
 					}
@@ -333,6 +351,7 @@ function listContacts()
 								<div class="grid-cell header-cell">Phone</div>
 								<div class="grid-cell header-cell">Email</div>
 								<div class="grid-cell header-cell">Address</div>
+								<div class="grid-cell header-cell">Actions</div>
 							</div>
 					`;
 					
@@ -346,6 +365,10 @@ function listContacts()
 								<div class="grid-cell phone-cell">${contact.phone}</div>
 								<div class="grid-cell email-cell">${contact.email}</div>
 								<div class="grid-cell address-cell">${contact.address}</div>
+								<div class="grid-cell actions-cell">
+									<button type="button" class="buttons" onclick="deleteContact(${contact.id});">Delete</button>
+									<button type="button" class="buttons" onclick="modifyContact(${contact.id});">Modify</button>
+								</div>
 							</div>
 						`;
 					}
@@ -364,6 +387,47 @@ function listContacts()
 	{
 		document.getElementById("contactsError").innerHTML = err.message;
 	}
+}
+
+// Delete a contact by ID and refresh the lists
+function deleteContact(contactId)
+{
+    if (!confirm('Delete this contact?')) return;
+    readCookie();
+    let tmp = { id: contactId, userId: userId };
+    let jsonPayload = JSON.stringify(tmp);
+    let url = urlBase + '/DeleteContact.' + extension;
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+    xhr.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            try {
+                let jsonObject = JSON.parse(xhr.responseText);
+                if (this.status == 200 && jsonObject.error === "") {
+                    // Refresh visible lists if present
+                    if (document.getElementById('contactsList')) {
+                        listContacts();
+                    }
+                    if (document.getElementById('contactListResults')) {
+                        searchContacts();
+                    }
+                } else {
+                    alert(jsonObject.error || 'Failed to delete contact.');
+                }
+            } catch(e) {
+                alert('Failed to delete contact.');
+            }
+        }
+    };
+    xhr.send(jsonPayload);
+}
+
+// Placeholder for modify action
+function modifyContact(contactId)
+{
+    alert('Modify contact ' + contactId + ' (coming soon)');
 }
 
 // --- Beach Ball Code ---

@@ -14,13 +14,16 @@
     else
     {
         //searches for contacts that match the search string in either first or last name
-        $stmt = $conn->prepare("SELECT FirstName, LastName, Phone, Email, Address FROM Contacts WHERE (FirstName LIKE ? OR LastName LIKE ?) AND UserID = ?");
+        // include ID to support frontend actions like delete/modify
+        $stmt = $conn->prepare("SELECT ID, FirstName, LastName, Phone, Email, Address FROM Contacts WHERE (FirstName LIKE ? OR LastName LIKE ?) AND UserID = ?");
         
         //search for any partcial matches
         $contactName = "%" . $inData["search"] . "%";
         
         
-        $stmt->bind_param("sss", $contactName, $contactName, $inData["userId"]);
+        // bind userId as integer
+        $userId = (int)$inData["userId"];
+        $stmt->bind_param("ssi", $contactName, $contactName, $userId);
         $stmt->execute();
         
         $result = $stmt->get_result();
@@ -33,8 +36,8 @@
             }
             $searchCount++;
             
-            //returns the first and last names of the matching contacts
-            $searchResults .= '{"firstName": "' . $row["FirstName"] . '", "lastName": "' . $row["LastName"] . '", "phone": "' . $row["Phone"] . '", "email": "' . $row["Email"] . '", "address": "' . $row["Address"] . '"}';
+            //return contact details including ID for frontend actions
+            $searchResults .= '{"id": ' . $row["ID"] . ', "firstName": "' . $row["FirstName"] . '", "lastName": "' . $row["LastName"] . '", "phone": "' . $row["Phone"] . '", "email": "' . $row["Email"] . '", "address": "' . $row["Address"] . '"}';
         }
         
         //if no records were found, return an error message
@@ -80,4 +83,3 @@
     }
     
 ?>
-
