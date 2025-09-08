@@ -293,8 +293,12 @@ function searchContacts()
 								<div class="grid-cell email-cell">${contact.email}</div>
 								<div class="grid-cell address-cell">${contact.address}</div>
 								<div class="grid-cell actions-cell">
-									<button type="button" class="buttons" onclick="deleteContact(${contact.id});">Delete</button>
-									<button type="button" class="buttons" onclick="modifyContact(${contact.id});">Modify</button>
+								  <button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
+                                                                                <img src="../images/Delete.svg" width="30" height="30">
+                                                                        </button>
+                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id});">
+                                                                                 <img src="../images/Edit.svg" width="30" height="30">
+                                                                        </button>   
 								</div>
 							</div>
 						`;
@@ -366,8 +370,12 @@ function listContacts()
 								<div class="grid-cell email-cell">${contact.email}</div>
 								<div class="grid-cell address-cell">${contact.address}</div>
 								<div class="grid-cell actions-cell">
-									<button type="button" class="buttons" onclick="deleteContact(${contact.id});">Delete</button>
-									<button type="button" class="buttons" onclick="modifyContact(${contact.id});">Modify</button>
+									<button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
+                                                                                <img src="../images/Delete.svg" width="30" height="30">
+                                                                        </button>
+                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id});">
+                                                                                 <img src="../images/Edit.svg" width="30" height="30">
+                                                                        </button>   
 								</div>
 							</div>
 						`;
