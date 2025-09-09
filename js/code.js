@@ -474,7 +474,9 @@ function submitModifyContact(event) {
         if (this.readyState == 4 && this.status == 200) {
             alert('Contact modified.');
             closeModifyContactPopup();
-            // Optionally refresh contact list here
+            // Refresh both list and search views
+            if (typeof listContacts === 'function') listContacts();
+            if (typeof searchContacts === 'function') searchContacts();
         }
     };
     xhr.send(jsonPayload);
