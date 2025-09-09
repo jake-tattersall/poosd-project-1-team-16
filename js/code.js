@@ -301,7 +301,7 @@ function searchContacts()
 								  <button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
                                                                                 <img src="../images/Delete.svg" width="30" height="30">
                                                                         </button>
-                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id});">
+                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
                                                                                  <img src="../images/Edit.svg" width="30" height="30">
                                                                         </button>   
 								</div>
@@ -391,7 +391,7 @@ function listContacts()
 									<button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
                                                                                 <img src="../images/Delete.svg" width="30" height="30">
                                                                         </button>
-                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id});">
+                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
                                                                                  <img src="../images/Edit.svg" width="30" height="30">
                                                                         </button>   
 								</div>
@@ -450,10 +450,54 @@ function deleteContact(contactId)
     xhr.send(jsonPayload);
 }
 
-// Placeholder for modify action
-function modifyContact(contactId)
-{
-    alert('Modify contact ' + contactId + ' (coming soon)');
+// Modify contact functions
+function modifyContact(contactId, firstName, lastName, phone, email, address) {
+    // Show popup and fill fields
+    document.getElementById('modifyContactId').value = contactId;
+    document.getElementById('modifyFirstName').value = firstName || '';
+    document.getElementById('modifyLastName').value = lastName || '';
+    document.getElementById('modifyPhone').value = phone || '';
+    document.getElementById('modifyEmail').value = email || '';
+    document.getElementById('modifyAddress').value = address || '';
+    document.getElementById('modifyContactPopup').style.display = 'block';
+}
+
+function closeModifyContactPopup() {
+    document.getElementById('modifyContactPopup').style.display = 'none';
+}
+
+function submitModifyContact(event) {
+    event.preventDefault();
+    var id = document.getElementById('modifyContactId').value;
+    var firstName = document.getElementById('modifyFirstName').value;
+    var lastName = document.getElementById('modifyLastName').value;
+    var phone = document.getElementById('modifyPhone').value;
+    var email = document.getElementById('modifyEmail').value;
+    var address = document.getElementById('modifyAddress').value;
+    var tmp = {
+        id: id,
+        userId: userId,
+        firstName: firstName,
+        lastName: lastName,
+        phone: phone,
+        email: email,
+        address: address
+    };
+    var jsonPayload = JSON.stringify(tmp);
+    var url = urlBase + '/ModifyContact.' + extension;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+    xhr.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            alert('Contact modified.');
+            closeModifyContactPopup();
+            // Refresh both list and search views
+            if (typeof listContacts === 'function') listContacts();
+            if (typeof searchContacts === 'function') searchContacts();
+        }
+    };
+    xhr.send(jsonPayload);
 }
 
 // --- Beach Ball Code ---
