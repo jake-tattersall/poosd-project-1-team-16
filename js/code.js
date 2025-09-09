@@ -246,6 +246,11 @@ function searchContacts()
 	let srch = document.getElementById("searchText").value;
 	document.getElementById("contactSearchResult").innerHTML = "";
 	document.getElementById("contactListResults").innerHTML = "";
+	
+	if (srch == "") {
+			document.getElementById("contactSearchResult").innerHTML = "Please enter search term(s)";
+			return;
+	}
 
 	let contactList = "";
 	let tmp = {search: srch, userId: userId};
@@ -329,6 +334,19 @@ function listContacts()
 {
 	document.getElementById("contactsError").innerHTML = "";
 	document.getElementById("contactsList").innerHTML = "";
+	
+	let dropdown = document.getElementById('contactsList');
+    	let button = document.getElementById('listContactsButton');
+    
+   	 // Check if dropdown is currently hidden
+    	if (dropdown.style.display === 'none') {
+        	dropdown.style.display = 'block';
+        	button.innerHTML = 'Hide My Contacts';
+    	} else {
+        	dropdown.style.display = 'none';
+        	button.innerHTML = 'List My Contacts';
+		return;
+    	}
 
 	let contactList = "";
 	let tmp = {search: "", userId: userId}; // Empty search to get all contacts
