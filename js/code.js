@@ -332,21 +332,25 @@ function searchContacts()
 
 function listContacts()
 {
-	document.getElementById("contactsError").innerHTML = "";
-	document.getElementById("contactsList").innerHTML = "";
+	//document.getElementById("contactsError").innerHTML = "";
+	//document.getElementById("contactsList").innerHTML = "";
 	
 	let dropdown = document.getElementById('contactsList');
     	let button = document.getElementById('listContactsButton');
     
    	 // Check if dropdown is currently hidden
-    	if (dropdown.style.display === 'none') {
+	 // Check if dropdown is currently hidden
+    	if (dropdown.style.display === 'block') {
+			dropdown.style.display = 'none';
+        	button.innerHTML = 'List My Contacts';
+        	return;
+    	} else {
         	dropdown.style.display = 'block';
         	button.innerHTML = 'Hide My Contacts';
-    	} else {
-        	dropdown.style.display = 'none';
-        	button.innerHTML = 'List My Contacts';
-		return;
-    	}
+    	}    	
+
+  	document.getElementById("contactsError").innerHTML = "";
+        document.getElementById("contactsList").innerHTML = "";
 
 	let contactList = "";
 	let tmp = {search: "", userId: userId}; // Empty search to get all contacts
