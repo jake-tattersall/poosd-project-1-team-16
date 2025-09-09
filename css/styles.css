@@ -1270,6 +1270,32 @@ select{
     color: #95060a;
 }
 
+/* For Modify Contacts Popup */
+body.light h3 {
+    color: #32c9b6;
+}
+
+h3 {
+    font-family: 'Ubuntu', sans-serif;
+    color: #a5b4fc;
+    font-size: 16px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    text-align: center;
+}
+
+body.light label {
+	color: #757575;;
+}
+
+label {
+	font-family: 'Ubuntu', sans-serif;
+   font-size: 18px;
+	color: #757575;
+}
+
 /* Generic error text style for inline form errors */
 .error-text{
     display: block;
