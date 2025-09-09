@@ -296,7 +296,7 @@ function searchContacts()
 								  <button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
                                                                                 <img src="../images/Delete.svg" width="30" height="30">
                                                                         </button>
-                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id});">
+                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
                                                                                  <img src="../images/Edit.svg" width="30" height="30">
                                                                         </button>   
 								</div>
@@ -373,7 +373,7 @@ function listContacts()
 									<button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
                                                                                 <img src="../images/Delete.svg" width="30" height="30">
                                                                         </button>
-                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id});">
+                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
                                                                                  <img src="../images/Edit.svg" width="30" height="30">
                                                                         </button>   
 								</div>
