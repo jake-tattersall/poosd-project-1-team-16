@@ -335,7 +335,7 @@ body.light .address-cell {
 /* Responsive grid */
 @media (max-width: 768px) {
     .contacts-grid {
-        margin: 10px;
+       /* margin: 10px;*/
         font-size: 0.9em;
     }
     
