@@ -806,8 +806,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Ensure dropdown starts hidden and button shows correct text
     if (dropdown && button) {
-        dropdown.style.display = 'none';
-        button.innerHTML = 'Contact Management';
+        dropdown.style.display = 'block';
+        button.innerHTML = 'Hide Contact Management';
     }
 });
 
