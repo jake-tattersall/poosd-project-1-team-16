@@ -268,6 +268,10 @@ body.light .star {
     text-align: center;
 }
 
+.photo-cell {
+    overflow: hidden;
+}
+
 .name-cell {
     font-weight: 500;
     color: #ffffff;
@@ -336,17 +340,23 @@ body.light .address-cell {
 @media (max-width: 768px) {
     .contacts-grid {
        /* margin: 10px;*/
-        font-size: 0.9em;
+        font-size: 18px;
     }
     
-    .grid-header,
-    .grid-row {
+    .grid-header {
         grid-template-columns: 1fr;
-        gap: 0;
+        gap: 0px;
+    }
+    
+    .grid-row {
+        padding-top: 40px;
+        grid-template-columns: 1fr;
+        gap: 0px;
     }
     
     .grid-cell {
-        padding: 8px 12px;
+        //padding-top: 40px;
+        gap: 0px;
         text-align: left;
     }
     
