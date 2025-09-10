@@ -279,6 +279,7 @@ function searchContacts()
 					contactList = `
 						<div class="contacts-grid">
 							<div class="grid-header">
+								<div class="grid-cell header-cell">Photo</div>
 								<div class="grid-cell header-cell">Name</div>
 								<div class="grid-cell header-cell">Phone</div>
 								<div class="grid-cell header-cell">Email</div>
@@ -293,6 +294,7 @@ function searchContacts()
 						let contact = jsonObject.results[i]; // Already parsed, no need for JSON.parse
 						contactList += `
 							<div class="grid-row">
+								<div class="grid-cell photo-cell"><img class="icon" src="../images/Icon.svg" alt="Avatar"></div>
 								<div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
 								<div class="grid-cell phone-cell">${contact.phone}</div>
 								<div class="grid-cell email-cell">${contact.email}</div>
@@ -373,6 +375,7 @@ function listContacts()
 					contactList = `
 						<div class="contacts-grid">
 							<div class="grid-header">
+								<div class="grid-cell header-cell">Photo</div>
 								<div class="grid-cell header-cell">Name</div>
 								<div class="grid-cell header-cell">Phone</div>
 								<div class="grid-cell header-cell">Email</div>
@@ -380,13 +383,18 @@ function listContacts()
 								<div class="grid-cell header-cell">Actions</div>
 							</div>
 					`;
-					
+
+					let imagesArray = ["../images/fish1.png", "../images/fish2.png", "../images/fish3.png"];
 					// Add each contact as a grid row
 					for (let i = 0; i < jsonObject.results.length; i++)
 					{
+						let num = Math.floor(Math.random() * 3); // 0...2
+						let img = imagesArray[num];
+
 						let contact = jsonObject.results[i]; // Already parsed, no need for JSON.parse
 						contactList += `
 							<div class="grid-row">
+								<div class="grid-cell photo-cell"><img class="icon" src=${img} alt="Avatar"></div>
 								<div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
 								<div class="grid-cell phone-cell">${contact.phone}</div>
 								<div class="grid-cell email-cell">${contact.email}</div>
@@ -402,6 +410,7 @@ function listContacts()
 							</div>
 						`;
 					}
+
 					
 					contactList += `</div>`; // Close contacts-grid
 				} else {
@@ -657,7 +666,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const rawVelY = ((recent.y - older.y) / timeDiff) * momentumScale;
                     
                     // Convert to pixels per frame (assuming 60fps)
-                    velocityX = rawVelX * 16.67; // 1000ms / 60fps ≈ 16.67ms per frame
+                    velocityX = rawVelX * 16.67; // 1000ms / 60fps Ã¢â€°Ë† 16.67ms per frame
                     velocityY = rawVelY * 16.67;
                     
                     // Cap maximum velocity to prevent ball from going crazy

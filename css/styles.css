@@ -232,7 +232,7 @@ body.light .star {
 
 .grid-header {
     display: grid;
-    grid-template-columns: 0.7fr 0.7fr 0.9fr 0.8fr 0.7fr;
+    grid-template-columns: 0.7fr 0.7fr 0.7fr 0.9fr 0.8fr 0.7fr;
     gap: 1px;
     background: rgba(255, 255, 255, 0.2);
     font-weight: bold;
@@ -243,7 +243,7 @@ body.light .star {
 
 .grid-row {
     display: grid;
-    grid-template-columns: 0.7fr 0.7fr 0.9fr 0.8fr 0.7fr;
+    grid-template-columns: 0.7fr 0.7fr 0.7fr 0.9fr 0.8fr 0.7fr;
     gap: 1px;
     align-items: center;
     /*background: rgba(255, 255, 255, 0.05);*/
@@ -559,7 +559,7 @@ body.light .menu-dropdown .menu-item{
 #searchDropdownContainer
 {
     width: 90%;
-    max-width: 600px;
+    max-width: 800px;
     margin: 20px auto;
     position: relative;
     z-index: 20; /* Above waves */
@@ -1336,4 +1336,12 @@ body.light .error-text{
     /* Flat design - no 3D shadows */
     border: 2px solid rgba(255,255,255,0.2);
     pointer-events: auto; /* Ensure ball can be grabbed even behind waves */
+}
+
+/* Icon Formatting */
+.icon {
+    border-radius: 50%;
+    height: 70px;
+    width: 70px;
+    object-fit: cover;
 }
