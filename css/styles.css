@@ -9,6 +9,7 @@ body
     transition: background-color 0.8s ease, color 0.8s ease;
     opacity: 1;
     animation: fadeIn 0.8s ease-out;
+    font-family: 'Quicksand', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* Ocean wipe overlay for transitions to colors page */
@@ -94,7 +95,7 @@ body::before {
     opacity: 1;
     transition: none; /* disabled by default; enabled when theme-animated is present */
     transform: translateY(0) rotate(0deg);
-    z-index: 3;
+    z-index: 58;
 }
 
 /* Sun icon for light mode - soft style */
@@ -123,13 +124,110 @@ body::after {
     opacity: 0;
     transition: none; /* disabled by default; enabled when theme-animated is present */
     transform: translateY(-50px) rotate(0deg);
-    z-index: 3;
+    z-index: 58;
 }
+
+/* Clickable hit areas aligned with sun/moon for accessibility */
+.sun-hit, .moon-hit{
+    position: fixed;
+    z-index: 60;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    cursor: pointer;
+    background: transparent;
+}
+
+/* Position to overlap the pseudo elements */
+.sun-hit{ display: none; top: 8vh; left: 8vw; }
+.moon-hit{ display: block; top: 8vh; right: 8vw; }
+
+/* Show only the visible icon's hit area */
+body.light .sun-hit{ display: block; }
+body.light .moon-hit{ display: none; }
+
+/* Hover highlight: soft white halo */
+/* Thin ring highlight matching icon shapes */
+.sun-hit::after,
+.moon-hit::after{
+    content: "";
+    position: absolute;
+    left: -8px; right: -8px; top: -8px; bottom: -8px; /* slightly larger than icon */
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    filter: blur(2px);
+    transition: opacity 120ms ease;
+}
+
+/* Additional inner-edge glow for moon to outline crescent on both sides */
+.moon-hit::before{
+    content: "";
+    position: absolute;
+    left: -8px; right: -8px; top: -8px; bottom: -8px;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    filter: blur(3px);
+    /* Thin band along the crescent cut line at ~145deg */
+    background: linear-gradient(145deg,
+        rgba(255,255,255,0.00) 38%,
+        rgba(255,255,255,0.30) 40%,
+        rgba(255,255,255,0.30) 42%,
+        rgba(255,255,255,0.00) 44%
+    );
+    transition: opacity 120ms ease;
+}
+
+/* Sun: simple circular ring */
+.sun-hit::after{
+    background: radial-gradient(circle at 50% 50%,
+        rgba(255,255,255,0.0) 40px,
+        rgba(255,255,255,0.28) 40px 48px,
+        rgba(255,255,255,0.10) 48px 62px,
+        rgba(255,255,255,0.0) 62px
+    );
+}
+
+/* Moon: crescent-shaped ring using mask to match icon gradient */
+.moon-hit::after{
+    background: radial-gradient(circle at 50% 50%,
+        rgba(255,255,255,0.0) 40px,
+        rgba(255,255,255,0.28) 40px 48px,
+        rgba(255,255,255,0.10) 48px 62px,
+        rgba(255,255,255,0.0) 62px
+    );
+    -webkit-mask-image: linear-gradient(145deg, transparent 40%, #000 41%);
+            mask-image: linear-gradient(145deg, transparent 40%, #000 41%);
+}
+
+.sun-hit:hover::after, .sun-hit:focus::after,
+.moon-hit:hover::after, .moon-hit:focus::after{
+    opacity: 1;
+}
+.moon-hit:hover::before, .moon-hit:focus::before{
+    opacity: 1;
+}
+
+/* Prefer drop-shadow glow on actual icons for perfectly even outline */
+body.icon-hover-sun::after{
+    filter: drop-shadow(0 0 3px rgba(255,255,255,0.95)) drop-shadow(0 0 12px rgba(255,255,255,0.35));
+    will-change: filter;
+}
+body.icon-hover-moon::before{
+    filter: drop-shadow(0 0 3px rgba(255,255,255,0.95)) drop-shadow(0 0 12px rgba(255,255,255,0.35));
+    will-change: filter;
+}
+
+/* Avoid double glow: disable pseudo glow rings when using icon drop-shadows */
+body.icon-hover-sun .sun-hit::after{ opacity: 0; }
+body.icon-hover-moon .moon-hit::after{ opacity: 0; }
+body.icon-hover-moon .moon-hit::before{ opacity: 0; }
 
 /* Enable icon transitions only during explicit theme toggles */
 body.theme-animated::before,
 body.theme-animated::after{
-    transition: opacity 0.8s ease, transform 2s ease;
+    transition: opacity 0.6s ease, transform 1.4s ease, filter 0.12s ease;
 }
 
 /* Stars in the sky for dark mode */
@@ -232,7 +330,7 @@ body.light .star {
 
 .grid-header {
     display: grid;
-    grid-template-columns: 1.5fr 1fr 1.5fr 2fr;
+    grid-template-columns: 0.7fr 0.7fr 0.7fr 0.9fr 0.8fr 0.7fr;
     gap: 1px;
     background: rgba(255, 255, 255, 0.2);
     font-weight: bold;
@@ -243,9 +341,11 @@ body.light .star {
 
 .grid-row {
     display: grid;
-    grid-template-columns: 1.5fr 1fr 1.5fr 2fr;
+    grid-template-columns: 0.7fr 0.7fr 0.7fr 0.9fr 0.8fr 0.7fr;
     gap: 1px;
-    background: rgba(255, 255, 255, 0.05);
+    align-items: center;
+    /*background: rgba(255, 255, 255, 0.05);*/
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
 }
 
@@ -255,9 +355,8 @@ body.light .star {
 
 .grid-cell {
     padding: 12px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     word-wrap: break-word;
-    overflow-wrap: break-word;
+    overflow: auto;
 }
 
 .header-cell {
@@ -265,6 +364,10 @@ body.light .star {
     color: #ffffff;
     font-weight: 600;
     text-align: center;
+}
+
+.photo-cell {
+    overflow: hidden;
 }
 
 .name-cell {
@@ -287,6 +390,10 @@ body.light .star {
     font-size: 0.9em;
 }
 
+.actions-cell {
+    padding:5px 17px 15px;
+}
+
 /* Light mode grid styles */
 body.light .contacts-grid {
     background: rgba(0, 0, 0, 0.05);
@@ -304,10 +411,6 @@ body.light .grid-row {
 
 body.light .grid-row:hover {
     background: rgba(0, 0, 0, 0.08);
-}
-
-body.light .grid-cell {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 body.light .header-cell {
@@ -334,18 +437,24 @@ body.light .address-cell {
 /* Responsive grid */
 @media (max-width: 768px) {
     .contacts-grid {
-        margin: 10px;
-        font-size: 0.9em;
+       /* margin: 10px;*/
+        font-size: 18px;
     }
     
-    .grid-header,
-    .grid-row {
+    .grid-header {
         grid-template-columns: 1fr;
-        gap: 0;
+        gap: 0px;
+    }
+    
+    .grid-row {
+        padding-top: 40px;
+        grid-template-columns: 1fr;
+        gap: 0px;
     }
     
     .grid-cell {
-        padding: 8px 12px;
+        /* padding-top: 40px; */
+        gap: 0px;
         text-align: left;
     }
     
@@ -377,11 +486,11 @@ body.light .address-cell {
 
 #title 
 {
-    font-size: 40px;
+    font-size: 56px;
     width: 100%;
     margin: 0 auto 24px auto;
     text-align: center;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Seaweed Script', cursive;
     color: #e2e8f0;
     display: block;
 }
@@ -463,7 +572,7 @@ body.light .menu-dropdown .menu-item{
     align-items: center;
     gap: 10px;
     color: #e2e8f0;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     font-size: 14px;
 }
 .theme-switch input{
@@ -558,7 +667,7 @@ body.light .menu-dropdown .menu-item{
 #searchDropdownContainer
 {
     width: 90%;
-    max-width: 600px;
+    max-width: 800px;
     margin: 20px auto;
     position: relative;
     z-index: 20; /* Above waves */
@@ -645,25 +754,30 @@ body.light .menu-dropdown .menu-item{
 
 .buttons
 {
-    font-size: 18px;
-    border-radius: 12px;
+    font-size: 16px;
+    border-radius: 10px;
     width: 100%;
     margin: 12px 0 0 0;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 1px solid rgba(148,163,184,0.25);
-    background: linear-gradient(135deg, #6366f1 0%, #22c55e 100%);
-    color: #0b1220;
-    font-weight: 700;
+    background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+    color: #ffffff;
+    font-weight: 600;
     letter-spacing: 0.3px;
     cursor: pointer;
     transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Quicksand', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
 
 .buttons:hover{
     transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(99,102,241,0.35);
+    box-shadow: 0 8px 18px rgba(239,68,68,0.35);
     opacity: 0.95;
+}
+
+.buttons:focus-visible{
+    outline: 2px solid rgba(249,115,22,0.9);
+    outline-offset: 2px;
 }
 
 #loginName
@@ -676,7 +790,7 @@ body.light .menu-dropdown .menu-item{
 }
 #searchText
 {
-	font-size: 30px;
+	font-size: 18px;
 }
 #colorText
 {
@@ -693,29 +807,73 @@ input[type="text"],input[type="password"],input[type="email"]{
     outline: none;
     background: rgba(2,6,23,0.6);
     color: #e2e8f0;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     font-size: 18px; /* Normalize input font size across pages */
     box-sizing: border-box;
 }
 
 #inner-title{
     display: block;
-    font-size: 0.9em;
+    font-size: 0.78em;
     width: 100%;
     text-align: center;
-    margin: 0 0 10px 0;
-    font-family: 'Ubuntu', sans-serif;
+    margin: 0 0 6px 0;
+    font-family: 'Quicksand', sans-serif;
     color: #a5b4fc;
     letter-spacing: 1px;
 }
 
+/* Even spacing within auth cards */
+#loginDiv > input,
+#loginDiv > button,
+#loginDiv > span,
+#loginDiv > .auth-switch{ margin-top: 12px; }
+
+#loginDiv > h1{ margin-bottom: 4px; }
+
+#registerDiv > input,
+#registerDiv > button,
+#registerDiv > span,
+#registerDiv > .auth-switch{ margin-top: 12px; }
+
+#registerDiv > h1{ margin-bottom: 4px; }
+
+/* Auth switch line */
+.auth-switch{
+    margin-top: 14px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 14px;
+    font-family: 'Quicksand', sans-serif;
+}
+.auth-link{
+    color: #60a5fa;
+    text-decoration: none;
+    font-weight: 600;
+}
+.auth-link:hover{ text-decoration: underline; }
+
+body.light .auth-switch{ color: #334155; }
+body.light .auth-link{ color: #2563eb; }
+
 #loginResult{
+    display: block;
+    font-size: 0.9em;
+    width: 100%;
+    text-align: center;
+    margin: 10px 0 0 0;
+    font-family: 'Quicksand', sans-serif;
+    color: #f87171;
+}
+
+/* Match register page error styling to login page */
+#registerResult{
     display: block;
     font-size: 0.8em;
     width: 100%;
     text-align: center;
     margin: 12px 0 0 0;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     color: #f43f5e;
 }
 
@@ -837,12 +995,14 @@ body.colors-page .waves .wave{ display: none; }
 body.colors-page .waves{ display: none; }
 /* Remove ocean wipe on colors page */
 body.colors-page .ocean-wipe{ display: none; }
-body.colors-page::before{ display: none !important; }
+/* Keep moon visible on colors page to allow toggling */
+body.colors-page::before{ display: block !important; }
 body.colors-page .star{ display: none !important; }
 
 /* Hide sun/moon icons on colors page since we can't use ::after for overlay */
+/* Keep sun visible on colors page to allow toggling */
 body.colors-page::after {
-    display: none !important;
+    display: block !important;
 }
 
 /* Create water overlay using the waves-container since waves are hidden */
@@ -1157,12 +1317,20 @@ body.light #title{
 body.light #loginDiv, body.light #registerDiv{
     background: rgba(255,255,255,0.85);
     box-shadow: 0 10px 30px rgba(2,6,23,0.15), inset 0 1px 0 rgba(255,255,255,0.6);
+    color: #0f172a;
 }
 
 body.light .buttons{
     border: 1px solid rgba(2,6,23,0.08);
-    background: linear-gradient(135deg, #38bdf8 0%, #22c55e 100%);
-    color: #052e47;
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    color: #ffffff;
+}
+body.light .buttons:hover{
+    box-shadow: 0 8px 18px rgba(37,99,235,0.35);
+}
+body.light .buttons:focus-visible{
+    outline: 2px solid rgba(59,130,246,0.9);
+    outline-offset: 2px;
 }
 
 body.light input[type="text"], body.light input[type="password"], body.light input[type="email"]{
@@ -1230,7 +1398,14 @@ body.light .dropdown-section{
 }
 
 body.light .dropdown-section h3{
-    color: #4f46e5;
+    color: #2dc0ae;
+}
+body.light #inner-title{
+    color: #0f172a;
+}
+body.light ::placeholder{
+    color: #475569;
+    opacity: 1;
 }
 
 #userName{
@@ -1269,6 +1444,58 @@ select{
     color: #95060a;
 }
 
+/* For Modify Contacts Popup */
+body.light h3 {
+    color: #32c9b6;
+}
+
+h3 {
+    font-family: 'Quicksand', sans-serif;
+    color: #a5b4fc;
+    font-size: 16px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    text-align: center;
+}
+
+body.light label {
+	color: #1f2937;
+}
+
+label {
+	font-family: 'Quicksand', sans-serif;
+   font-size: 18px;
+	color: #757575;
+}
+
+/* Generic error text style for inline form errors */
+.error-text{
+    display: block;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.9em;
+    color: #f87171; /* light red */
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* Light theme variant keeps consistency */
+body.light .error-text{
+    color: #b91c1c; /* darker red for light theme */
+}
+
+/* Input error outline to match site red accents */
+.input-error{
+    border: 1px solid #f87171 !important;
+    box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.15);
+}
+
+body.light .input-error{
+    border: 1px solid #b91c1c !important;
+    box-shadow: 0 0 0 2px rgba(185, 28, 28, 0.15);
+}
+
 #ball {
     width: 100px;
     height: 100px;
@@ -1294,4 +1521,12 @@ select{
     /* Flat design - no 3D shadows */
     border: 2px solid rgba(255,255,255,0.2);
     pointer-events: auto; /* Ensure ball can be grabbed even behind waves */
+}
+
+/* Icon Formatting */
+.icon {
+    border-radius: 50%;
+    height: 70px;
+    width: 70px;
+    object-fit: cover;
 }
