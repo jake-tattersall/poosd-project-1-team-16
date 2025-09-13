@@ -9,18 +9,20 @@ body
     transition: background-color 0.8s ease, color 0.8s ease;
     opacity: 1;
     animation: fadeIn 0.8s ease-out;
+    font-family: 'Quicksand', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* Ocean wipe overlay for transitions to colors page */
 .ocean-wipe{
     position: fixed;
     left: 0; right: 0; bottom: 0;
-    height: 0;
+    height: 120vh; /* fixed tall fill to avoid exposing bottom edge */
     background: linear-gradient(180deg, rgba(99,102,241,1) 0%, rgba(90,98,234,1) 50%, rgba(79,88,229,1) 100%);
-    z-index: 50;
+    z-index: 9999; /* ensure wipe covers everything during transition */
     pointer-events: none;
     will-change: transform, height;
     opacity: 0.95;
+    transform: translateY(100%); /* start fully below viewport */
 }
 
 /* Wavy crest at the top of the wipe using the same wave path */
@@ -45,12 +47,12 @@ body.light .ocean-wipe::before{
 }
 
 body.scene-transition.to-colors .ocean-wipe{
-    animation: oceanWipeUp 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    animation: oceanSlideUp 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
 
-@keyframes oceanWipeUp{
-    from{ height: 0; opacity: 0.95; }
-    to{ height: 100vh; opacity: 0.7; }
+@keyframes oceanSlideUp{
+    from{ transform: translateY(100%); opacity: 0.95; }
+    to{ transform: translateY(0); opacity: 0.8; }
 }
 
 /* Allow scrolling specifically on pages that opt in */
@@ -94,7 +96,7 @@ body::before {
     opacity: 1;
     transition: none; /* disabled by default; enabled when theme-animated is present */
     transform: translateY(0) rotate(0deg);
-    z-index: 3;
+    z-index: 58;
 }
 
 /* Sun icon for light mode - soft style */
@@ -123,13 +125,110 @@ body::after {
     opacity: 0;
     transition: none; /* disabled by default; enabled when theme-animated is present */
     transform: translateY(-50px) rotate(0deg);
-    z-index: 3;
+    z-index: 58;
 }
+
+/* Clickable hit areas aligned with sun/moon for accessibility */
+.sun-hit, .moon-hit{
+    position: fixed;
+    z-index: 60;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    cursor: pointer;
+    background: transparent;
+}
+
+/* Position to overlap the pseudo elements */
+.sun-hit{ display: none; top: 8vh; left: 8vw; }
+.moon-hit{ display: block; top: 8vh; right: 8vw; }
+
+/* Show only the visible icon's hit area */
+body.light .sun-hit{ display: block; }
+body.light .moon-hit{ display: none; }
+
+/* Hover highlight: soft white halo */
+/* Thin ring highlight matching icon shapes */
+.sun-hit::after,
+.moon-hit::after{
+    content: "";
+    position: absolute;
+    left: -8px; right: -8px; top: -8px; bottom: -8px; /* slightly larger than icon */
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    filter: blur(2px);
+    transition: opacity 120ms ease;
+}
+
+/* Additional inner-edge glow for moon to outline crescent on both sides */
+.moon-hit::before{
+    content: "";
+    position: absolute;
+    left: -8px; right: -8px; top: -8px; bottom: -8px;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    filter: blur(3px);
+    /* Thin band along the crescent cut line at ~145deg */
+    background: linear-gradient(145deg,
+        rgba(255,255,255,0.00) 38%,
+        rgba(255,255,255,0.30) 40%,
+        rgba(255,255,255,0.30) 42%,
+        rgba(255,255,255,0.00) 44%
+    );
+    transition: opacity 120ms ease;
+}
+
+/* Sun: simple circular ring */
+.sun-hit::after{
+    background: radial-gradient(circle at 50% 50%,
+        rgba(255,255,255,0.0) 40px,
+        rgba(255,255,255,0.28) 40px 48px,
+        rgba(255,255,255,0.10) 48px 62px,
+        rgba(255,255,255,0.0) 62px
+    );
+}
+
+/* Moon: crescent-shaped ring using mask to match icon gradient */
+.moon-hit::after{
+    background: radial-gradient(circle at 50% 50%,
+        rgba(255,255,255,0.0) 40px,
+        rgba(255,255,255,0.28) 40px 48px,
+        rgba(255,255,255,0.10) 48px 62px,
+        rgba(255,255,255,0.0) 62px
+    );
+    -webkit-mask-image: linear-gradient(145deg, transparent 40%, #000 41%);
+            mask-image: linear-gradient(145deg, transparent 40%, #000 41%);
+}
+
+.sun-hit:hover::after, .sun-hit:focus::after,
+.moon-hit:hover::after, .moon-hit:focus::after{
+    opacity: 1;
+}
+.moon-hit:hover::before, .moon-hit:focus::before{
+    opacity: 1;
+}
+
+/* Prefer drop-shadow glow on actual icons for perfectly even outline */
+body.icon-hover-sun::after{
+    filter: drop-shadow(0 0 3px rgba(255,255,255,0.95)) drop-shadow(0 0 12px rgba(255,255,255,0.35));
+    will-change: filter;
+}
+body.icon-hover-moon::before{
+    filter: drop-shadow(0 0 3px rgba(255,255,255,0.95)) drop-shadow(0 0 12px rgba(255,255,255,0.35));
+    will-change: filter;
+}
+
+/* Avoid double glow: disable pseudo glow rings when using icon drop-shadows */
+body.icon-hover-sun .sun-hit::after{ opacity: 0; }
+body.icon-hover-moon .moon-hit::after{ opacity: 0; }
+body.icon-hover-moon .moon-hit::before{ opacity: 0; }
 
 /* Enable icon transitions only during explicit theme toggles */
 body.theme-animated::before,
 body.theme-animated::after{
-    transition: opacity 0.8s ease, transform 2s ease;
+    transition: opacity 0.6s ease, transform 1.4s ease, filter 0.12s ease;
 }
 
 /* Stars in the sky for dark mode */
@@ -355,7 +454,7 @@ body.light .address-cell {
     }
     
     .grid-cell {
-        //padding-top: 40px;
+        /* padding-top: 40px; */
         gap: 0px;
         text-align: left;
     }
@@ -388,11 +487,11 @@ body.light .address-cell {
 
 #title 
 {
-    font-size: 40px;
+    font-size: 56px;
     width: 100%;
     margin: 0 auto 24px auto;
     text-align: center;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Seaweed Script', cursive;
     color: #e2e8f0;
     display: block;
 }
@@ -474,7 +573,7 @@ body.light .menu-dropdown .menu-item{
     align-items: center;
     gap: 10px;
     color: #e2e8f0;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     font-size: 14px;
 }
 .theme-switch input{
@@ -656,25 +755,30 @@ body.light .menu-dropdown .menu-item{
 
 .buttons
 {
-    font-size: 18px;
-    border-radius: 12px;
+    font-size: 16px;
+    border-radius: 10px;
     width: 100%;
     margin: 12px 0 0 0;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 1px solid rgba(148,163,184,0.25);
-    background: linear-gradient(135deg, #6366f1 0%, #22c55e 100%);
-    color: #0b1220;
-    font-weight: 700;
+    background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+    color: #ffffff;
+    font-weight: 600;
     letter-spacing: 0.3px;
     cursor: pointer;
     transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Quicksand', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
 
 .buttons:hover{
     transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(99,102,241,0.35);
+    box-shadow: 0 8px 18px rgba(239,68,68,0.35);
     opacity: 0.95;
+}
+
+.buttons:focus-visible{
+    outline: 2px solid rgba(249,115,22,0.9);
+    outline-offset: 2px;
 }
 
 #loginName
@@ -704,29 +808,73 @@ input[type="text"],input[type="password"],input[type="email"]{
     outline: none;
     background: rgba(2,6,23,0.6);
     color: #e2e8f0;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     font-size: 18px; /* Normalize input font size across pages */
     box-sizing: border-box;
 }
 
 #inner-title{
     display: block;
-    font-size: 0.9em;
+    font-size: 0.78em;
     width: 100%;
     text-align: center;
-    margin: 0 0 10px 0;
-    font-family: 'Ubuntu', sans-serif;
+    margin: 0 0 6px 0;
+    font-family: 'Quicksand', sans-serif;
     color: #a5b4fc;
     letter-spacing: 1px;
 }
 
+/* Even spacing within auth cards */
+#loginDiv > input,
+#loginDiv > button,
+#loginDiv > span,
+#loginDiv > .auth-switch{ margin-top: 12px; }
+
+#loginDiv > h1{ margin-bottom: 4px; }
+
+#registerDiv > input,
+#registerDiv > button,
+#registerDiv > span,
+#registerDiv > .auth-switch{ margin-top: 12px; }
+
+#registerDiv > h1{ margin-bottom: 4px; }
+
+/* Auth switch line */
+.auth-switch{
+    margin-top: 14px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 14px;
+    font-family: 'Quicksand', sans-serif;
+}
+.auth-link{
+    color: #60a5fa;
+    text-decoration: none;
+    font-weight: 600;
+}
+.auth-link:hover{ text-decoration: underline; }
+
+body.light .auth-switch{ color: #334155; }
+body.light .auth-link{ color: #2563eb; }
+
 #loginResult{
+    display: block;
+    font-size: 0.9em;
+    width: 100%;
+    text-align: center;
+    margin: 10px 0 0 0;
+    font-family: 'Quicksand', sans-serif;
+    color: #f87171;
+}
+
+/* Match register page error styling to login page */
+#registerResult{
     display: block;
     font-size: 0.8em;
     width: 100%;
     text-align: center;
     margin: 12px 0 0 0;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     color: #f43f5e;
 }
 
@@ -818,17 +966,17 @@ body:not(.no-sky) .waves-container{ inset: 0 0 0 0; }
 
 /* Scene transition for going to colors: waves rise, icons fade */
 body.scene-transition.to-colors .waves-container{
-    animation: wavesRise 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    animation: none !important;
+    opacity: 0; /* hide waves layer during wipe to prevent visible movement */
 }
 
-@keyframes wavesRise{
-    from{ transform: translateY(100vh) scale(1.2); }
-    to{ transform: translateY(-20vh) scale(1.2); }
-}
+/* removed rising animation; wipe covers the motion */
 
 body.scene-transition.to-colors::before,
 body.scene-transition.to-colors::after{
-    animation: iconFadeOut 0.9s ease-in-out forwards !important;
+    animation: iconFadeOut 0.2s ease-in-out forwards !important;
+    visibility: hidden !important;
+    z-index: 0 !important; /* ensure icons never appear above wipe */
 }
 
 @keyframes iconFadeOut{
@@ -848,12 +996,14 @@ body.colors-page .waves .wave{ display: none; }
 body.colors-page .waves{ display: none; }
 /* Remove ocean wipe on colors page */
 body.colors-page .ocean-wipe{ display: none; }
-body.colors-page::before{ display: none !important; }
+/* Keep moon visible on colors page to allow toggling */
+body.colors-page::before{ display: block !important; }
 body.colors-page .star{ display: none !important; }
 
 /* Hide sun/moon icons on colors page since we can't use ::after for overlay */
+/* Keep sun visible on colors page to allow toggling */
 body.colors-page::after {
-    display: none !important;
+    display: block !important;
 }
 
 /* Create water overlay using the waves-container since waves are hidden */
@@ -873,6 +1023,9 @@ body.colors-page .waves-container {
 body.light.colors-page .waves-container {
     background: linear-gradient(180deg, rgba(96,165,250,0.7) 0%, rgba(56,189,248,0.75) 50%, rgba(34,211,238,0.8) 100%);
 }
+
+/* Hide wave fill overlay on colors page */
+body.colors-page .waves-container{ background: none !important; }
 
 /* Underwater bubble effects for colors page */
 .bubbles-container {
@@ -1168,12 +1321,20 @@ body.light #title{
 body.light #loginDiv, body.light #registerDiv{
     background: rgba(255,255,255,0.85);
     box-shadow: 0 10px 30px rgba(2,6,23,0.15), inset 0 1px 0 rgba(255,255,255,0.6);
+    color: #0f172a;
 }
 
 body.light .buttons{
     border: 1px solid rgba(2,6,23,0.08);
-    background: linear-gradient(135deg, #38bdf8 0%, #22c55e 100%);
-    color: #052e47;
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    color: #ffffff;
+}
+body.light .buttons:hover{
+    box-shadow: 0 8px 18px rgba(37,99,235,0.35);
+}
+body.light .buttons:focus-visible{
+    outline: 2px solid rgba(59,130,246,0.9);
+    outline-offset: 2px;
 }
 
 body.light input[type="text"], body.light input[type="password"], body.light input[type="email"]{
@@ -1243,6 +1404,13 @@ body.light .dropdown-section{
 body.light .dropdown-section h3{
     color: #2dc0ae;
 }
+body.light #inner-title{
+    color: #0f172a;
+}
+body.light ::placeholder{
+    color: #475569;
+    opacity: 1;
+}
 
 #userName{
     display: block;
@@ -1286,7 +1454,7 @@ body.light h3 {
 }
 
 h3 {
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     color: #a5b4fc;
     font-size: 16px;
     margin-bottom: 15px;
@@ -1297,11 +1465,11 @@ h3 {
 }
 
 body.light label {
-	color: #757575;;
+	color: #1f2937;
 }
 
 label {
-	font-family: 'Ubuntu', sans-serif;
+	font-family: 'Quicksand', sans-serif;
    font-size: 18px;
 	color: #757575;
 }
@@ -1309,7 +1477,7 @@ label {
 /* Generic error text style for inline form errors */
 .error-text{
     display: block;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     font-size: 0.9em;
     color: #f87171; /* light red */
     text-align: center;
@@ -1319,6 +1487,17 @@ label {
 /* Light theme variant keeps consistency */
 body.light .error-text{
     color: #b91c1c; /* darker red for light theme */
+}
+
+/* Input error outline to match site red accents */
+.input-error{
+    border: 1px solid #f87171 !important;
+    box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.15);
+}
+
+body.light .input-error{
+    border: 1px solid #b91c1c !important;
+    box-shadow: 0 0 0 2px rgba(185, 28, 28, 0.15);
 }
 
 #ball {
@@ -1355,3 +1534,137 @@ body.light .error-text{
     width: 70px;
     object-fit: cover;
 }
+
+/* Top banner and page content */
+.top-banner{
+    position: sticky;
+    top: 0;
+    left: 0; right: 0;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+    border-bottom: none;
+    backdrop-filter: blur(8px);
+    z-index: 30;
+}
+.brand-title{
+    font-family: 'Seaweed Script', cursive;
+    color: #ffffff;
+    font-size: 22px;
+}
+.user-slot{ display:flex; align-items:center; gap:8px; color: #e2e8f0; }
+body.light .top-banner{ background: linear-gradient(135deg, #22d3ee 0%, #38bdf8 100%); }
+body.light .brand-title{ color: #0f172a; }
+body.light .user-slot{ color: #0f172a; }
+
+/* Left sidebar */
+.left-sidebar{
+    position: fixed;
+    top: 44px; /* below top banner */
+    left: 0;
+    width: 200px;
+    bottom: 0;
+    background: rgba(15,23,42,0.6);
+    border-right: 1px solid rgba(148,163,184,0.25);
+    backdrop-filter: blur(8px);
+    padding: 10px 8px;
+    z-index: 15;
+}
+.sidebar-item{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(148,163,184,0.25);
+    background: rgba(2,6,23,0.35);
+    color: #e2e8f0;
+    cursor: pointer;
+}
+.sidebar-item:hover{ background: rgba(2,6,23,0.5); }
+.sidebar-icon{ width: 20px; height: 20px; }
+
+body.light .left-sidebar{ background: rgba(255,255,255,0.85); border-right: 1px solid rgba(2,6,23,0.1); }
+body.light .sidebar-item{ background: rgba(255,255,255,0.7); color: #0f172a; border: 1px solid rgba(2,6,23,0.08); }
+body.light .sidebar-item:hover{ background: rgba(255,255,255,0.9); }
+
+/* Shift content to the right of the sidebar */
+.page-content{ padding: 10px 16px 24px; margin-left: 200px; position: relative; z-index: 20; }
+
+/* Banner theme icons */
+.theme-icons{ display:flex; align-items:center; gap:8px; }
+.banner-sun,.banner-moon{
+    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
+}
+.banner-sun{ background: #fde047; box-shadow: 0 0 8px rgba(253,224,71,0.4) inset; }
+.banner-moon{ background: linear-gradient(145deg, transparent 40%, #e2e8f0 41%); }
+
+/* Disable big page icons on colors page */
+body.colors-page::before, body.colors-page::after{ display:none !important; }
+
+/* Single banner toggle icon */
+.banner-toggle{
+    width: 26px; height: 26px; border-radius: 50%; border: 0; background: transparent; cursor: pointer; padding: 0;
+}
+body:not(.light) .banner-toggle{ background: linear-gradient(145deg, transparent 40%, #e2e8f0 41%); }
+body.light .banner-toggle{ background: #fde047; box-shadow: 0 0 8px rgba(253,224,71,0.4) inset; }
+
+/* Ensure background layers sit behind app UI on colors page */
+body.colors-page .waves-container{ z-index: 0 !important; }
+body.colors-page .bubbles-container{ z-index: 1 !important; }
+
+/* Elevate app UI layers */
+.top-banner{ z-index: 30; }
+.left-sidebar{ z-index: 25; }
+.page-content{ position: relative; z-index: 20; }
+
+/* Content toolbar with search */
+.content-toolbar{ display:flex; align-items:center; gap:10px; }
+.toolbar-title{ font-family:'Quicksand',sans-serif; font-weight:700; color:#e2e8f0; }
+body.light .toolbar-title{ color:#0f172a; }
+.toolbar-spacer{ flex:1; }
+.content-toolbar input[type="text"]{
+    flex: 1;
+    border-radius: 10px;
+    padding: 8px 10px;
+    border: 1px solid rgba(148,163,184,0.35);
+    background: rgba(2,6,23,0.6);
+    color: #e2e8f0;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 14px;
+}
+body.light .content-toolbar{ background: rgba(255,255,255,0.9); border: 1px solid rgba(2,6,23,0.12); }
+body.light .content-toolbar input[type="text"]{ background: rgba(255,255,255,0.95); color: #0f172a; border: 1px solid rgba(2,6,23,0.15); }
+
+/* Contacts cards grid */
+.cards-grid{
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0,1fr));
+    gap: 12px;
+}
+.contact-card{
+    background: rgba(15,23,42,0.6);
+    border: 1px solid rgba(148,163,184,0.25);
+    border-radius: 12px;
+    padding: 12px;
+    color: #e2e8f0;
+}
+.contact-card .name{ font-weight: 700; margin-bottom: 6px; }
+.contact-card .line{ font-size: 14px; opacity: 0.9; }
+body.light .contact-card{ background: rgba(255,255,255,0.9); color: #0f172a; border: 1px solid rgba(2,6,23,0.12); }
+
+@media (max-width: 1100px){ .cards-grid{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
+@media (max-width: 900px){ .cards-grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+@media (max-width: 700px){ .cards-grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 480px){ .cards-grid{ grid-template-columns: 1fr; } }
+
+.section-title{ color:#e2e8f0; font-family:'Quicksand',sans-serif; font-weight:600; font-size:14px; opacity:0.95; }
+body.light .section-title{ color:#0f172a; }
+
+.content-toolbar input[type="text"]{ font-size:14px; padding:8px 10px; }
+.content-toolbar .buttons{ padding:8px 12px; font-size:14px; }
