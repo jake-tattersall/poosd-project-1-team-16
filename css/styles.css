@@ -648,6 +648,48 @@ body.light .menu-dropdown .menu-item{
     display: none; /* Hide register form by default */
 }
 
+/* Cell phone viewport */
+@media screen and (max-width: 768px)
+{
+    #loginDiv
+    {
+        font-size: 30px;
+        width: 300px;
+        max-width: 92vw;
+        padding: 32px;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.6);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+        backdrop-filter: blur(8px);
+        position: absolute;
+        top: 42%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 100; /* Above waves */
+        pointer-events: auto; /* Ensure this only affects its own content */
+        transition: background 0.8s ease, box-shadow 0.8s ease, color 0.8s ease;
+    }
+    #registerDiv
+    {
+        font-size: 30px;
+        width: 300px;
+        max-width: 92vw;
+        padding: 32px;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.6);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+        backdrop-filter: blur(8px);
+        position: absolute;
+        top: 42%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 100; /* Above waves */
+        pointer-events: auto; /* Ensure this only affects its own content */
+        transition: background 0.8s ease, box-shadow 0.8s ease, color 0.8s ease;
+        display: none; /* Hide register form by default */
+    }
+}
+
 #userInfoDiv
 {
     font-size: 18px;
