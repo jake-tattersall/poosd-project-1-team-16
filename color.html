@@ -5,7 +5,7 @@
 	<script type="text/javascript" src="js/AddContact.js"></script>
 
     <link href="css/styles.css" rel="stylesheet">	
-    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Verdana" rel="stylesheet">
     <link rel="icon" href="data:,">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
@@ -62,14 +62,24 @@
 	</button>
 	
 	<div id="searchDropdown" style="display: none;">
+		
 		<!-- Search Contacts -->
 		<div class="dropdown-section">
 			<h3>Search Contacts</h3>
-			<input type="text" id="searchText" placeholder="Search Contacts (name, email, phone)"/>
+			<input type="text" id="searchText" placeholder="Search Contacts (name, email, phone, address)"/>
 			<button type="button" id="searchContactButton" class="buttons" onclick="searchContacts();"> Search </button>
+			<br></br>
 			<span id="contactSearchResult"></span>
 			<p id="contactListResults"></p>
 		</div>
+
+		<!-- Bulk Add Contacts -->
+		<div class="dropdown-section">
+                        <h3>Bulk Add Contacts</h3>
+                        <button type="button" id="bulkAddButton" class="buttons" onclick="importContacts();"> Import CSV </button>
+                        <br></br>
+			<p><a href="SeaContactsTemplate.csv" download="SeaContactsTemplate.csv">Download Contacts Template</a></p>
+                </div>
 
 		<!-- Add Contact -->
 		<div class="dropdown-section">
@@ -80,16 +90,28 @@
 			<input type="email" id="email" placeholder="Email" />
 			<input type="text" id="address" placeholder="Address" />
 			<button type="button" id="addContactButton" class="buttons" onclick="addContact();"> Add Contact </button>
+			<br></br>
 			<span id="contactAddResult"></span>
+			<p></p>
 		</div>
 
 		<!-- List Contacts -->
 		<div class="dropdown-section">
 			<h3>All Contacts</h3>
 			<button type="button" id="listContactsButton" class="buttons" onclick="listContacts();"> List My Contacts </button>
+			<br></br>
 			<span id="contactsError"></span>
 			<p id="contactsList"></p>
+			<p></p>
 		</div>
+
+		<!-- Export Contacts -->
+                <div class="dropdown-section">
+                        <h3>Export Contacts</h3>
+                        <button type="button" id="exportButton" class="buttons" onclick="exportContacts();"> Create CSV </button>
+                        <br></br>
+                        <p></p>
+                </div>
 	</div>
 </div>
 
@@ -116,6 +138,23 @@
     <div class="bubble bubble-15"></div>
 </div>
 
+<div id="modifyContactPopup" class="menu-dropdown" style="display:none; position:fixed; top:3%; width:400px; height:690px; left:50%; bottom:40%;  transform:translate(-50%,0); padding:20px; z-index:1000;">
+	<h3>Modify Contact</h3><br>
+    	<form id="modifyContactForm" onsubmit="submitModifyContact(event)">
+        <input type="hidden" id="modifyContactId">
+        <label>First Name: <input type="text" id="modifyFirstName"></label><br><br>
+        <label>Last Name: <input type="text" id="modifyLastName"></label><br><br>
+        <label>Phone: <input type="text" id="modifyPhone"></label><br><br>
+        <label>Email: <input type="text" id="modifyEmail"></label><br><br>
+        <label>Address: <input type="text" id="modifyAddress"></label><br><br>
+        <button type="submit" style="display:inline-block" class="buttons">
+		<img src="../images/Save.svg" width="30" height="30">
+	</button>
+        <button type="button" class="buttons" onclick="closeModifyContactPopup()">
+		<img src="../images/Cancel.svg" width="30" height="30">
+        </button>
+    </form>
+</div>
 
 </body>
 

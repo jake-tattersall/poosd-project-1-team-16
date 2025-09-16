@@ -4,7 +4,7 @@
 	<script type="text/javascript" src="js/md5.js"></script>
 	<script type="text/javascript" src="js/code.js"></script>
     <link href="css/styles.css" rel="stylesheet">	
-    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Verdana" rel="stylesheet">
     <link rel="icon" href="data:,">
     
     <script type="text/javascript">
@@ -61,6 +61,20 @@
 	<!-- Button to go to registration page -->
 	<button type="button" class="buttons" onclick="smoothTransition('register.html');"> Create Account </button>
 	<span id="loginResult"></span>
+</div>
+
+<div id="modifyContactPopup" style="display:none; position:fixed; top:20%; left:50%; transform:translate(-50%,0); background:#fff; border:2px solid #333; padding:20px; z-index:1000;">
+    <h3>Modify Contact</h3>
+    <form id="modifyContactForm" onsubmit="submitModifyContact(event)">
+        <input type="hidden" id="modifyContactId">
+        <label>First Name: <input type="text" id="modifyFirstName"></label><br>
+        <label>Last Name: <input type="text" id="modifyLastName"></label><br>
+        <label>Phone: <input type="text" id="modifyPhone"></label><br>
+        <label>Email: <input type="text" id="modifyEmail"></label><br>
+        <label>Address: <input type="text" id="modifyAddress"></label><br>
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModifyContactPopup()">Cancel</button>
+    </form>
 </div>
 
 </body>

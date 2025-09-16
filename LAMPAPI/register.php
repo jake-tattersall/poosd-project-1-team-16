@@ -3,7 +3,7 @@
 
 	$firstName = $inData["firstName"];
 	$lastName = $inData["lastName"];
-	$login = $inData["login"];
+	$login = strtolower(trim($inData["login"]));
 	$password = $inData["password"];
 
 	$conn = new mysqli("localhost", "TheShark", "GreatWhite16", "Project1");
@@ -13,6 +13,19 @@
 	}
 	else
 	{
+		// Check for duplicate login, login now treated like unique identifier
+		$check = $conn->prepare("SELECT ID FROM Users WHERE Login = ?");
+		$check->bind_param("s", $login);
+		$check->execute();
+		$res = $check->get_result();
+		if ($res && $res->num_rows > 0) {
+			$check->close();
+			$conn->close();
+			returnWithError("Username Already Exists");
+			exit;
+		}
+		$check->close();
+
 		$stmt = $conn->prepare("INSERT INTO Users (FirstName, LastName, Login, Password) VALUES (?, ?, ?, ?)");
 		$stmt->bind_param("ssss", $firstName, $lastName, $login, $password);
 		if($stmt->execute()) {

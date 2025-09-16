@@ -232,7 +232,7 @@ body.light .star {
 
 .grid-header {
     display: grid;
-    grid-template-columns: 1.5fr 1fr 1.5fr 2fr;
+    grid-template-columns: 0.7fr 0.7fr 0.7fr 0.9fr 0.8fr 0.7fr;
     gap: 1px;
     background: rgba(255, 255, 255, 0.2);
     font-weight: bold;
@@ -243,9 +243,11 @@ body.light .star {
 
 .grid-row {
     display: grid;
-    grid-template-columns: 1.5fr 1fr 1.5fr 2fr;
+    grid-template-columns: 0.7fr 0.7fr 0.7fr 0.9fr 0.8fr 0.7fr;
     gap: 1px;
-    background: rgba(255, 255, 255, 0.05);
+    align-items: center;
+    /*background: rgba(255, 255, 255, 0.05);*/
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
 }
 
@@ -255,9 +257,8 @@ body.light .star {
 
 .grid-cell {
     padding: 12px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     word-wrap: break-word;
-    overflow-wrap: break-word;
+    overflow: auto;
 }
 
 .header-cell {
@@ -265,6 +266,10 @@ body.light .star {
     color: #ffffff;
     font-weight: 600;
     text-align: center;
+}
+
+.photo-cell {
+    overflow: hidden;
 }
 
 .name-cell {
@@ -287,6 +292,10 @@ body.light .star {
     font-size: 0.9em;
 }
 
+.actions-cell {
+    padding:5px 17px 15px;
+}
+
 /* Light mode grid styles */
 body.light .contacts-grid {
     background: rgba(0, 0, 0, 0.05);
@@ -304,10 +313,6 @@ body.light .grid-row {
 
 body.light .grid-row:hover {
     background: rgba(0, 0, 0, 0.08);
-}
-
-body.light .grid-cell {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 body.light .header-cell {
@@ -334,18 +339,24 @@ body.light .address-cell {
 /* Responsive grid */
 @media (max-width: 768px) {
     .contacts-grid {
-        margin: 10px;
-        font-size: 0.9em;
+       /* margin: 10px;*/
+        font-size: 18px;
     }
     
-    .grid-header,
-    .grid-row {
+    .grid-header {
         grid-template-columns: 1fr;
-        gap: 0;
+        gap: 0px;
+    }
+    
+    .grid-row {
+        padding-top: 40px;
+        grid-template-columns: 1fr;
+        gap: 0px;
     }
     
     .grid-cell {
-        padding: 8px 12px;
+        //padding-top: 40px;
+        gap: 0px;
         text-align: left;
     }
     
@@ -558,7 +569,7 @@ body.light .menu-dropdown .menu-item{
 #searchDropdownContainer
 {
     width: 90%;
-    max-width: 600px;
+    max-width: 800px;
     margin: 20px auto;
     position: relative;
     z-index: 20; /* Above waves */
@@ -676,7 +687,7 @@ body.light .menu-dropdown .menu-item{
 }
 #searchText
 {
-	font-size: 30px;
+	font-size: 18px;
 }
 #colorText
 {
@@ -1230,7 +1241,7 @@ body.light .dropdown-section{
 }
 
 body.light .dropdown-section h3{
-    color: #4f46e5;
+    color: #2dc0ae;
 }
 
 #userName{
@@ -1269,6 +1280,47 @@ select{
     color: #95060a;
 }
 
+/* For Modify Contacts Popup */
+body.light h3 {
+    color: #32c9b6;
+}
+
+h3 {
+    font-family: 'Ubuntu', sans-serif;
+    color: #a5b4fc;
+    font-size: 16px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    text-align: center;
+}
+
+body.light label {
+	color: #757575;;
+}
+
+label {
+	font-family: 'Ubuntu', sans-serif;
+   font-size: 18px;
+	color: #757575;
+}
+
+/* Generic error text style for inline form errors */
+.error-text{
+    display: block;
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 0.9em;
+    color: #f87171; /* light red */
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* Light theme variant keeps consistency */
+body.light .error-text{
+    color: #b91c1c; /* darker red for light theme */
+}
+
 #ball {
     width: 100px;
     height: 100px;
@@ -1294,4 +1346,12 @@ select{
     /* Flat design - no 3D shadows */
     border: 2px solid rgba(255,255,255,0.2);
     pointer-events: auto; /* Ensure ball can be grabbed even behind waves */
+}
+
+/* Icon Formatting */
+.icon {
+    border-radius: 50%;
+    height: 70px;
+    width: 70px;
+    object-fit: cover;
 }

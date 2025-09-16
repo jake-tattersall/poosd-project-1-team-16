@@ -1,4 +1,3 @@
-
 <?php
 
 	$inData = getRequestInfo();
@@ -14,8 +13,10 @@
 	}
 	else
 	{
-		$stmt = $conn->prepare("SELECT ID,firstName,lastName FROM Users WHERE Login=? AND Password =?");
-		$stmt->bind_param("ss", $inData["login"], $inData["password"]);
+		// Case-insensitive login by normalizing to lowercase
+		$login = strtolower(trim($inData["login"]));
+		$stmt = $conn->prepare("SELECT ID,firstName,lastName FROM Users WHERE LOWER(Login)=? AND Password =?");
+		$stmt->bind_param("ss", $login, $inData["password"]);
 		$stmt->execute();
 		$result = $stmt->get_result();
 

@@ -43,11 +43,24 @@ function doLogin()
 	firstName = "";
 	lastName = "";
 	
-	let login = document.getElementById("loginName").value;
+	let login = document.getElementById("loginName").value.trim().toLowerCase();
 	let password = document.getElementById("loginPassword").value;
 //	var hash = md5( password );
 	
 	document.getElementById("loginResult").innerHTML = "";
+	// Basic validation
+	if (!login || !password)
+	{
+		document.getElementById("loginResult").innerHTML = "Please enter username and password.";
+		return;
+	}
+	// If username looks like an email, validate format
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	if (login.indexOf('@') !== -1 && !emailRegex.test(login))
+	{
+		document.getElementById("loginResult").innerHTML = "Please enter a valid email address.";
+		return;
+	}
 
 	let tmp = {login:login,password:password};
 //	var tmp = {login:login,password:hash};
@@ -233,6 +246,11 @@ function searchContacts()
 	let srch = document.getElementById("searchText").value;
 	document.getElementById("contactSearchResult").innerHTML = "";
 	document.getElementById("contactListResults").innerHTML = "";
+	
+	if (srch == "") {
+			document.getElementById("contactSearchResult").innerHTML = "Please enter search term(s)";
+			return;
+	}
 
 	let contactList = "";
 	let tmp = {search: srch, userId: userId};
@@ -261,10 +279,12 @@ function searchContacts()
 					contactList = `
 						<div class="contacts-grid">
 							<div class="grid-header">
+								<div class="grid-cell header-cell">Photo</div>
 								<div class="grid-cell header-cell">Name</div>
 								<div class="grid-cell header-cell">Phone</div>
 								<div class="grid-cell header-cell">Email</div>
 								<div class="grid-cell header-cell">Address</div>
+								<div class="grid-cell header-cell">Actions</div>
 							</div>
 					`;
 					
@@ -274,10 +294,19 @@ function searchContacts()
 						let contact = jsonObject.results[i]; // Already parsed, no need for JSON.parse
 						contactList += `
 							<div class="grid-row">
+								<div class="grid-cell photo-cell"><img class="icon" src="../images/Icon.svg" alt="Avatar"></div>
 								<div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
 								<div class="grid-cell phone-cell">${contact.phone}</div>
 								<div class="grid-cell email-cell">${contact.email}</div>
 								<div class="grid-cell address-cell">${contact.address}</div>
+								<div class="grid-cell actions-cell">
+								  <button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
+                                                                                <img src="../images/Delete.svg" width="30" height="30">
+                                                                        </button>
+                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
+                                                                                 <img src="../images/Edit.svg" width="30" height="30">
+                                                                        </button>   
+								</div>
 							</div>
 						`;
 					}
@@ -305,8 +334,25 @@ function searchContacts()
 
 function listContacts()
 {
-	document.getElementById("contactsError").innerHTML = "";
-	document.getElementById("contactsList").innerHTML = "";
+	//document.getElementById("contactsError").innerHTML = "";
+	//document.getElementById("contactsList").innerHTML = "";
+	
+	let dropdown = document.getElementById('contactsList');
+    	let button = document.getElementById('listContactsButton');
+    
+   	 // Check if dropdown is currently hidden
+	 // Check if dropdown is currently hidden
+    	if (dropdown.style.display === 'block') {
+			dropdown.style.display = 'none';
+        	button.innerHTML = 'List My Contacts';
+        	return;
+    	} else {
+        	dropdown.style.display = 'block';
+        	button.innerHTML = 'Hide My Contacts';
+    	}    	
+
+  	document.getElementById("contactsError").innerHTML = "";
+        document.getElementById("contactsList").innerHTML = "";
 
 	let contactList = "";
 	let tmp = {search: "", userId: userId}; // Empty search to get all contacts
@@ -329,26 +375,42 @@ function listContacts()
 					contactList = `
 						<div class="contacts-grid">
 							<div class="grid-header">
+								<div class="grid-cell header-cell">Photo</div>
 								<div class="grid-cell header-cell">Name</div>
 								<div class="grid-cell header-cell">Phone</div>
 								<div class="grid-cell header-cell">Email</div>
 								<div class="grid-cell header-cell">Address</div>
+								<div class="grid-cell header-cell">Actions</div>
 							</div>
 					`;
-					
+
+					let imagesArray = ["../images/fish1.png", "../images/fish2.png", "../images/fish3.png"];
 					// Add each contact as a grid row
 					for (let i = 0; i < jsonObject.results.length; i++)
 					{
+						let num = Math.floor(Math.random() * 3); // 0...2
+						let img = imagesArray[num];
+
 						let contact = jsonObject.results[i]; // Already parsed, no need for JSON.parse
 						contactList += `
 							<div class="grid-row">
+								<div class="grid-cell photo-cell"><img class="icon" src=${img} alt="Avatar"></div>
 								<div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
 								<div class="grid-cell phone-cell">${contact.phone}</div>
 								<div class="grid-cell email-cell">${contact.email}</div>
 								<div class="grid-cell address-cell">${contact.address}</div>
+								<div class="grid-cell actions-cell">
+									<button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
+                                                                                <img src="../images/Delete.svg" width="30" height="30">
+                                                                        </button>
+                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
+                                                                                 <img src="../images/Edit.svg" width="30" height="30">
+                                                                        </button>   
+								</div>
 							</div>
 						`;
 					}
+
 					
 					contactList += `</div>`; // Close contacts-grid
 				} else {
@@ -364,6 +426,91 @@ function listContacts()
 	{
 		document.getElementById("contactsError").innerHTML = err.message;
 	}
+}
+
+// Delete a contact by ID and refresh the lists
+function deleteContact(contactId)
+{
+    if (!confirm('Delete this contact?')) return;
+    readCookie();
+    let tmp = { id: contactId, userId: userId };
+    let jsonPayload = JSON.stringify(tmp);
+    let url = urlBase + '/DeleteContact.' + extension;
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+    xhr.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            try {
+                let jsonObject = JSON.parse(xhr.responseText);
+                if (this.status == 200 && jsonObject.error === "") {
+                    // Refresh visible lists if present
+                    if (document.getElementById('contactsList')) {
+                        listContacts();
+                    }
+                    if (document.getElementById('contactListResults')) {
+                        searchContacts();
+                    }
+                } else {
+                    alert(jsonObject.error || 'Failed to delete contact.');
+                }
+            } catch(e) {
+                alert('Failed to delete contact.');
+            }
+        }
+    };
+    xhr.send(jsonPayload);
+}
+
+// Modify contact functions
+function modifyContact(contactId, firstName, lastName, phone, email, address) {
+    // Show popup and fill fields
+    document.getElementById('modifyContactId').value = contactId;
+    document.getElementById('modifyFirstName').value = firstName || '';
+    document.getElementById('modifyLastName').value = lastName || '';
+    document.getElementById('modifyPhone').value = phone || '';
+    document.getElementById('modifyEmail').value = email || '';
+    document.getElementById('modifyAddress').value = address || '';
+    document.getElementById('modifyContactPopup').style.display = 'block';
+}
+
+function closeModifyContactPopup() {
+    document.getElementById('modifyContactPopup').style.display = 'none';
+}
+
+function submitModifyContact(event) {
+    event.preventDefault();
+    var id = document.getElementById('modifyContactId').value;
+    var firstName = document.getElementById('modifyFirstName').value;
+    var lastName = document.getElementById('modifyLastName').value;
+    var phone = document.getElementById('modifyPhone').value;
+    var email = document.getElementById('modifyEmail').value;
+    var address = document.getElementById('modifyAddress').value;
+    var tmp = {
+        id: id,
+        userId: userId,
+        firstName: firstName,
+        lastName: lastName,
+        phone: phone,
+        email: email,
+        address: address
+    };
+    var jsonPayload = JSON.stringify(tmp);
+    var url = urlBase + '/ModifyContact.' + extension;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+    xhr.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            alert('Contact modified.');
+            closeModifyContactPopup();
+            // Refresh both list and search views
+            if (typeof listContacts === 'function') listContacts();
+            if (typeof searchContacts === 'function') searchContacts();
+        }
+    };
+    xhr.send(jsonPayload);
 }
 
 // --- Beach Ball Code ---
@@ -519,7 +666,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const rawVelY = ((recent.y - older.y) / timeDiff) * momentumScale;
                     
                     // Convert to pixels per frame (assuming 60fps)
-                    velocityX = rawVelX * 16.67; // 1000ms / 60fps ≈ 16.67ms per frame
+                    velocityX = rawVelX * 16.67; // 1000ms / 60fps Ã¢â€°Ë† 16.67ms per frame
                     velocityY = rawVelY * 16.67;
                     
                     // Cap maximum velocity to prevent ball from going crazy
@@ -668,8 +815,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Ensure dropdown starts hidden and button shows correct text
     if (dropdown && button) {
-        dropdown.style.display = 'none';
-        button.innerHTML = 'Contact Management';
+        dropdown.style.display = 'block';
+        button.innerHTML = 'Hide Contact Management';
     }
 });
 
