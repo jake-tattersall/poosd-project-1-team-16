@@ -31,6 +31,11 @@ function addContact() {
                 let jsonObject = JSON.parse(xhr.responseText);
                 if (xhr.status == 200 && jsonObject.error === "") {
                     result = jsonObject.message || "Contact added successfully!";
+                    let dropdown = document.getElementById('contactsList');
+                    if (dropdown.style.display === 'block') {
+                        dropdown.style.display = 'none';
+                        listContacts();
+                    }
                 } else {
                     result = jsonObject.error || "Failed to add contact.";
                 }
