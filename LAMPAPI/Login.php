@@ -13,9 +13,10 @@
 	}
 	else
 	{
-		// Case-insensitive login by normalizing to lowercase
-		$login = strtolower(trim($inData["login"]));
-		$stmt = $conn->prepare("SELECT ID,firstName,lastName FROM Users WHERE LOWER(Login)=? AND Password =?");
+		// Exact case-sensitive login comparison for both username and password
+		$login = trim($inData["login"]);
+		// Use BINARY comparison for both username and password to ensure exact case-sensitive matching
+		$stmt = $conn->prepare("SELECT ID,firstName,lastName FROM Users WHERE BINARY Login=? AND BINARY Password =?");
 		$stmt->bind_param("ss", $login, $inData["password"]);
 		$stmt->execute();
 		$result = $stmt->get_result();

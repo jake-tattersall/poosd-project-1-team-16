@@ -3,7 +3,7 @@
 
 	$firstName = $inData["firstName"];
 	$lastName = $inData["lastName"];
-	$login = strtolower(trim($inData["login"]));
+	$login = trim($inData["login"]); // Keep original capitalization for storage
 	$password = $inData["password"];
 
 	$conn = new mysqli("localhost", "TheShark", "GreatWhite16", "Project1");
@@ -13,8 +13,8 @@
 	}
 	else
 	{
-		// Check for duplicate login, login now treated like unique identifier
-		$check = $conn->prepare("SELECT ID FROM Users WHERE Login = ?");
+		// Check for duplicate login using case-insensitive comparison
+		$check = $conn->prepare("SELECT ID FROM Users WHERE LOWER(Login) = LOWER(?)");
 		$check->bind_param("s", $login);
 		$check->execute();
 		$res = $check->get_result();

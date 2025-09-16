@@ -1,26 +1,33 @@
 function doRegister() {
-
-
-
+    
     let firstName = document.getElementById("firstName").value;
     let lastName = document.getElementById("lastName").value;
-    let loginName = document.getElementById("loginName").value.trim().toLowerCase();
+    let loginName = document.getElementById("loginName").value.trim();
     let loginPassword = document.getElementById("loginPassword").value;
 
-    document.getElementById("registerResult").innerHTML = ""; // Clear previous result message
+    // Clear previous result message and input error outlines
+    const resultEl = document.getElementById("registerResult");
+    resultEl.innerHTML = "";
+    resultEl.classList.remove('error-text');
+    ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) el.classList.remove('input-error');
+    });
 
     // Basic validation
     if (!firstName || !lastName || !loginName || !loginPassword) {
-        document.getElementById("registerResult").innerHTML = "Please fill in all fields.";
+        const msg = "Please fill in all fields.";
+        resultEl.classList.add('error-text');
+        resultEl.textContent = msg;
+        resultEl.style.color = '#f43f5e';
+        resultEl.style.fontSize = '0.8em';
+        ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
+            var el = document.getElementById(id);
+            if (el && !el.value) el.classList.add('input-error');
+        });
         return;
     }
-    // If username is used as email, validate email format
-    const emailLike = loginName;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(emailLike)) {
-        document.getElementById("registerResult").innerHTML = "Please enter a valid email address.";
-        return;
-    }
+    // No email format validation; username is treated as a plain login
 
     let tmp = {firstName:firstName, lastName:lastName, login:loginName, password:loginPassword};
     let jsonPayload = JSON.stringify( tmp );
@@ -63,12 +70,45 @@ function doRegister() {
                     };
                     xhr2.send(loginPayload);
                 } else {
-                    document.getElementById("registerResult").innerHTML = jsonObject.error || "Registration failed.";
+                    // Style error cohesively and, if duplicate account, highlight inputs
+                    var err = jsonObject.error || "Registration failed.";
+                    resultEl.classList.add('error-text');
+                    resultEl.textContent = err;
+                    resultEl.style.color = '#f43f5e';
+                    resultEl.style.fontSize = '0.8em';
+                    if (/username already exists/i.test(err)){
+                        ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
+                            var el = document.getElementById(id);
+                            if (el) el.classList.add('input-error');
+                        });
+                    }
                 }
             } catch (e) {
-                document.getElementById("registerResult").innerHTML = "Registration failed.";
+                resultEl.classList.add('error-text');
+                resultEl.textContent = "Registration failed.";
+                resultEl.style.color = '#f43f5e';
+                resultEl.style.fontSize = '0.8em';
             }
         }
     };
     xhr.send(jsonPayload);
+}
+
+// Remove error outline as the user types
+document.addEventListener('DOMContentLoaded', function(){
+    ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input', function(){
+            el.classList.remove('input-error');
+        });
+    });
+});
+
+// Enter key handler for registration form
+function handleRegisterKeyDown(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        doRegister();
+    }
 }

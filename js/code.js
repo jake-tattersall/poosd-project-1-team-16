@@ -35,7 +35,91 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 2200);
         });
     }
+
+    // Clickable sun/moon toggles
+    var sunHit = document.querySelector('.sun-hit');
+    var moonHit = document.querySelector('.moon-hit');
+
+    function setThemeLight(){
+        // Play icon animations on explicit toggle
+        document.body.classList.add('theme-animated');
+        document.body.classList.add('light');
+        localStorage.setItem('theme', 'light');
+        setTimeout(function(){ document.body.classList.remove('theme-animated'); }, 1400);
+    }
+    function setThemeDark(){
+        document.body.classList.add('theme-animated');
+        document.body.classList.remove('light');
+        localStorage.setItem('theme', 'dark');
+        setTimeout(function(){ document.body.classList.remove('theme-animated'); }, 1400);
+    }
+
+    function syncToggleCheckbox(){
+        var t = document.getElementById('themeToggle');
+        if (t) t.checked = document.body.classList.contains('light');
+    }
+
+    // Hover glow via body classes to apply drop-shadow on icons
+    function addHoverClass(cls){ document.body.classList.add(cls); }
+    function removeHoverClass(cls){ document.body.classList.remove(cls); }
+
+    if (sunHit){
+        sunHit.addEventListener('click', function(){ setThemeDark(); syncToggleCheckbox(); });
+        sunHit.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setThemeDark(); syncToggleCheckbox(); }});
+        sunHit.addEventListener('mouseenter', function(){ addHoverClass('icon-hover-sun'); });
+        sunHit.addEventListener('mouseleave', function(){ removeHoverClass('icon-hover-sun'); });
+        sunHit.addEventListener('focus', function(){ addHoverClass('icon-hover-sun'); });
+        sunHit.addEventListener('blur', function(){ removeHoverClass('icon-hover-sun'); });
+    }
+    if (moonHit){
+        moonHit.addEventListener('click', function(){ setThemeLight(); syncToggleCheckbox(); });
+        moonHit.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setThemeLight(); syncToggleCheckbox(); }});
+        moonHit.addEventListener('mouseenter', function(){ addHoverClass('icon-hover-moon'); });
+        moonHit.addEventListener('mouseleave', function(){ removeHoverClass('icon-hover-moon'); });
+        moonHit.addEventListener('focus', function(){ addHoverClass('icon-hover-moon'); });
+        moonHit.addEventListener('blur', function(){ removeHoverClass('icon-hover-moon'); });
+    }
+    // Ensure checkbox reflects initial state on pages where it exists
+    syncToggleCheckbox();
+    
+    // Clear login field error highlighting when user starts typing (like register page)
+    ["loginName","loginPassword"].forEach(function(id){
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input', function(){
+            el.classList.remove('input-error');
+        });
+    });
 });
+
+// Enter key handlers for forms
+function handleLoginKeyDown(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        doLogin();
+    }
+}
+
+function handleRegisterKeyDown(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        doRegister();
+    }
+}
+
+function handleSearchKeyDown(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        searchContacts();
+    }
+}
+
+function handleAddContactKeyDown(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        addContact();
+    }
+}
 
 function doLogin()
 {
@@ -43,22 +127,22 @@ function doLogin()
 	firstName = "";
 	lastName = "";
 	
-	let login = document.getElementById("loginName").value.trim().toLowerCase();
+	let login = document.getElementById("loginName").value.trim();
 	let password = document.getElementById("loginPassword").value;
 //	var hash = md5( password );
 	
 	document.getElementById("loginResult").innerHTML = "";
+	// Clear any previous input error highlighting
+	document.getElementById("loginName").classList.remove('input-error');
+	document.getElementById("loginPassword").classList.remove('input-error');
+	
 	// Basic validation
 	if (!login || !password)
 	{
 		document.getElementById("loginResult").innerHTML = "Please enter username and password.";
-		return;
-	}
-	// If username looks like an email, validate format
-	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-	if (login.indexOf('@') !== -1 && !emailRegex.test(login))
-	{
-		document.getElementById("loginResult").innerHTML = "Please enter a valid email address.";
+		// Highlight empty fields in red
+		if (!login) document.getElementById("loginName").classList.add('input-error');
+		if (!password) document.getElementById("loginPassword").classList.add('input-error');
 		return;
 	}
 
@@ -83,6 +167,9 @@ function doLogin()
 				if( userId < 1 )
 				{		
 					document.getElementById("loginResult").innerHTML = "User/Password combination incorrect";
+					// Highlight both fields since we don't know which is wrong
+					document.getElementById("loginName").classList.add('input-error');
+					document.getElementById("loginPassword").classList.add('input-error');
 					return;
 				}
 		
@@ -514,9 +601,14 @@ function submitModifyContact(event) {
 }
 
 // --- Beach Ball Code ---
+// Function to detect mobile viewport (global scope)
+function isMobileViewport() {
+    return window.innerWidth <= 768;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Only create ball on index.html (login page)
-    if (!window.location.pathname.includes('color.html')) {
+    // Only create ball on index.html (login page) and NOT on mobile viewport
+    if (!window.location.pathname.includes('color.html') && !isMobileViewport()) {
     // Ball physics variables - start in water on left side
     let ballX = 50; // start on left side, in water
     let ballY = window.innerHeight * 0.8; // start in water area (80% down screen)
@@ -795,11 +887,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const bounds = getContainerBounds();
         const ballSize = 100;
         
-        // Adjust position if ball is out of bounds
-        ballX = Math.max(0, Math.min(bounds.width - ballSize, ballX));
-        ballY = Math.max(0, Math.min(bounds.height - ballSize, ballY));
-        
-        updateBallPosition();
+        // Hide/show ball based on mobile viewport
+        if (isMobileViewport()) {
+            ball.style.display = 'none';
+        } else {
+            ball.style.display = 'block';
+            // Adjust position if ball is out of bounds
+            ballX = Math.max(0, Math.min(bounds.width - ballSize, ballX));
+            ballY = Math.max(0, Math.min(bounds.height - ballSize, ballY));
+            updateBallPosition();
+        }
     });
     
     // Set initial position and start animation

@@ -1,16 +1,19 @@
-<html>
+<html lang="en">
 <head>
 	<title>Sea Contacts</title>
 	<script type="text/javascript" src="js/md5.js"></script>
 	<script type="text/javascript" src="js/code.js"></script>
     <link href="css/styles.css" rel="stylesheet">	
-    <link href="https://fonts.googleapis.com/css?family=Verdana" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Seaweed+Script&display=swap" rel="stylesheet">
     <link rel="icon" href="data:,">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1">    
     <script type="text/javascript">
     // Simple fix for back button - remove fade-out class when page shows
     window.addEventListener('pageshow', function() {
         document.body.classList.remove('fade-out');
+        document.body.classList.remove('scene-transition');
+        var wipe = document.querySelector('.ocean-wipe');
+        if (wipe) { wipe.style.transform = 'translateY(100%)'; wipe.style.height = '120vh'; }
     });
     
 
@@ -19,19 +22,10 @@
 <body>
 
 <div class="ocean-wipe" aria-hidden="true"></div>
-<div class="menu-button" onclick="toggleMenu()">
-    <span></span>
-    <span></span>
-    <span></span>
-</div>
 
-<div class="menu-dropdown" id="menuDropdown">
-    <div class="theme-switch">
-        <span>Light/Dark Mode</span>
-        <input type="checkbox" id="themeToggle" aria-label="Toggle theme">
-        <label for="themeToggle"></label>
-    </div>
-</div>
+<!-- Clickable sun/moon hit areas for theme toggle -->
+<div class="sun-hit" role="button" aria-label="Switch to light mode" tabindex="0"></div>
+<div class="moon-hit" role="button" aria-label="Switch to dark mode" tabindex="0"></div>
 
 <!-- Stars in the sky -->
 <div class="star"></div>
@@ -54,12 +48,12 @@
 
 <div id="loginDiv">
 	<h1 id="title">Sea Contacts</h1>
-	<span id="inner-title">PLEASE LOG IN</span>
-	<input type="text" id="loginName" placeholder="Username" /><br />
-	<input type="password" id="loginPassword" placeholder="Password"/><br />
+	<span id="inner-title">LOGIN</span>
+	<input type="text" id="loginName" placeholder="Username" onkeydown="handleLoginKeyDown(event)" /><br />
+	<input type="password" id="loginPassword" placeholder="Password" onkeydown="handleLoginKeyDown(event)" /><br />
 	<button type="button" id="loginButton" class="buttons" onclick="doLogin();"> Log In </button>
 	<!-- Button to go to registration page -->
-	<button type="button" class="buttons" onclick="smoothTransition('register.html');"> Create Account </button>
+	<div class="auth-switch">Don't have an account? <a class="auth-link" href="register.html" onclick="smoothTransition('register.html'); return false;">Register here</a></div>
 	<span id="loginResult"></span>
 </div>
 
