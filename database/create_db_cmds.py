@@ -11,21 +11,44 @@ CREATE TABLE `Project1`.`Users` ( `ID` INT NOT NULL AUTO_INCREMENT , `FirstName`
 
 Users = [
     ('Rick','Leinecker','RickL','COP4331'),
-    ('Admin','Admin','Admin','Admin'),
-    ('Test','Test','Test','Test'),
-    ('John','Doe','JohnD','DoeJohn'),
+    ('admin','admin','admin','admin'),
+    ('test','test','test','test'),
+    ('John','Doe','username','password'),
 ]
 
 Contacts = [
-    ('John', 'Doe', '123-456-7890', 'example@ucf.edu', '123 Street, City, State', 1),
-    ('John', 'Doe', '123-456-7890', 'example@ucf.edu', '123 Street, City, State', 2),
-    ('John', 'Doe', '123-456-7890', 'example@ucf.edu', '123 Street, City, State', 3),
+    ('Alice', 'Smith', '321-654-9870', 'alice@ucf.edu', '789 Blvd, City, State', 1),
+    ('Amara', 'Lopez', '555-234-1111', 'amara@ucf.edu', '12 Sunset Dr, City, State', 1),
+    ('Bob', 'Johnson', '555-111-2222', 'bob@ucf.edu', '', 1),
+    ('Charlie', 'Brown', '555-333-4444', '', '222 Drive, City, State', 1),
+    ('Diana', 'Prince', '', 'diana@ucf.edu', '333 Court, City, State', 1),
+    ('Eve', 'Adams', '555-666-7777', 'eve@ucf.edu', '', 1),
+    ('Frank', 'Miller', '555-888-9999', 'frank@ucf.edu', '555 Parkway, City, State', 1),
+    ('Grace', 'Hopper', '555-000-1111', 'grace@ucf.edu', '666 Street, City, State', 4),
+    ('Henry', 'Ford', '', '', '777 Avenue, City, State', 1),
+    ('Ivy', 'Taylor', '555-444-5555', '', '888 Blvd, City, State', 1),
+    ('Jack', 'Black', '555-777-8888', 'jack@ucf.edu', '999 Lane, City, State', 1),
+    ('Jack', 'Black', '555-777-8888', 'jack@ucf.edu', '999 Lane, City, State', 4),
     ('Jane', 'Doe', '987-654-3210', 'other@ucf.edu', '456 Avenue, City, State', 1),
     ('Jane', 'Doe', '987-654-3210', 'other@ucf.edu', '456 Avenue, City, State', 2),
     ('Jane', 'Doe', '987-654-3210', 'other@ucf.edu', '456 Avenue, City, State', 3),
-    ('UniqueTo', 'Rick', '111-222-3333', '1@ucf.edu', '1 Street, City, State', 1),
+    ('Jasper', 'Nguyen', '555-112-3344', 'jasper@ucf.edu', '88 Market St, City, State', 1),
+    ('John', 'Doe', '123-456-7890', 'example@ucf.edu', '123 Street, City, State', 1),
+    ('John', 'Doe', '123-456-7890', 'example@ucf.edu', '123 Street, City, State', 2),
+    ('John', 'Doe', '123-456-7890', 'example@ucf.edu', '123 Street, City, State', 3),
+    ('Karen', 'White', '555-999-0000', 'karen@ucf.edu', '', 1),
+    ('Leo', 'King', '555-121-2121', 'leo@ucf.edu', '2020 Court, City, State', 1),
+    ('Mia', 'Queen', '555-343-4343', '', '3030 Terrace, City, State', 1),
+    ('Nadia', 'Khan', '555-777-2323', 'nadia@ucf.edu', '321 Oak St, City, State', 2),
+    ('Olivia', 'Brown', '555-101-0101', 'olivia@ucf.edu', '404 Road, City, State', 2),
+    ('Peter', 'Parker', '555-202-0202', 'peter@ucf.edu', '505 Street, City, State', 2),
+    ('Quincy', 'Adler', '555-303-0303', 'quincy@ucf.edu', '', 3),
+    ('Rachel', 'Green', '', 'rachel@ucf.edu', '707 Drive, City, State', 3),
+    ('Samira', 'Velasquez', '555-898-4545', 'samira@ucf.edu', '900 Grove Rd, City, State', 4),
     ('UniqueTo', 'Admin', '444-555-6666', '2@ucf.edu', '2 Avenue, City, State', 2),
+    ('UniqueTo', 'Rick', '111-222-3333', '1@ucf.edu', '1 Street, City, State', 1),
     ('UniqueTo', 'Test', '777-888-9999', '3@ucf.edu', '3 Boulevard, City, State', 3),
+    ('Yara', 'Singh', '555-321-7654', 'yara@ucf.edu', '1212 Palm Ct, City, State', 1)
 ]
 
 with open('database\\create_db_cmds.txt', 'w') as f:

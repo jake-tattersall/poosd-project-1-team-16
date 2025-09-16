@@ -31,6 +31,16 @@ function addContact() {
                 let jsonObject = JSON.parse(xhr.responseText);
                 if (xhr.status == 200 && jsonObject.error === "") {
                     result = jsonObject.message || "Contact added successfully!";
+                    let dropdown = document.getElementById('contactsList');
+                    if (dropdown.style.display === 'block') {
+                        dropdown.style.display = 'none';
+                        listContacts();
+                    }
+                    document.getElementById("firstName").value = "";
+                    document.getElementById("lastName").value = "";
+                    document.getElementById("phone").value = "";
+                    document.getElementById("email").value = "";
+                    document.getElementById("address").value = "";
                 } else {
                     result = jsonObject.error || "Failed to add contact.";
                 }
