@@ -651,6 +651,55 @@ body.light .menu-dropdown .menu-item{
 /* Cell phone viewport */
 @media screen and (max-width: 768px)
 {
+    /* Enable scrolling on mobile for login/register pages */
+    body {
+        overflow: auto;
+    }
+    
+    /* Make sun/moon icons go behind mobile forms */
+    body::before, body::after {
+        z-index: 50; /* Behind mobile forms */
+    }
+    
+    /* Ensure consistent glow on mobile - Sun */
+    body::after {
+        box-shadow: 
+            /* Soft glowing rays */
+            0 -35px 20px -25px rgba(253, 224, 71, 0.6),
+            0 35px 20px -25px rgba(253, 224, 71, 0.6),
+            35px 0 20px -25px rgba(253, 224, 71, 0.6),
+            -35px 0 20px -25px rgba(253, 224, 71, 0.6),
+            25px -25px 20px -25px rgba(253, 224, 71, 0.6),
+            -25px 25px 20px -25px rgba(253, 224, 71, 0.6),
+            25px 25px 20px -25px rgba(253, 224, 71, 0.6),
+            -25px -25px 20px -25px rgba(253, 224, 71, 0.6),
+            /* Central glow */
+            0 0 50px rgba(253, 224, 71, 0.4),
+            0 0 80px rgba(234, 179, 8, 0.2);
+    }
+    
+    /* Ensure consistent appearance on mobile - Moon */
+    body::before {
+        background: linear-gradient(145deg, transparent 40%, #e2e8f0 41%);
+        /* Use drop-shadow instead of box-shadow to respect crescent shape */
+        filter: drop-shadow(0 0 8px rgba(226, 232, 240, 0.6)) drop-shadow(0 0 16px rgba(226, 232, 240, 0.3));
+    }
+    
+    /* Keep hit areas clickable but behind forms */
+    .sun-hit, .moon-hit {
+        z-index: 60;
+    }
+    
+    /* Add mobile click glow effects that match desktop */
+    body.icon-hover-sun::after {
+        filter: drop-shadow(0 0 3px rgba(255,255,255,0.95)) drop-shadow(0 0 12px rgba(255,255,255,0.35));
+    }
+    
+    body.icon-hover-moon::before {
+        filter: drop-shadow(0 0 3px rgba(255,255,255,0.95)) drop-shadow(0 0 12px rgba(255,255,255,0.35)) 
+                drop-shadow(0 0 8px rgba(226, 232, 240, 0.6)) drop-shadow(0 0 16px rgba(226, 232, 240, 0.3));
+    }
+
     #loginDiv
     {
         font-size: 30px;
@@ -1297,15 +1346,14 @@ body:not(.colors-page) .bubbles-container {
     display: none;
 }
 
-/* Enhanced bubble visibility for light mode */
+/* Subtle bubble appearance for light mode */
 body.light .bubble {
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(70, 130, 180, 0.6));
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), rgba(200, 220, 240, 0.2));
     box-shadow: 
-        inset 0 0 8px rgba(255, 255, 255, 0.8),
-        0 0 12px rgba(70, 130, 180, 0.5),
-        0 0 20px rgba(30, 144, 255, 0.3);
-    opacity: 0.85;
-    border: 1px solid rgba(70, 130, 180, 0.4);
+        inset 0 0 4px rgba(255, 255, 255, 0.3),
+        0 0 6px rgba(200, 220, 240, 0.15);
+    opacity: 0.3;
+    border: 1px solid rgba(200, 220, 240, 0.2);
 }
 
 /* Move ball up slightly during scene transition to keep it above rising water */

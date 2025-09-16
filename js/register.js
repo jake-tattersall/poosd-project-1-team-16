@@ -1,10 +1,8 @@
 function doRegister() {
-
-
-
+    
     let firstName = document.getElementById("firstName").value;
     let lastName = document.getElementById("lastName").value;
-    let loginName = document.getElementById("loginName").value.trim().toLowerCase();
+    let loginName = document.getElementById("loginName").value.trim();
     let loginPassword = document.getElementById("loginPassword").value;
 
     // Clear previous result message and input error outlines
@@ -29,17 +27,7 @@ function doRegister() {
         });
         return;
     }
-    // If username is used as email, validate email format
-    const emailLike = loginName;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(emailLike)) {
-        resultEl.classList.add('error-text');
-        resultEl.textContent = "Username Already Exists.";
-        resultEl.style.color = '#f43f5e';
-        resultEl.style.fontSize = '0.8em';
-        document.getElementById('loginName').classList.add('input-error');
-        return;
-    }
+    // No email format validation; username is treated as a plain login
 
     let tmp = {firstName:firstName, lastName:lastName, login:loginName, password:loginPassword};
     let jsonPayload = JSON.stringify( tmp );
@@ -116,3 +104,11 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     });
 });
+
+// Enter key handler for registration form
+function handleRegisterKeyDown(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        doRegister();
+    }
+}

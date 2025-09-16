@@ -49,8 +49,8 @@
 <div id="loginDiv">
 	<h1 id="title">Sea Contacts</h1>
 	<span id="inner-title">LOGIN</span>
-	<input type="text" id="loginName" placeholder="Username" /><br />
-	<input type="password" id="loginPassword" placeholder="Password"/><br />
+	<input type="text" id="loginName" placeholder="Username" onkeydown="handleLoginKeyDown(event)" /><br />
+	<input type="password" id="loginPassword" placeholder="Password" onkeydown="handleLoginKeyDown(event)" /><br />
 	<button type="button" id="loginButton" class="buttons" onclick="doLogin();"> Log In </button>
 	<!-- Button to go to registration page -->
 	<div class="auth-switch">Don't have an account? <a class="auth-link" href="register.html" onclick="smoothTransition('register.html'); return false;">Register here</a></div>
