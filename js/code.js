@@ -1,4 +1,4 @@
-const urlBase = 'http://167.71.243.49/LAMPAPI';
+const urlBase = 'https://seacontacts.org/LAMPAPI';
 const extension = 'php';
 
 let userId = 0;
