@@ -7,15 +7,21 @@
 
     //establishes connection to the database
     $conn = new mysqli("localhost", "TheShark", "GreatWhite16", "Project1");
-    if ($conn->connect_error) 
+    if ($conn->connect_error)
     {
         returnWithError( $conn->connect_error );
     } 
     else
     {
-        //searches for contacts that match the search string in either first or last name
+        //searches for contacts that match the search string in either first or last name or full name
         // include ID to support frontend actions like delete/modify
-        $stmt = $conn->prepare("SELECT ID, FirstName, LastName, Phone, Email, Address FROM Contacts WHERE (FirstName LIKE ? OR LastName LIKE ?) AND UserID = ?");
+        $stmt = $conn->prepare("SELECT ID, FirstName, LastName, Phone, Email, Address 
+                                FROM Contacts 
+                                WHERE (FirstName LIKE ? 
+                                    OR LastName LIKE ? 
+                                    OR CONCAT(FirstName, ' ', LastName) LIKE ?) 
+                                AND UserID = ?");
+
         
         //search for any partcial matches
         $contactName = "%" . $inData["search"] . "%";
@@ -23,7 +29,7 @@
         
         // bind userId as integer
         $userId = (int)$inData["userId"];
-        $stmt->bind_param("ssi", $contactName, $contactName, $userId);
+        $stmt->bind_param("sssi", $contactName, $contactName, $contactName, $userId);
         $stmt->execute();
         
         $result = $stmt->get_result();
