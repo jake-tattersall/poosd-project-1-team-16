@@ -1,7 +1,7 @@
 function doRegister() {
     
-    let firstName = document.getElementById("firstName").value;
-    let lastName = document.getElementById("lastName").value;
+    let fName = document.getElementById("firstName").value;
+    let lname = document.getElementById("lastName").value;
     let loginName = document.getElementById("loginName").value.trim();
     let loginPassword = document.getElementById("loginPassword").value;
 
@@ -15,7 +15,7 @@ function doRegister() {
     });
 
     // Basic validation
-    if (!firstName || !lastName || !loginName || !loginPassword) {
+    if (!fName || !lname || !loginName || !loginPassword) {
         const msg = "Please fill in all fields.";
         resultEl.classList.add('error-text');
         resultEl.textContent = msg;
@@ -29,7 +29,7 @@ function doRegister() {
     }
     // No email format validation; username is treated as a plain login
 
-    let tmp = {firstName:firstName, lastName:lastName, login:loginName, password:loginPassword};
+    let tmp = {firstName:fName, lastName:lname, login:loginName, password:loginPassword};
     let jsonPayload = JSON.stringify( tmp );
 
     let url = urlBase + '/register.' + extension;
@@ -54,8 +54,8 @@ function doRegister() {
                                 if (xhr2.status == 200 && loginObj && loginObj.id && loginObj.id > 0) {
                                     // Set globals defined in code.js then persist and navigate
                                     userId = loginObj.id;
-                                    firstName = loginObj.firstName || firstName;
-                                    lastName = loginObj.lastName || lastName;
+                                    firstName = loginObj.firstName;
+                                    lastName = loginObj.lastName;
                                     saveCookie();
                                     // Do not show a success message; transition like login
                                     smoothTransition('color.html');
