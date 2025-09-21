@@ -1774,17 +1774,27 @@ body.light .section-title{ color:#0f172a; }
 
 /* Smooth transitions for contact rows */
 #contacts-rows {
-    transition: opacity 150ms ease;
+    transition: opacity 200ms ease-in-out;
+    min-height: 450px; /* Prevent height collapse during loading */
 }
 
 .contacts-grid {
     position: relative;
+    will-change: contents; /* Optimize for content changes */
 }
 
 /* Ensure consistent height to prevent layout shift */
 .grid-row {
     min-height: 90px;
+    transition: opacity 150ms ease-in-out;
 }
+
+/* Loading state styling */
+.grid-row.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
 
 .pagination-btn {
     padding: 8px 16px;
@@ -1794,7 +1804,11 @@ body.light .section-title{ color:#0f172a; }
     color: #ffffff;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+    transition: 
+        transform 120ms ease, 
+        box-shadow 120ms ease, 
+        opacity 200ms ease,
+        background-color 200ms ease;
     font-family: 'Quicksand', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
     font-size: 14px;
     min-width: 100px;
@@ -1806,7 +1820,10 @@ body.light .section-title{ color:#0f172a; }
     opacity: 0.95;
 }
 
-.pagination-btn.disabled {
+.pagination-btn:disabled {
+    transition: 
+        opacity 200ms ease,
+        background-color 200ms ease;
     background: rgba(148,163,184,0.3);
     color: rgba(255,255,255,0.5);
     cursor: not-allowed;
@@ -1871,5 +1888,42 @@ body.light .page-info {
         order: -1; /* Show page info at the top on mobile */
         width: 100%;
         max-width: 200px;
+    }
+}
+
+.contacts-grid-container {
+    contain: layout; /* CSS containment for better performance */
+}
+
+/* Skeleton loading animation (optional) */
+@keyframes skeleton-loading {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+.skeleton-row {
+    background: linear-gradient(90deg, 
+        rgba(255,255,255,0.1) 25%, 
+        rgba(255,255,255,0.2) 37%, 
+        rgba(255,255,255,0.1) 63%);
+    background-size: 400px 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    #contacts-rows,
+    .grid-row,
+    .pagination-btn {
+        transition: none;
+    }
+    
+    .skeleton-row {
+        animation: none;
+        background: rgba(255,255,255,0.15);
     }
 }
