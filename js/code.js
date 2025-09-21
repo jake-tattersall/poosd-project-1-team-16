@@ -4,8 +4,13 @@ const extension = 'php';
 let userId = 0;
 let firstName = "";
 let lastName = "";
-//readCookie();
+
 let theme = localStorage.getItem('theme') || 'light'; // Default to light mode
+
+// Global pagination state
+let currentPage = 1;
+let totalPages = 1;
+
 /*
 window.onload = function() {
         document.getElementById('searchContactsButton').innerHTML = '<img src="images/Show.svg" width="25" height="25" style="display:inline; vertical-align:middle;"><p style="display:inline; vertical-align:middle;">&ensp; Show my Contacts </p>';
@@ -128,18 +133,18 @@ function handleSearchKeyDown(event) {
 function animateContactListUpdate(elementId, content) {
     const element = document.getElementById(elementId);
     if (!element) return;
-    
+
     // Remove any existing animation classes
     element.classList.remove('updating', 'fade-in');
-    
+
     // Quick fade out and in with minimal height disruption
     element.style.opacity = '0.7';
-    
+
     setTimeout(() => {
         element.innerHTML = content;
         element.style.opacity = '';
         element.classList.add('fade-in');
-        
+
         // Clean up animation class after animation completes
         setTimeout(() => {
             element.classList.remove('fade-in');
@@ -340,124 +345,6 @@ function smoothTransition(url) {
     }, 500);
 }
 
-function doRegister() {
-    
-    let firstName = document.getElementById("firstName").value;
-    let lastName = document.getElementById("lastName").value;
-    let loginName = document.getElementById("loginName").value.trim();
-    let loginPassword = document.getElementById("loginPassword").value;
-
-    // Clear previous result message and input error outlines
-    const resultEl = document.getElementById("registerResult");
-    resultEl.innerHTML = "";
-    resultEl.classList.remove('error-text');
-    ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
-        var el = document.getElementById(id);
-        if (el) el.classList.remove('input-error');
-    });
-
-    // Basic validation
-    if (!firstName || !lastName || !loginName || !loginPassword) {
-        const msg = "Please fill in all fields.";
-        resultEl.classList.add('error-text');
-        resultEl.textContent = msg;
-        resultEl.style.color = '#f43f5e';
-        resultEl.style.fontSize = '0.8em';
-        ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
-            var el = document.getElementById(id);
-            if (el && !el.value) el.classList.add('input-error');
-        });
-        return;
-    }
-    // No email format validation; username is treated as a plain login
-
-    let tmp = {firstName:firstName, lastName:lastName, login:loginName, password:loginPassword};
-    let jsonPayload = JSON.stringify( tmp );
-
-    let url = urlBase + '/register.' + extension;
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", url, true);
-    xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
-    xhr.onreadystatechange = function() {
-        if (this.readyState == 4) {
-            try {
-                let jsonObject = JSON.parse(xhr.responseText);
-                if (xhr.status == 200 && jsonObject.error === "") {
-                    // On successful registration, auto-login then transition to colors page
-                    let loginPayload = JSON.stringify({ login: loginName, password: loginPassword });
-                    let loginUrl = urlBase + '/Login.' + extension;
-                    let xhr2 = new XMLHttpRequest();
-                    xhr2.open("POST", loginUrl, true);
-                    xhr2.setRequestHeader("Content-type", "application/json; charset=UTF-8");
-                    xhr2.onreadystatechange = function(){
-                        if (this.readyState == 4) {
-                            try {
-                                let loginObj = JSON.parse(xhr2.responseText);
-                                if (xhr2.status == 200 && loginObj && loginObj.id && loginObj.id > 0) {
-                                    // Set globals defined in code.js then persist and navigate
-                                    userId = loginObj.id;
-                                    firstName = loginObj.firstName || firstName;
-                                    lastName = loginObj.lastName || lastName;
-				//if (document.getElementById("userName")) {
-                       // document.getElementById("userName").innerHTML = "Logged in as " + firstName + " " + lastName;
-               // }
-                                    saveCookie();
-                                    // Do not show a success message; transition like login
-                                    smoothTransition('color.html');
-                                } else {
-                                    // Fallback: show error if auto-login fails
-                                    document.getElementById('registerResult').innerHTML = (loginObj && loginObj.error) ? loginObj.error : 'Auto-login failed.';
-                                }
-                            } catch(e) {
-                                document.getElementById('registerResult').innerHTML = 'Auto-login failed.';
-                            }
-                        }
-                    };
-                    xhr2.send(loginPayload);
-                } else {
-                    // Style error cohesively and, if duplicate account, highlight inputs
-                    var err = jsonObject.error || "Registration failed.";
-                    resultEl.classList.add('error-text');
-                    resultEl.textContent = err;
-                    resultEl.style.color = '#f43f5e';
-                    resultEl.style.fontSize = '0.8em';
-                    if (/username already exists/i.test(err)){
-                        ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
-                            var el = document.getElementById(id);
-                            if (el) el.classList.add('input-error');
-                        });
-                    }
-                }
-            } catch (e) {
-                resultEl.classList.add('error-text');
-                resultEl.textContent = "Registration failed.";
-                resultEl.style.color = '#f43f5e';
-                resultEl.style.fontSize = '0.8em';
-            }
-        }
-    };
-    xhr.send(jsonPayload);
-}
-
-// Remove error outline as the user types
-document.addEventListener('DOMContentLoaded', function(){
-    ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
-        var el = document.getElementById(id);
-        if (!el) return;
-        el.addEventListener('input', function(){
-            el.classList.remove('input-error');
-        });
-    });
-});
-
-// Enter key handler for registration form
-function handleRegisterKeyDown(event) {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        doRegister();
-    }
-}
-
 
 function importContacts() {
 	document.getElementById('contents').textContent = "";
@@ -619,9 +506,9 @@ function searchContacts()
 								<div class="grid-cell email-cell">${contact.email}</div>
 								<div class="grid-cell address-cell">${contact.address}</div>
 								<div class="grid-cell actions-cell">
-                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
-                                                                                 <img src="../images/Edit1.svg" width="30" height="30">
-                                                                        </button>   
+                                <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
+                                            <img src="../images/Edit1.svg" width="30" height="30">
+                                </button>   
 								</div>
 							</div>
 						`;
@@ -648,115 +535,266 @@ function searchContacts()
 }
 
 
-function listContacts()
+function listContacts(page = 1, forceOpen = false)
 {
-	//document.getElementById("contactsError").innerHTML = "";
-	//document.getElementById("contactsList").innerHTML = "";
-	
-	let dropdown = document.getElementById('contactsList');
+    let dropdown = document.getElementById('contactsList');
     let button = document.getElementById('listContactsButton');
-	let add = document.getElementById('addContactsButton');
-	let csvDropdown = document.getElementById('csvSection');
-	
-	// Check if dropdown is currently hidden
-	 // Check if dropdown is currently hidden
-    	if (dropdown.style.display === 'block') {
-			dropdown.style.display = 'none';
-			add.style.display = 'none';
-			csvDropdown.style.display = 'none';
-        	button.innerHTML = '<img src="images/Show.svg" width="25" height="25" style="display:inline; vertical-align:middle;"><p style="display:inline; vertical-align:middle;">&ensp; Show my Contacts </p>';
-        	return;
-    	} else {
-        	dropdown.style.display = 'block';
-			add.style.display = 'block';
-			csvDropdown.style.display = 'block';
-        	button.innerHTML = '<img src="images/Hide.svg" width="25" height="25" style="display:inline; vertical-align:middle;"><p style="display:inline; vertical-align:middle;">&ensp; Hide my Contacts </p>';
-    	}     
-	
-  	document.getElementById("contactsError").innerHTML = "";
-        document.getElementById("contactsList").innerHTML = "";
+    let addbutton = document.getElementById('addContactsButton');
+    let csvDropdown = document.getElementById('csvSection');
+    
+    // Handle dropdown visibility - only change if needed
+    if (page === 1 && !forceOpen) {
+        if (dropdown.style.display === 'block') {
+            dropdown.style.display = 'none';
+            button.innerHTML = 'List My Contacts';
+            addbutton.style.display = 'none';
+            csvDropdown.style.display = 'none';
+            return;
+        } else {
+            dropdown.style.display = 'block';
+            button.innerHTML = 'Hide My Contacts';
+            addbutton.style.display = 'block';
+            csvDropdown.style.display = 'block';
+        }
+    } else if (forceOpen) {
+        if (dropdown.style.display !== 'block') {
+            dropdown.style.display = 'block';
+            button.innerHTML = 'Hide My Contacts';
+            addbutton.style.display = 'block';
+            csvDropdown.style.display = 'block';
+        }
+    }    	
 
-	let contactList = "";
-	let tmp = {search: "", userId: userId}; // Empty search to get all contacts
-	let jsonPayload = JSON.stringify(tmp);
+    // Show loading state for pagination (not initial load)
+    let contactsListElement = document.getElementById("contactsList");
+    let isInitialLoad = !contactsListElement.innerHTML || contactsListElement.innerHTML.trim() === "";
+    
+    // Add loading indicator for pagination
+    if (!isInitialLoad && page !== currentPage) {
+        let rowsContainer = document.getElementById("contacts-rows");
+        if (rowsContainer) {
+            rowsContainer.style.opacity = '0.6';
+            rowsContainer.style.pointerEvents = 'none';
+        }
+        
+        // Update pagination to show loading
+        let paginationContainer = document.getElementById("pagination-container");
+        if (paginationContainer) {
+            let buttons = paginationContainer.querySelectorAll('.pagination-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            });
+        }
+    }
 
-	let url = urlBase + '/SearchContacts.' + extension;
+    document.getElementById("contactsError").innerHTML = "";
 
-	let xhr = new XMLHttpRequest();
-	xhr.open("POST", url, true);
-	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
-	try
-	{
-		xhr.onreadystatechange = function()
-		{
-			if (this.readyState == 4 && this.status == 200)
-			{
-				let jsonObject = JSON.parse(xhr.responseText);
-				if (jsonObject.results && jsonObject.results.length > 0) {
-					// Create grid header
-					contactList = `
-						<div class="contacts-grid">
-							<div class="grid-header">
-								<div class="grid-cell header-cell">Photo</div>
-								<div class="grid-cell header-cell">Name</div>
-								<div class="grid-cell header-cell">Phone</div>
-								<div class="grid-cell header-cell">Email</div>
-								<div class="grid-cell header-cell">Address</div>
-								<div class="grid-cell header-cell">Edit</div>
-							</div>
-					`;
+    let tmp = { page: page, userId: userId };
+    let jsonPayload = JSON.stringify(tmp);
+    let url = urlBase + '/PageContacts.' + extension;
 
-					let imagesArray = ["../images/fish1.png", "../images/fish2.png", "../images/fish3.png", "../images/fish4.png", "../images/fish5.png", "../images/fish6.png", "../images/fish7.png", "../images/fish8.png"];
-					// Add each contact as a grid row
-					for (let i = 0; i < jsonObject.results.length; i++)
-					{
-
-						let contact = jsonObject.results[i]; // Already parsed, no need for JSON.parse
-						let num = 0;
-						if (contact.firstName !== null) {
-							num = (contact.firstName).length % 8; // 0...2
-						}
-						else {
-							num = 2;
-						}
-						let img = imagesArray[num];
-						contactList += `
-							<div class="grid-row">
-								<div class="grid-cell photo-cell"><img class="icon" src=${img} alt="Avatar"></div>
-								<div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
-								<div class="grid-cell phone-cell">${contact.phone}</div>
-								<div class="grid-cell email-cell">${contact.email}</div>
-								<div class="grid-cell address-cell">${contact.address}</div>
-								<div class="grid-cell actions-cell">
-                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
-                                                                                 <img src="../images/Edit1.svg" width="30" height="30">
-                                                                        </button>   
-								</div>
-							</div>
-						`;
-					}
-
-					
-					contactList += `</div>`; // Close contacts-grid
-				} else {
-					contactList = "No contacts found.";
-					//document.getElementById("contactsError").innerHTML = "No contacts found.";
-				}
-				animateContactListUpdate("contactsList", contactList);
-			}
-		};
-		xhr.send(jsonPayload);
-	}
-	catch(err)
-	{
-		document.getElementById("contactsError").innerHTML = err.message;
-	}
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+    
+    try {
+        xhr.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                let jsonObject = JSON.parse(xhr.responseText);
+                
+                // Update pagination state
+                currentPage = jsonObject.currentPage || 1;
+                totalPages = jsonObject.totalPages || 1;
+                
+                if (jsonObject.results && jsonObject.results.length > 0) {
+                    updateContactsDisplay(jsonObject.results, isInitialLoad);
+                } else {
+                    handleEmptyResults(isInitialLoad, contactsListElement);
+                }
+                
+                // Remove loading state
+                let rowsContainer = document.getElementById("contacts-rows");
+                if (rowsContainer) {
+                    rowsContainer.style.opacity = '1';
+                    rowsContainer.style.pointerEvents = 'auto';
+                }
+            }
+        };
+        xhr.send(jsonPayload);
+    } catch(err) {
+        document.getElementById("contactsError").innerHTML = err.message;
+        
+        // Remove loading state on error
+        let rowsContainer = document.getElementById("contacts-rows");
+        if (rowsContainer) {
+            rowsContainer.style.opacity = '1';
+            rowsContainer.style.pointerEvents = 'auto';
+        }
+    }
 }
 
+function updateContactsDisplay(results, isInitialLoad) {
+    let contactsListElement = document.getElementById("contactsList");
+    let imagesArray = ["../images/fish1.png", "../images/fish2.png", "../images/fish3.png"];
+    
+    if (isInitialLoad) {
+        // Create the entire structure for initial load
+        let contactList = `
+            <div class="contacts-grid">
+                <div class="grid-header">
+                    <div class="grid-cell header-cell">Photo</div>
+                    <div class="grid-cell header-cell">Name</div>
+                    <div class="grid-cell header-cell">Phone</div>
+                    <div class="grid-cell header-cell">Email</div>
+                    <div class="grid-cell header-cell">Address</div>
+                    <div class="grid-cell header-cell">Actions</div>
+                </div>
+                <div id="contacts-rows"></div>
+            </div>
+            <div id="pagination-container"></div>
+        `;
+        contactsListElement.innerHTML = contactList;
+    }
 
+    // Use smooth row updates instead of recreation
+    updateContactRows(results, imagesArray);
+    
+    // Update pagination separately to avoid flicker
+    updatePaginationControls();
+}
 
+function updateContactRows(results, imagesArray) {
+    let rowsContainer = document.getElementById("contacts-rows");
+    if (!rowsContainer) return;
+    
+    let existingRows = rowsContainer.querySelectorAll('.grid-row');
+    let newContactCount = results.length;
+    let existingRowCount = existingRows.length;
+    
+    // Batch DOM updates to minimize reflows
+    let fragment = document.createDocumentFragment();
+    let rowsToUpdate = [];
+    
+    // Update existing rows efficiently
+    for (let i = 0; i < Math.min(newContactCount, existingRowCount); i++) {
+        let contact = results[i];
+        let num = Math.floor(Math.random() * 3);
+        let img = imagesArray[num];
+        let row = existingRows[i];
+        
+        // Store update info instead of immediately updating DOM
+        rowsToUpdate.push({
+            row: row,
+            contact: contact,
+            img: img
+        });
+    }
+    
+    // Apply all row updates at once
+    rowsToUpdate.forEach(update => {
+        update.row.innerHTML = createRowHTML(update.contact, update.img);
+    });
+    
+    // Handle adding new rows if needed
+    if (newContactCount > existingRowCount) {
+        for (let i = existingRowCount; i < newContactCount; i++) {
+            let contact = results[i];
+            let num = Math.floor(Math.random() * 3);
+            let img = imagesArray[num];
+            
+            let newRow = document.createElement('div');
+            newRow.className = 'grid-row';
+            newRow.innerHTML = createRowHTML(contact, img);
+            fragment.appendChild(newRow);
+        }
+        rowsContainer.appendChild(fragment);
+    }
+    // Handle removing excess rows
+    else if (newContactCount < existingRowCount) {
+        for (let i = existingRowCount - 1; i >= newContactCount; i--) {
+            rowsContainer.removeChild(existingRows[i]);
+        }
+    }
+}
 
-// Delete a contact by ID and refresh the lists
+function createRowHTML(contact, img) {
+    return `
+        <div class="grid-cell photo-cell"><img class="icon" src="${img}" alt="Avatar"></div>
+        <div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
+        <div class="grid-cell phone-cell">${contact.phone}</div>
+        <div class="grid-cell email-cell">${contact.email}</div>
+        <div class="grid-cell address-cell">${contact.address}</div>
+        <div class="grid-cell actions-cell">
+            <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
+                <img src="../images/Edit1.svg" width="30" height="30">
+            </button>   
+        </div>
+    `;
+}
+
+function updatePaginationControls() {
+    let paginationContainer = document.getElementById("pagination-container");
+    if (!paginationContainer) return;
+    
+    // Only update if pagination has actually changed
+    let currentPaginationHTML = createPaginationControls(currentPage, totalPages);
+    if (paginationContainer.innerHTML !== currentPaginationHTML) {
+        paginationContainer.innerHTML = currentPaginationHTML;
+    }
+}
+
+function handleEmptyResults(isInitialLoad, contactsListElement) {
+    if (isInitialLoad) {
+        document.getElementById("contactsError").innerHTML = "No contacts found.";
+        contactsListElement.innerHTML = "No contacts found.";
+    } else {
+        // If we're on a page that no longer has results (e.g., after deletion),
+        // go back to the previous page
+        if (currentPage > 1) {
+            listContacts(currentPage - 1, true);
+            return;
+        }
+        document.getElementById("contactsError").innerHTML = "No contacts found.";
+        contactsListElement.innerHTML = "No contacts found.";
+    }
+}
+
+function createPaginationControls(currentPage, totalPages) {
+    if (totalPages <= 1) {
+        return ""; // No pagination needed for single page
+    }
+    
+    let paginationHtml = `
+        <div class="pagination-controls">
+            <button type="button" class="pagination-btn ${currentPage <= 1 ? 'disabled' : ''}" 
+                    onclick="changePage(${currentPage - 1})" 
+                    ${currentPage <= 1 ? 'disabled' : ''}>
+                Previous
+            </button>
+            
+            <div class="page-info">
+                Page ${currentPage} of ${totalPages}
+            </div>
+            
+            <button type="button" class="pagination-btn ${currentPage >= totalPages ? 'disabled' : ''}" 
+                    onclick="changePage(${currentPage + 1})" 
+                    ${currentPage >= totalPages ? 'disabled' : ''}>
+                Next
+            </button>
+        </div>
+    `;
+    
+    return paginationHtml;
+}
+
+function changePage(newPage) {
+    if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
+        listContacts(newPage, true); // Force open when navigating pages
+    }
+}
+
+// Update the existing deleteContact function to refresh the current page
 function deleteContact(contactId)
 {
     if (!confirm('Delete this contact?')) return;
@@ -773,11 +811,12 @@ function deleteContact(contactId)
             try {
                 let jsonObject = JSON.parse(xhr.responseText);
                 if (this.status == 200 && jsonObject.error === "") {
-                    // Refresh visible lists if present
-                    if (document.getElementById('contactsList')) {
-                        listContacts();
-                    }
-                    if (document.getElementById('contactListResults')) {
+                    // Check if we need to go back a page after deleting the last item on current page
+                    // This will be handled by the listContacts function when it gets empty results
+                    listContacts(currentPage);
+                    
+                    // Also refresh search results if they're visible
+                    if (document.getElementById('contactListResults') && document.getElementById('contactListResults').innerHTML) {
                         searchContacts();
                     }
                 } else {
@@ -868,6 +907,7 @@ function closeModifyContactPopup() {
     document.getElementById('modifyContactPopup').style.display = 'none';
 }
 
+// Update the existing modifyContact submit function to refresh current page
 function submitModifyContact(event) {
     event.preventDefault();
     var id = document.getElementById('modifyContactId').value;
@@ -892,12 +932,13 @@ function submitModifyContact(event) {
     xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
     xhr.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          //  alert('Contact modified.');
-            //closeModifyContactPopup();
-		document.getElementById('modifyContactPopup').style.display = 'none';
-            // Refresh both list and search views
-            if (typeof listContacts === 'function') listContacts();
-            if (typeof searchContacts === 'function') searchContacts();
+            // alert('Contact modified.');
+            closeModifyContactPopup();
+            // Refresh current page of contacts and search results
+            listContacts(currentPage);
+            if (document.getElementById('contactListResults') && document.getElementById('contactListResults').innerHTML) {
+                searchContacts();
+            }
         }
     };
     xhr.send(jsonPayload);
@@ -1288,6 +1329,67 @@ function listContactsPrecise(firstName, lastName, phone, email, address)
 	//document.getElementById("contactsError").innerHTML = "";
 	//document.getElementById("contactsList").innerHTML = "";
 	
+
+	let contactList = "";
+	let tmp = {search: "", userId: userId}; // Empty search to get all contacts
+	let jsonPayload = JSON.stringify(tmp);
+
+	let url = urlBase + '/SearchContacts.' + extension;
+
+	let xhr = new XMLHttpRequest();
+	xhr.open("POST", url, true);
+	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+	try
+	{
+		xhr.onreadystatechange = function()
+		{
+			if (this.readyState == 4 && this.status == 200)
+			{
+				let jsonObject = JSON.parse(xhr.responseText);
+				if (jsonObject.results && jsonObject.results.length > 0) {
+					for (let i = 0; i < jsonObject.results.length; i++)
+					{
+
+						let contact = jsonObject.results[i]; // Already parsed, no need for JSON.parse
+						if (contact.firstName === firstName && contact.lastName === lastName && phone === phone && email === email && address === address)
+						{
+							deleteContact(contact.id);
+							document.getElementById('modifyContactPopup').style.display = 'none';
+							break;
+						}
+					}
+				} else {
+					//contactList = "No contacts found.";
+					//document.getElementById("contactsError").innerHTML = "No contacts found.";
+				}
+				//animateContactListUpdate("contactsList", contactList);
+			}
+		};
+		xhr.send(jsonPayload);
+	}
+	catch(err)
+	{
+		document.getElementById("contactsError").innerHTML = err.message;
+	}
+}
+
+function deleteContactPrecise()
+{
+	var firstName = document.getElementById('modifyFirstName').value;
+	var lastName = document.getElementById('modifyLastName').value;
+	var phone = document.getElementById('modifyPhone').value;
+	var email = document.getElementById('modifyEmail').value;
+	var address = document.getElementById('modifyAddress').value;
+
+	listContactsPrecise(firstName, lastName, phone, email, address);
+}
+
+
+function listContactsPrecise(firstName, lastName, phone, email, address)
+{
+	//document.getElementById("contactsError").innerHTML = "";
+	//document.getElementById("contactsList").innerHTML = "";
+
 
 	let contactList = "";
 	let tmp = {search: "", userId: userId}; // Empty search to get all contacts
