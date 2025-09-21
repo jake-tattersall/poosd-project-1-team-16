@@ -717,14 +717,6 @@ function createRowHTML(contact, img) {
         <div class="grid-cell phone-cell">${contact.phone}</div>
         <div class="grid-cell email-cell">${contact.email}</div>
         <div class="grid-cell address-cell">${contact.address}</div>
-        <div class="grid-cell actions-cell">
-            <button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
-                <img src="../images/Delete1.svg" width="30" height="30">
-            </button>
-            <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
-                <img src="../images/Edit1.svg" width="30" height="30">
-            </button>   
-        </div>
     `;
 }
 
