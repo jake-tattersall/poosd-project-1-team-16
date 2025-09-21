@@ -1,4 +1,3 @@
-
 INITIAL_CMDS = """create database Project1;
 
 use Project1;
@@ -11,9 +10,10 @@ CREATE TABLE `Project1`.`Users` ( `ID` INT NOT NULL AUTO_INCREMENT , `FirstName`
 
 Users = [
     ('Rick','Leinecker','RickL','COP4331'),
-    ('admin','admin','admin','admin'),
+    ('Admin','Admin','Admin','Admin'),
     ('test','test','test','test'),
     ('John','Doe','username','password'),
+    ('Jake','Tattersall','jake','password123')
 ]
 
 Contacts = [
@@ -48,7 +48,17 @@ Contacts = [
     ('UniqueTo', 'Admin', '444-555-6666', '2@ucf.edu', '2 Avenue, City, State', 2),
     ('UniqueTo', 'Rick', '111-222-3333', '1@ucf.edu', '1 Street, City, State', 1),
     ('UniqueTo', 'Test', '777-888-9999', '3@ucf.edu', '3 Boulevard, City, State', 3),
-    ('Yara', 'Singh', '555-321-7654', 'yara@ucf.edu', '1212 Palm Ct, City, State', 1)
+    ('Yara', 'Singh', '555-321-7654', 'yara@ucf.edu', '1212 Palm Ct, City, State', 1),
+    ('Alice', 'Smith', '321-654-9870', 'alice@ucf.edu', '789 Blvd, City, State', 5),
+    ('Bob', 'Johnson', '555-111-2222', 'bob@ucf.edu', '', 5),
+    ('Charlie', 'Brown', '555-333-4444', '', '222 Drive, City, State', 5),
+    ('Diana', 'Prince', '', 'diana@ucf.edu', '333 Court, City, State', 5),
+    ('Eve', 'Adams', '555-666-7777', 'eve@ucf.edu', '', 5),
+    ('Frank', 'Miller', '555-888-9999', 'frank@ucf.edu', '555 Parkway, City, State', 5),
+    ('Grace', 'Hopper', '555-000-1111', 'grace@ucf.edu', '666 Street, City, State', 5),
+    ('Henry', 'Ford', '', '', '777 Avenue, City, State', 5),
+    ('Ivy', 'Taylor', '555-444-5555', '', '888 Blvd, City, State', 5),
+    ('Jake', 'Tattersall', '555-555-5555', 'jake@ucf.edu', '123 Main St, City, State', 5)
 ]
 
 with open('database\\create_db_cmds.txt', 'w') as f:

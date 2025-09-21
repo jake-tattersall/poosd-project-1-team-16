@@ -7,9 +7,10 @@ CREATE TABLE `Project1`.`Contacts` ( `ID` INT NOT NULL AUTO_INCREMENT , `FirstNa
 CREATE TABLE `Project1`.`Users` ( `ID` INT NOT NULL AUTO_INCREMENT , `FirstName` VARCHAR(50) NOT NULL DEFAULT '' , `LastName` VARCHAR(50) NOT NULL DEFAULT '' , `Login` VARCHAR(50) NOT NULL DEFAULT '' , `Password` VARCHAR(50) NOT NULL DEFAULT '' , PRIMARY KEY (`ID`)) ENGINE = InnoDB;
 
 INSERT INTO Users (`FirstName`, `LastName`, `Login`, `Password`) VALUES ('Rick', 'Leinecker', 'RickL', 'COP4331');
-INSERT INTO Users (`FirstName`, `LastName`, `Login`, `Password`) VALUES ('admin', 'admin', 'admin', 'admin');
+INSERT INTO Users (`FirstName`, `LastName`, `Login`, `Password`) VALUES ('Admin', 'Admin', 'Admin', 'Admin');
 INSERT INTO Users (`FirstName`, `LastName`, `Login`, `Password`) VALUES ('test', 'test', 'test', 'test');
 INSERT INTO Users (`FirstName`, `LastName`, `Login`, `Password`) VALUES ('John', 'Doe', 'username', 'password');
+INSERT INTO Users (`FirstName`, `LastName`, `Login`, `Password`) VALUES ('Jake', 'Tattersall', 'jake', 'password123');
 
 INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('Alice', 'Smith', '321-654-9870', 'alice@ucf.edu', '789 Blvd, City, State', 1);
 INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('Amara', 'Lopez', '555-234-1111', 'amara@ucf.edu', '12 Sunset Dr, City, State', 1);
@@ -43,3 +44,13 @@ INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `Use
 INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('UniqueTo', 'Rick', '111-222-3333', '1@ucf.edu', '1 Street, City, State', 1);
 INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('UniqueTo', 'Test', '777-888-9999', '3@ucf.edu', '3 Boulevard, City, State', 3);
 INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('Yara', 'Singh', '555-321-7654', 'yara@ucf.edu', '1212 Palm Ct, City, State', 1);
+INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('Alice', 'Smith', '321-654-9870', 'alice@ucf.edu', '789 Blvd, City, State', 5);
+INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('Bob', 'Johnson', '555-111-2222', 'bob@ucf.edu', '', 5);
+INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('Charlie', 'Brown', '555-333-4444', '', '222 Drive, City, State', 5);
+INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('Diana', 'Prince', '', 'diana@ucf.edu', '333 Court, City, State', 5);
+INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('Eve', 'Adams', '555-666-7777', 'eve@ucf.edu', '', 5);
+INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('Frank', 'Miller', '555-888-9999', 'frank@ucf.edu', '555 Parkway, City, State', 5);
+INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('Grace', 'Hopper', '555-000-1111', 'grace@ucf.edu', '666 Street, City, State', 5);
+INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('Henry', 'Ford', '', '', '777 Avenue, City, State', 5);
+INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('Ivy', 'Taylor', '555-444-5555', '', '888 Blvd, City, State', 5);
+INSERT INTO Contacts (`FirstName`, `LastName`, `Phone`, `Email`, `Address`, `UserID`) VALUES ('Jake', 'Tattersall', '555-555-5555', 'jake@ucf.edu', '123 Main St, City, State', 5);
