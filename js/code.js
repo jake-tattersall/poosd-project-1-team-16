@@ -640,6 +640,7 @@ function updateContactsDisplay(results, isInitialLoad) {
                     <div class="grid-cell header-cell">Phone</div>
                     <div class="grid-cell header-cell">Email</div>
                     <div class="grid-cell header-cell">Address</div>
+                    <div class="grid-cell header-cell">Actions</div>
                 </div>
                 <div id="contacts-rows"></div>
             </div>
@@ -716,6 +717,11 @@ function createRowHTML(contact, img) {
         <div class="grid-cell phone-cell">${contact.phone}</div>
         <div class="grid-cell email-cell">${contact.email}</div>
         <div class="grid-cell address-cell">${contact.address}</div>
+        <div class="grid-cell actions-cell">
+            <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
+                <img src="../images/Edit1.svg" width="30" height="30">
+            </button>   
+        </div>
     `;
 }
 
