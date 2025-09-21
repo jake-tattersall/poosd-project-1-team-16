@@ -2,11 +2,11 @@
 <head>
 	<title>Sea Contacts</title>
 	<script type="text/javascript" src="js/md5.js"></script>
-	<script type="text/javascript" src="js/code.js"></script>
-	<script type="text/javascript" src="js/register.js"></script>
-	<script type="text/javascript" src="js/AddContact.js"></script>
-
-    <link href="css/styles.css" rel="stylesheet">	
+	<script type="text/javascript" src="js/code.js?????????????????????????????????????????????????????????????????"></script>
+	<script type="text/javascript" src="js/register1.js"></script>
+	<!--script type="text/javascript" src="js/AddContact.js"></script-->
+	<!--Modified from https://stackoverflow.com/questions/2263096/css-file-not-refreshing-in-browser:-->
+    <link href="css/styles.css?<?=filemtime('css/styles.css');?>" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Seaweed+Script&display=swap" rel="stylesheet">
     <link rel="icon" href="data:,">
     <meta name="viewport" content="width=device-width, initial-scale=1">    
@@ -62,9 +62,9 @@
 	<span id="inner-title">CREATE AN ACCOUNT</span>
 	<input type="text" id="firstName" placeholder="First Name" onkeydown="handleRegisterKeyDown(event)" /><br />
 	<input type="text" id="lastName" placeholder="Last Name" onkeydown="handleRegisterKeyDown(event)" /><br />
-	<input type="text" id="loginName" placeholder="Username" onkeydown="handleRegisterKeyDown(event)" /><br />
-	<input type="password" id="loginPassword" placeholder="Password" onkeydown="handleRegisterKeyDown(event)" /><br />
-	<small style="color: #94a3b8; font-size: 12px; display: block; margin-top: 4px; text-align: center;">Username and password are both case-sensitive</small>
+	<input type="text" id="loginName" placeholder="Username (case-sensitive)" onkeydown="handleRegisterKeyDown(event)" /><br />
+	<input type="password" id="loginPassword" placeholder="Password (case-sensitive)" onkeydown="handleRegisterKeyDown(event)" /><br />
+	<small style="color: #94a3b8; font-size: 12px; display: block; margin-top: 4px;">Username and password are both case-sensitive</small>
 	<button type="button" id="registerButton" class="buttons" onclick="doRegister();"> Register </button>
 	<span id="registerResult"></span>
 	<div class="auth-switch">Already have an account? <a class="auth-link" href="index.html" onclick="smoothTransition('index.html'); return false;">Login here</a></div>
