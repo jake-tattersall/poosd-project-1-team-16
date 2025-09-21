@@ -6,6 +6,10 @@ let firstName = "";
 let lastName = "";
 let theme = localStorage.getItem('theme') || 'light'; // Default to light mode
 
+// Global pagination state
+let currentPage = 1;
+let totalPages = 1;
+
 document.addEventListener('DOMContentLoaded', function() {
     // Apply saved theme on load
     if (theme === 'light') {
@@ -419,100 +423,138 @@ function searchContacts()
 }
 
 
-function listContacts()
+function listContacts(page = 1)
 {
-	//document.getElementById("contactsError").innerHTML = "";
-	//document.getElementById("contactsList").innerHTML = "";
-	
-	let dropdown = document.getElementById('contactsList');
-    	let button = document.getElementById('listContactsButton');
+    let dropdown = document.getElementById('contactsList');
+    let button = document.getElementById('listContactsButton');
     
-   	 // Check if dropdown is currently hidden
-	 // Check if dropdown is currently hidden
-    	if (dropdown.style.display === 'block') {
-			dropdown.style.display = 'none';
-        	button.innerHTML = 'List My Contacts';
-        	return;
-    	} else {
-        	dropdown.style.display = 'block';
-        	button.innerHTML = 'Hide My Contacts';
-    	}    	
+    // Check if dropdown is currently hidden
+    if (dropdown.style.display === 'block' && page === 1) {
+        dropdown.style.display = 'none';
+        button.innerHTML = 'List My Contacts';
+        return;
+    } else {
+        dropdown.style.display = 'block';
+        button.innerHTML = 'Hide My Contacts';
+    }    	
 
-  	document.getElementById("contactsError").innerHTML = "";
-        document.getElementById("contactsList").innerHTML = "";
+    document.getElementById("contactsError").innerHTML = "";
+    document.getElementById("contactsList").innerHTML = "";
 
-	let contactList = "";
-	let tmp = {search: "", userId: userId}; // Empty search to get all contacts
-	let jsonPayload = JSON.stringify(tmp);
+    let contactList = "";
+    let tmp = { page: page, userId: userId };
+    let jsonPayload = JSON.stringify(tmp);
 
-	let url = urlBase + '/SearchContacts.' + extension;
+    let url = urlBase + '/PageContacts.' + extension;
 
-	let xhr = new XMLHttpRequest();
-	xhr.open("POST", url, true);
-	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
-	try
-	{
-		xhr.onreadystatechange = function()
-		{
-			if (this.readyState == 4 && this.status == 200)
-			{
-				let jsonObject = JSON.parse(xhr.responseText);
-				if (jsonObject.results && jsonObject.results.length > 0) {
-					// Create grid header
-					contactList = `
-						<div class="contacts-grid">
-							<div class="grid-header">
-								<div class="grid-cell header-cell">Photo</div>
-								<div class="grid-cell header-cell">Name</div>
-								<div class="grid-cell header-cell">Phone</div>
-								<div class="grid-cell header-cell">Email</div>
-								<div class="grid-cell header-cell">Address</div>
-								<div class="grid-cell header-cell">Actions</div>
-							</div>
-					`;
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+    try
+    {
+        xhr.onreadystatechange = function()
+        {
+            if (this.readyState == 4 && this.status == 200)
+            {
+                let jsonObject = JSON.parse(xhr.responseText);
+                
+                // Update pagination state
+                currentPage = jsonObject.currentPage || 1;
+                totalPages = jsonObject.totalPages || 1;
+                
+                if (jsonObject.results && jsonObject.results.length > 0) {
+                    // Create grid header
+                    contactList = `
+                        <div class="contacts-grid">
+                            <div class="grid-header">
+                                <div class="grid-cell header-cell">Photo</div>
+                                <div class="grid-cell header-cell">Name</div>
+                                <div class="grid-cell header-cell">Phone</div>
+                                <div class="grid-cell header-cell">Email</div>
+                                <div class="grid-cell header-cell">Address</div>
+                                <div class="grid-cell header-cell">Actions</div>
+                            </div>
+                    `;
 
-					let imagesArray = ["../images/fish1.png", "../images/fish2.png", "../images/fish3.png"];
-					// Add each contact as a grid row
-					for (let i = 0; i < jsonObject.results.length; i++)
-					{
-						let num = Math.floor(Math.random() * 3); // 0...2
-						let img = imagesArray[num];
+                    let imagesArray = ["../images/fish1.png", "../images/fish2.png", "../images/fish3.png"];
+                    // Add each contact as a grid row
+                    for (let i = 0; i < jsonObject.results.length; i++)
+                    {
+                        let num = Math.floor(Math.random() * 3); // 0...2
+                        let img = imagesArray[num];
 
-						let contact = jsonObject.results[i]; // Already parsed, no need for JSON.parse
-						contactList += `
-							<div class="grid-row">
-								<div class="grid-cell photo-cell"><img class="icon" src=${img} alt="Avatar"></div>
-								<div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
-								<div class="grid-cell phone-cell">${contact.phone}</div>
-								<div class="grid-cell email-cell">${contact.email}</div>
-								<div class="grid-cell address-cell">${contact.address}</div>
-								<div class="grid-cell actions-cell">
-									<button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
-                                                                                <img src="../images/Delete.svg" width="30" height="30">
-                                                                        </button>
-                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
-                                                                                 <img src="../images/Edit.svg" width="30" height="30">
-                                                                        </button>   
-								</div>
-							</div>
-						`;
-					}
+                        let contact = jsonObject.results[i];
+                        contactList += `
+                            <div class="grid-row">
+                                <div class="grid-cell photo-cell"><img class="icon" src=${img} alt="Avatar"></div>
+                                <div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
+                                <div class="grid-cell phone-cell">${contact.phone}</div>
+                                <div class="grid-cell email-cell">${contact.email}</div>
+                                <div class="grid-cell address-cell">${contact.address}</div>
+                                <div class="grid-cell actions-cell">
+                                    <button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
+                                        <img src="../images/Delete.svg" width="30" height="30">
+                                    </button>
+                                    <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
+                                        <img src="../images/Edit.svg" width="30" height="30">
+                                    </button>   
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    contactList += `</div>`; // Close contacts-grid
+                    
+                    // Add pagination controls
+                    contactList += createPaginationControls(currentPage, totalPages);
+                    
+                } else {
+                    contactList = "No contacts found.";
+                    document.getElementById("contactsError").innerHTML = "No contacts found.";
+                }
+                document.getElementById("contactsList").innerHTML = contactList;
+            }
+        };
+        xhr.send(jsonPayload);
+    }
+    catch(err)
+    {
+        document.getElementById("contactsError").innerHTML = err.message;
+    }
+}
 
-					
-					contactList += `</div>`; // Close contacts-grid
-				} else {
-					contactList = "No contacts found.";
-					document.getElementById("contactsError").innerHTML = "No contacts found.";
-				}
-				document.getElementById("contactsList").innerHTML = contactList;
-			}
-		};
-		xhr.send(jsonPayload);
-	}
-	catch(err)
-	{
-		document.getElementById("contactsError").innerHTML = err.message;
-	}
+function createPaginationControls(currentPage, totalPages) {
+    if (totalPages <= 1) {
+        return ""; // No pagination needed for single page
+    }
+    
+    let paginationHtml = `
+        <div class="pagination-controls">
+            <button type="button" class="pagination-btn ${currentPage <= 1 ? 'disabled' : ''}" 
+                    onclick="changePage(${currentPage - 1})" 
+                    ${currentPage <= 1 ? 'disabled' : ''}>
+                ← Previous
+            </button>
+            
+            <div class="page-info">
+                Page ${currentPage} of ${totalPages}
+            </div>
+            
+            <button type="button" class="pagination-btn ${currentPage >= totalPages ? 'disabled' : ''}" 
+                    onclick="changePage(${currentPage + 1})" 
+                    ${currentPage >= totalPages ? 'disabled' : ''}>
+                Next →
+            </button>
+        </div>
+    `;
+    
+    return paginationHtml;
+}
+
+function changePage(newPage) {
+    if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
+        listContacts(newPage);
+    }
 }
 
 // Delete a contact by ID and refresh the lists
@@ -532,11 +574,12 @@ function deleteContact(contactId)
             try {
                 let jsonObject = JSON.parse(xhr.responseText);
                 if (this.status == 200 && jsonObject.error === "") {
-                    // Refresh visible lists if present
-                    if (document.getElementById('contactsList')) {
-                        listContacts();
-                    }
-                    if (document.getElementById('contactListResults')) {
+                    // Check if we need to go back a page after deleting the last item on current page
+                    // This will be handled by the listContacts function when it gets empty results
+                    listContacts(currentPage);
+                    
+                    // Also refresh search results if they're visible
+                    if (document.getElementById('contactListResults') && document.getElementById('contactListResults').innerHTML) {
                         searchContacts();
                     }
                 } else {
@@ -592,9 +635,11 @@ function submitModifyContact(event) {
         if (this.readyState == 4 && this.status == 200) {
             alert('Contact modified.');
             closeModifyContactPopup();
-            // Refresh both list and search views
-            if (typeof listContacts === 'function') listContacts();
-            if (typeof searchContacts === 'function') searchContacts();
+            // Refresh current page of contacts and search results
+            listContacts(currentPage);
+            if (document.getElementById('contactListResults') && document.getElementById('contactListResults').innerHTML) {
+                searchContacts();
+            }
         }
     };
     xhr.send(jsonPayload);
