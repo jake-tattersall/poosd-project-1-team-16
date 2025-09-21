@@ -1480,7 +1480,7 @@ body.light .bubble {
     transition: opacity 0.2s ease-in-out, transform 0.15s ease-in-out;
     transform: translateY(0);
     min-height: 100px; /* Prevent drastic height changes */
-    max-height: 600px; /* Limit maximum height for better UX */
+    /*max-height: 600px;*/ /* Limit maximum height for better UX */
     /*overflow-y: auto;*/ /* Allow scrolling if content is too tall */ 
     /*overflow-x: hidden;*/ /* Hide horizontal scrollbar */ 
 }
