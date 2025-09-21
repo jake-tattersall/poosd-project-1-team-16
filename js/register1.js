@@ -53,6 +53,8 @@ function doRegister() {
                                 let loginObj = JSON.parse(xhr2.responseText);
                                 if (xhr2.status == 200 && loginObj && loginObj.id && loginObj.id > 0) {
                                     // Set globals defined in code.js then persist and navigate
+                                    console.log(loginObj.textContent)
+
                                     userId = loginObj.id;
                                     firstName = loginObj.firstName;
                                     lastName = loginObj.lastName;

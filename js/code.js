@@ -4,19 +4,25 @@ const extension = 'php';
 let userId = 0;
 let firstName = "";
 let lastName = "";
+//readCookie();
 let theme = localStorage.getItem('theme') || 'light'; // Default to light mode
-
-// Global pagination state
-let currentPage = 1;
-let totalPages = 1;
-
+/*
+window.onload = function() {
+        document.getElementById('searchContactsButton').innerHTML = '<img src="images/Show.svg" width="25" height="25" style="display:inline; vertical-align:middle;"><p style="display:inline; vertical-align:middle;">&ensp; Show my Contacts </p>';
+};
+*/
 document.addEventListener('DOMContentLoaded', function() {
-    // Apply saved theme on load
+    readCookie();
+
+	// Apply saved theme on load
     if (theme === 'light') {
         document.body.classList.add('light');
     } else {
         document.body.classList.remove('light');
     }
+
+	//document.getElementById('searchContactsButton').innerHTML = '<img src="images/Show.svg" width="25" height="25" style="display:inline; vertical-align:middle;"><p style="display:inline; vertical-align:middle;">&ensp; Show my Contacts </p>';
+
     // Ensure initial page load does not animate sun/moon
     document.body.classList.remove('theme-animated');
     // Wire checkbox switch if present
@@ -118,6 +124,45 @@ function handleSearchKeyDown(event) {
     }
 }
 
+// Helper function to add smooth animations to contact list updates
+function animateContactListUpdate(elementId, content) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    // Remove any existing animation classes
+    element.classList.remove('updating', 'fade-in');
+    
+    // Quick fade out and in with minimal height disruption
+    element.style.opacity = '0.7';
+    
+    setTimeout(() => {
+        element.innerHTML = content;
+        element.style.opacity = '';
+        element.classList.add('fade-in');
+        
+        // Clean up animation class after animation completes
+        setTimeout(() => {
+            element.classList.remove('fade-in');
+        }, 250);
+    }, 50); // Very quick delay to prevent jarring effect
+}
+
+// Debounced search function for real-time search
+let searchTimeout;
+function debouncedSearch() {
+    clearTimeout(searchTimeout);
+    
+    // Add updating class for smooth transition
+    const resultsElement = document.getElementById("contactListResults");
+    if (resultsElement) {
+        resultsElement.classList.add('updating');
+    }
+    
+    searchTimeout = setTimeout(() => {
+        searchContacts();
+    }, 200); 
+}
+
 function handleAddContactKeyDown(event) {
     if (event.key === 'Enter') {
         event.preventDefault();
@@ -195,6 +240,8 @@ function doLogin()
 
 }
 
+
+
 function saveCookie()
 {
 	let minutes = 20;
@@ -225,7 +272,8 @@ function readCookie()
 			userId = parseInt( tokens[1].trim() );
 		}
 	}
-	
+
+
 	var path = (typeof window !== 'undefined') ? window.location.pathname : '';
 	if( userId < 0 )
 	{
@@ -292,6 +340,170 @@ function smoothTransition(url) {
     }, 500);
 }
 
+function doRegister() {
+    
+    let firstName = document.getElementById("firstName").value;
+    let lastName = document.getElementById("lastName").value;
+    let loginName = document.getElementById("loginName").value.trim();
+    let loginPassword = document.getElementById("loginPassword").value;
+
+    // Clear previous result message and input error outlines
+    const resultEl = document.getElementById("registerResult");
+    resultEl.innerHTML = "";
+    resultEl.classList.remove('error-text');
+    ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) el.classList.remove('input-error');
+    });
+
+    // Basic validation
+    if (!firstName || !lastName || !loginName || !loginPassword) {
+        const msg = "Please fill in all fields.";
+        resultEl.classList.add('error-text');
+        resultEl.textContent = msg;
+        resultEl.style.color = '#f43f5e';
+        resultEl.style.fontSize = '0.8em';
+        ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
+            var el = document.getElementById(id);
+            if (el && !el.value) el.classList.add('input-error');
+        });
+        return;
+    }
+    // No email format validation; username is treated as a plain login
+
+    let tmp = {firstName:firstName, lastName:lastName, login:loginName, password:loginPassword};
+    let jsonPayload = JSON.stringify( tmp );
+
+    let url = urlBase + '/register.' + extension;
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+    xhr.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            try {
+                let jsonObject = JSON.parse(xhr.responseText);
+                if (xhr.status == 200 && jsonObject.error === "") {
+                    // On successful registration, auto-login then transition to colors page
+                    let loginPayload = JSON.stringify({ login: loginName, password: loginPassword });
+                    let loginUrl = urlBase + '/Login.' + extension;
+                    let xhr2 = new XMLHttpRequest();
+                    xhr2.open("POST", loginUrl, true);
+                    xhr2.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+                    xhr2.onreadystatechange = function(){
+                        if (this.readyState == 4) {
+                            try {
+                                let loginObj = JSON.parse(xhr2.responseText);
+                                if (xhr2.status == 200 && loginObj && loginObj.id && loginObj.id > 0) {
+                                    // Set globals defined in code.js then persist and navigate
+                                    userId = loginObj.id;
+                                    firstName = loginObj.firstName || firstName;
+                                    lastName = loginObj.lastName || lastName;
+				//if (document.getElementById("userName")) {
+                       // document.getElementById("userName").innerHTML = "Logged in as " + firstName + " " + lastName;
+               // }
+                                    saveCookie();
+                                    // Do not show a success message; transition like login
+                                    smoothTransition('color.html');
+                                } else {
+                                    // Fallback: show error if auto-login fails
+                                    document.getElementById('registerResult').innerHTML = (loginObj && loginObj.error) ? loginObj.error : 'Auto-login failed.';
+                                }
+                            } catch(e) {
+                                document.getElementById('registerResult').innerHTML = 'Auto-login failed.';
+                            }
+                        }
+                    };
+                    xhr2.send(loginPayload);
+                } else {
+                    // Style error cohesively and, if duplicate account, highlight inputs
+                    var err = jsonObject.error || "Registration failed.";
+                    resultEl.classList.add('error-text');
+                    resultEl.textContent = err;
+                    resultEl.style.color = '#f43f5e';
+                    resultEl.style.fontSize = '0.8em';
+                    if (/username already exists/i.test(err)){
+                        ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
+                            var el = document.getElementById(id);
+                            if (el) el.classList.add('input-error');
+                        });
+                    }
+                }
+            } catch (e) {
+                resultEl.classList.add('error-text');
+                resultEl.textContent = "Registration failed.";
+                resultEl.style.color = '#f43f5e';
+                resultEl.style.fontSize = '0.8em';
+            }
+        }
+    };
+    xhr.send(jsonPayload);
+}
+
+// Remove error outline as the user types
+document.addEventListener('DOMContentLoaded', function(){
+    ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input', function(){
+            el.classList.remove('input-error');
+        });
+    });
+});
+
+// Enter key handler for registration form
+function handleRegisterKeyDown(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        doRegister();
+    }
+}
+
+
+function importContacts() {
+	document.getElementById('contents').textContent = "";
+	document.getElementById("uploadButton").click();
+	document.getElementById('uploadButton').addEventListener('change', function eventHandler(event) {
+		const file = event.target.files[0];
+		if (file) {
+                Papa.parse(file, {
+                    header: true,
+                    complete: function(results) {
+						let csvResults = JSON.stringify(results.data);
+						//alert(csvResults);
+						document.getElementById('contents').innerText = results.data.length;
+						//let jsonObject = JSON.parse(csvResults);
+						//alert(results.data);
+						
+						for (let i = 0; i < results.data.length; i++)
+						{
+							let contact = results.data[i]; // Already parsed, no need for JSON.parse
+							//alert(JSON.stringify(contact));
+							document.getElementById("firstName").value = contact["First Name"];
+							//alert(contact["First Name"]);
+						    document.getElementById("lastName").value = contact["Last Name"];
+							//alert(contact["Last Name"]);
+						    document.getElementById("phone").value = contact.Phone;
+							//alert(contact.Phone);
+						    document.getElementById("email").value = contact.Email;
+						    document.getElementById("address").value = contact.Address;
+							addContact();
+							//document.getElementById('contents').innerText = "Contact(s) successfully uploaded";
+						}
+						
+						//alert("Partisng complete");
+						//parser.abort();
+                    },
+                    error: function(error) {
+                        alert('Error parsing CSV:', error);
+                    }
+				});
+		}
+	document.getElementById('uploadButton').removeEventListener("change", eventHandler);
+});
+}
+
+
+
 function doLogout()
 {
 	userId = 0;
@@ -334,13 +546,21 @@ function addColor()
 
 function searchContacts()
 {
-	let srch = document.getElementById("searchText").value;
+	let srch = document.getElementById("searchText").value.trim();
 	document.getElementById("contactSearchResult").innerHTML = "";
-	document.getElementById("contactListResults").innerHTML = "";
 	
+	// For real-time search, if empty, show all contacts instead of error
 	if (srch == "") {
-			document.getElementById("contactSearchResult").innerHTML = "Please enter search term(s)";
-			return;
+		listContacts(); // Show all contacts when search is empty
+		return;
+	}
+	
+	// Show loading state during search
+	document.getElementById("contactSearchResult").innerHTML = "Searching...";
+	const resultsElement = document.getElementById("contactListResults");
+	if (resultsElement) {
+		resultsElement.classList.remove('updating');
+		resultsElement.classList.add('updating');
 	}
 
 	let contactList = "";
@@ -362,7 +582,7 @@ function searchContacts()
 					// Check if there's an error (no results found)
 					if (jsonObject.error && jsonObject.error !== "") {
 					document.getElementById("contactSearchResult").innerHTML = jsonObject.error;
-					document.getElementById("contactListResults").innerHTML = "";
+					animateContactListUpdate("contactListResults", "");
 				}
 				// Check if we have results
 				else if (jsonObject.results && jsonObject.results.length > 0) {
@@ -375,27 +595,32 @@ function searchContacts()
 								<div class="grid-cell header-cell">Phone</div>
 								<div class="grid-cell header-cell">Email</div>
 								<div class="grid-cell header-cell">Address</div>
-								<div class="grid-cell header-cell">Actions</div>
+								<div class="grid-cell header-cell">Edit</div>
 							</div>
 					`;
-					
+					let imagesArray = ["../images/fish1.png", "../images/fish2.png", "../images/fish3.png", "../images/fish4.png", "../images/fish5.png", "../images/fish6.png", "../images/fish7.png", "../images/fish8.png"];
 					// Add each contact as a grid row
 					for (let i = 0; i < jsonObject.results.length; i++)
 					{
 						let contact = jsonObject.results[i]; // Already parsed, no need for JSON.parse
+						let num = 0;
+						if (contact.firstName !== null) {
+							num = (contact.firstName).length % 8; // 0...2
+						}
+						else {
+							num = 2;
+						}
+						let img = imagesArray[num];
 						contactList += `
 							<div class="grid-row">
-								<div class="grid-cell photo-cell"><img class="icon" src="../images/Icon.svg" alt="Avatar"></div>
+								<div class="grid-cell photo-cell"><img class="icon" src=${img} alt="Avatar"></div>
 								<div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
 								<div class="grid-cell phone-cell">${contact.phone}</div>
 								<div class="grid-cell email-cell">${contact.email}</div>
 								<div class="grid-cell address-cell">${contact.address}</div>
 								<div class="grid-cell actions-cell">
-								  <button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
-                                                                                <img src="../images/Delete.svg" width="30" height="30">
-                                                                        </button>
                                                                         <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
-                                                                                 <img src="../images/Edit.svg" width="30" height="30">
+                                                                                 <img src="../images/Edit1.svg" width="30" height="30">
                                                                         </button>   
 								</div>
 							</div>
@@ -405,12 +630,12 @@ function searchContacts()
 					contactList += `</div>`; // Close contacts-grid
 					
 					document.getElementById("contactSearchResult").innerHTML = `Found ${jsonObject.results.length} contact(s)`;
-					document.getElementById("contactListResults").innerHTML = contactList;
+					animateContactListUpdate("contactListResults", contactList);
 				}
 				// Fallback case
 				else {
 					document.getElementById("contactSearchResult").innerHTML = "No contacts found.";
-					document.getElementById("contactListResults").innerHTML = "";
+					animateContactListUpdate("contactListResults", "");
 				}
 			}
 		};
@@ -423,261 +648,115 @@ function searchContacts()
 }
 
 
-function listContacts(page = 1, forceOpen = false)
+function listContacts()
 {
-    let dropdown = document.getElementById('contactsList');
+	//document.getElementById("contactsError").innerHTML = "";
+	//document.getElementById("contactsList").innerHTML = "";
+	
+	let dropdown = document.getElementById('contactsList');
     let button = document.getElementById('listContactsButton');
-    
-    // Handle dropdown visibility - only change if needed
-    if (page === 1 && !forceOpen) {
-        if (dropdown.style.display === 'block') {
-            dropdown.style.display = 'none';
-            button.innerHTML = 'List My Contacts';
-            return;
-        } else {
-            dropdown.style.display = 'block';
-            button.innerHTML = 'Hide My Contacts';
-        }
-    } else if (forceOpen) {
-        if (dropdown.style.display !== 'block') {
-            dropdown.style.display = 'block';
-            button.innerHTML = 'Hide My Contacts';
-        }
-    }    	
+	let add = document.getElementById('addContactsButton');
+	let csvDropdown = document.getElementById('csvSection');
+	
+	// Check if dropdown is currently hidden
+	 // Check if dropdown is currently hidden
+    	if (dropdown.style.display === 'block') {
+			dropdown.style.display = 'none';
+			add.style.display = 'none';
+			csvDropdown.style.display = 'none';
+        	button.innerHTML = '<img src="images/Show.svg" width="25" height="25" style="display:inline; vertical-align:middle;"><p style="display:inline; vertical-align:middle;">&ensp; Show my Contacts </p>';
+        	return;
+    	} else {
+        	dropdown.style.display = 'block';
+			add.style.display = 'block';
+			csvDropdown.style.display = 'block';
+        	button.innerHTML = '<img src="images/Hide.svg" width="25" height="25" style="display:inline; vertical-align:middle;"><p style="display:inline; vertical-align:middle;">&ensp; Hide my Contacts </p>';
+    	}     
+	
+  	document.getElementById("contactsError").innerHTML = "";
+        document.getElementById("contactsList").innerHTML = "";
 
-    // Show loading state for pagination (not initial load)
-    let contactsListElement = document.getElementById("contactsList");
-    let isInitialLoad = !contactsListElement.innerHTML || contactsListElement.innerHTML.trim() === "";
-    
-    // Add loading indicator for pagination
-    if (!isInitialLoad && page !== currentPage) {
-        let rowsContainer = document.getElementById("contacts-rows");
-        if (rowsContainer) {
-            rowsContainer.style.opacity = '0.6';
-            rowsContainer.style.pointerEvents = 'none';
-        }
-        
-        // Update pagination to show loading
-        let paginationContainer = document.getElementById("pagination-container");
-        if (paginationContainer) {
-            let buttons = paginationContainer.querySelectorAll('.pagination-btn');
-            buttons.forEach(btn => {
-                btn.disabled = true;
-                btn.style.opacity = '0.5';
-            });
-        }
-    }
+	let contactList = "";
+	let tmp = {search: "", userId: userId}; // Empty search to get all contacts
+	let jsonPayload = JSON.stringify(tmp);
 
-    document.getElementById("contactsError").innerHTML = "";
+	let url = urlBase + '/SearchContacts.' + extension;
 
-    let tmp = { page: page, userId: userId };
-    let jsonPayload = JSON.stringify(tmp);
-    let url = urlBase + '/PageContacts.' + extension;
+	let xhr = new XMLHttpRequest();
+	xhr.open("POST", url, true);
+	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+	try
+	{
+		xhr.onreadystatechange = function()
+		{
+			if (this.readyState == 4 && this.status == 200)
+			{
+				let jsonObject = JSON.parse(xhr.responseText);
+				if (jsonObject.results && jsonObject.results.length > 0) {
+					// Create grid header
+					contactList = `
+						<div class="contacts-grid">
+							<div class="grid-header">
+								<div class="grid-cell header-cell">Photo</div>
+								<div class="grid-cell header-cell">Name</div>
+								<div class="grid-cell header-cell">Phone</div>
+								<div class="grid-cell header-cell">Email</div>
+								<div class="grid-cell header-cell">Address</div>
+								<div class="grid-cell header-cell">Edit</div>
+							</div>
+					`;
 
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", url, true);
-    xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
-    
-    try {
-        xhr.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                let jsonObject = JSON.parse(xhr.responseText);
-                
-                // Update pagination state
-                currentPage = jsonObject.currentPage || 1;
-                totalPages = jsonObject.totalPages || 1;
-                
-                if (jsonObject.results && jsonObject.results.length > 0) {
-                    updateContactsDisplay(jsonObject.results, isInitialLoad);
-                } else {
-                    handleEmptyResults(isInitialLoad, contactsListElement);
-                }
-                
-                // Remove loading state
-                let rowsContainer = document.getElementById("contacts-rows");
-                if (rowsContainer) {
-                    rowsContainer.style.opacity = '1';
-                    rowsContainer.style.pointerEvents = 'auto';
-                }
-            }
-        };
-        xhr.send(jsonPayload);
-    } catch(err) {
-        document.getElementById("contactsError").innerHTML = err.message;
-        
-        // Remove loading state on error
-        let rowsContainer = document.getElementById("contacts-rows");
-        if (rowsContainer) {
-            rowsContainer.style.opacity = '1';
-            rowsContainer.style.pointerEvents = 'auto';
-        }
-    }
+					let imagesArray = ["../images/fish1.png", "../images/fish2.png", "../images/fish3.png", "../images/fish4.png", "../images/fish5.png", "../images/fish6.png", "../images/fish7.png", "../images/fish8.png"];
+					// Add each contact as a grid row
+					for (let i = 0; i < jsonObject.results.length; i++)
+					{
+
+						let contact = jsonObject.results[i]; // Already parsed, no need for JSON.parse
+						let num = 0;
+						if (contact.firstName !== null) {
+							num = (contact.firstName).length % 8; // 0...2
+						}
+						else {
+							num = 2;
+						}
+						let img = imagesArray[num];
+						contactList += `
+							<div class="grid-row">
+								<div class="grid-cell photo-cell"><img class="icon" src=${img} alt="Avatar"></div>
+								<div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
+								<div class="grid-cell phone-cell">${contact.phone}</div>
+								<div class="grid-cell email-cell">${contact.email}</div>
+								<div class="grid-cell address-cell">${contact.address}</div>
+								<div class="grid-cell actions-cell">
+                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
+                                                                                 <img src="../images/Edit1.svg" width="30" height="30">
+                                                                        </button>   
+								</div>
+							</div>
+						`;
+					}
+
+					
+					contactList += `</div>`; // Close contacts-grid
+				} else {
+					contactList = "No contacts found.";
+					//document.getElementById("contactsError").innerHTML = "No contacts found.";
+				}
+				animateContactListUpdate("contactsList", contactList);
+			}
+		};
+		xhr.send(jsonPayload);
+	}
+	catch(err)
+	{
+		document.getElementById("contactsError").innerHTML = err.message;
+	}
 }
 
-function updateContactsDisplay(results, isInitialLoad) {
-    let contactsListElement = document.getElementById("contactsList");
-    let imagesArray = ["../images/fish1.png", "../images/fish2.png", "../images/fish3.png"];
-    
-    if (isInitialLoad) {
-        // Create the entire structure for initial load
-        let contactList = `
-            <div class="contacts-grid">
-                <div class="grid-header">
-                    <div class="grid-cell header-cell">Photo</div>
-                    <div class="grid-cell header-cell">Name</div>
-                    <div class="grid-cell header-cell">Phone</div>
-                    <div class="grid-cell header-cell">Email</div>
-                    <div class="grid-cell header-cell">Address</div>
-                    <div class="grid-cell header-cell">Actions</div>
-                </div>
-                <div id="contacts-rows"></div>
-            </div>
-            <div id="pagination-container"></div>
-        `;
-        contactsListElement.innerHTML = contactList;
-    }
 
-    // Use smooth row updates instead of recreation
-    updateContactRows(results, imagesArray);
-    
-    // Update pagination separately to avoid flicker
-    updatePaginationControls();
-}
 
-function updateContactRows(results, imagesArray) {
-    let rowsContainer = document.getElementById("contacts-rows");
-    if (!rowsContainer) return;
-    
-    let existingRows = rowsContainer.querySelectorAll('.grid-row');
-    let newContactCount = results.length;
-    let existingRowCount = existingRows.length;
-    
-    // Batch DOM updates to minimize reflows
-    let fragment = document.createDocumentFragment();
-    let rowsToUpdate = [];
-    
-    // Update existing rows efficiently
-    for (let i = 0; i < Math.min(newContactCount, existingRowCount); i++) {
-        let contact = results[i];
-        let num = Math.floor(Math.random() * 3);
-        let img = imagesArray[num];
-        let row = existingRows[i];
-        
-        // Store update info instead of immediately updating DOM
-        rowsToUpdate.push({
-            row: row,
-            contact: contact,
-            img: img
-        });
-    }
-    
-    // Apply all row updates at once
-    rowsToUpdate.forEach(update => {
-        update.row.innerHTML = createRowHTML(update.contact, update.img);
-    });
-    
-    // Handle adding new rows if needed
-    if (newContactCount > existingRowCount) {
-        for (let i = existingRowCount; i < newContactCount; i++) {
-            let contact = results[i];
-            let num = Math.floor(Math.random() * 3);
-            let img = imagesArray[num];
-            
-            let newRow = document.createElement('div');
-            newRow.className = 'grid-row';
-            newRow.innerHTML = createRowHTML(contact, img);
-            fragment.appendChild(newRow);
-        }
-        rowsContainer.appendChild(fragment);
-    }
-    // Handle removing excess rows
-    else if (newContactCount < existingRowCount) {
-        for (let i = existingRowCount - 1; i >= newContactCount; i--) {
-            rowsContainer.removeChild(existingRows[i]);
-        }
-    }
-}
 
-function createRowHTML(contact, img) {
-    return `
-        <div class="grid-cell photo-cell"><img class="icon" src="${img}" alt="Avatar"></div>
-        <div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
-        <div class="grid-cell phone-cell">${contact.phone}</div>
-        <div class="grid-cell email-cell">${contact.email}</div>
-        <div class="grid-cell address-cell">${contact.address}</div>
-        <div class="grid-cell actions-cell">
-            <button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
-                <img src="../images/Delete.svg" width="30" height="30">
-            </button>
-            <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
-                <img src="../images/Edit.svg" width="30" height="30">
-            </button>   
-        </div>
-    `;
-}
-
-function updatePaginationControls() {
-    let paginationContainer = document.getElementById("pagination-container");
-    if (!paginationContainer) return;
-    
-    // Only update if pagination has actually changed
-    let currentPaginationHTML = createPaginationControls(currentPage, totalPages);
-    if (paginationContainer.innerHTML !== currentPaginationHTML) {
-        paginationContainer.innerHTML = currentPaginationHTML;
-    }
-}
-
-function handleEmptyResults(isInitialLoad, contactsListElement) {
-    if (isInitialLoad) {
-        document.getElementById("contactsError").innerHTML = "No contacts found.";
-        contactsListElement.innerHTML = "No contacts found.";
-    } else {
-        // If we're on a page that no longer has results (e.g., after deletion),
-        // go back to the previous page
-        if (currentPage > 1) {
-            listContacts(currentPage - 1, true);
-            return;
-        }
-        document.getElementById("contactsError").innerHTML = "No contacts found.";
-        contactsListElement.innerHTML = "No contacts found.";
-    }
-}
-
-function createPaginationControls(currentPage, totalPages) {
-    if (totalPages <= 1) {
-        return ""; // No pagination needed for single page
-    }
-    
-    let paginationHtml = `
-        <div class="pagination-controls">
-            <button type="button" class="pagination-btn ${currentPage <= 1 ? 'disabled' : ''}" 
-                    onclick="changePage(${currentPage - 1})" 
-                    ${currentPage <= 1 ? 'disabled' : ''}>
-                Previous
-            </button>
-            
-            <div class="page-info">
-                Page ${currentPage} of ${totalPages}
-            </div>
-            
-            <button type="button" class="pagination-btn ${currentPage >= totalPages ? 'disabled' : ''}" 
-                    onclick="changePage(${currentPage + 1})" 
-                    ${currentPage >= totalPages ? 'disabled' : ''}>
-                Next
-            </button>
-        </div>
-    `;
-    
-    return paginationHtml;
-}
-
-function changePage(newPage) {
-    if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
-        listContacts(newPage, true); // Force open when navigating pages
-    }
-}
-
-// Update the existing deleteContact function to refresh the current page
+// Delete a contact by ID and refresh the lists
 function deleteContact(contactId)
 {
     if (!confirm('Delete this contact?')) return;
@@ -694,12 +773,11 @@ function deleteContact(contactId)
             try {
                 let jsonObject = JSON.parse(xhr.responseText);
                 if (this.status == 200 && jsonObject.error === "") {
-                    // Check if we need to go back a page after deleting the last item on current page
-                    // This will be handled by the listContacts function when it gets empty results
-                    listContacts(currentPage);
-                    
-                    // Also refresh search results if they're visible
-                    if (document.getElementById('contactListResults') && document.getElementById('contactListResults').innerHTML) {
+                    // Refresh visible lists if present
+                    if (document.getElementById('contactsList')) {
+                        listContacts();
+                    }
+                    if (document.getElementById('contactListResults')) {
                         searchContacts();
                     }
                 } else {
@@ -713,7 +791,83 @@ function deleteContact(contactId)
     xhr.send(jsonPayload);
 }
 
-// Update the existing modifyContact submit function to refresh current page
+function addContact() {
+
+    let add_firstName = document.getElementById("firstName").value;
+    let add_lastName = document.getElementById("lastName").value;
+    let add_phone = document.getElementById("phone").value;
+    let add_email = document.getElementById("email").value;
+    let add_address = document.getElementById("address").value;
+    readCookie(); // This will update UserID
+
+    document.getElementById("contactAddResult").innerHTML = ""; // Clear previous result
+
+    let tmp = {
+        firstName: add_firstName,
+        lastName: add_lastName,
+        phone: add_phone,
+        email: add_email,
+        address: add_address,
+        userId: userId // assumes UserID is set globally by readCookie()
+    };
+    
+    let jsonPayload = JSON.stringify(tmp);
+
+    let url = urlBase + '/AddContact.' + extension;
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+    xhr.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            let result = "";
+            try {
+                let jsonObject = JSON.parse(xhr.responseText);
+                if (xhr.status == 200 && jsonObject.error === "") {
+                    result = jsonObject.message || "Contact added successfully!";
+                    let dropdown = document.getElementById('contactsList');
+                    if (dropdown.style.display === 'block') {
+                        dropdown.style.display = 'none';
+                        listContacts();
+                    }
+                    document.getElementById("firstName").value = "";
+                    document.getElementById("lastName").value = "";
+                    document.getElementById("phone").value = "";
+                    document.getElementById("email").value = "";
+                    document.getElementById("address").value = "";
+                } else {
+                    result = jsonObject.error || "Failed to add contact.";
+                }
+            } catch (e) {
+                result = "Failed to add contact.";
+            }
+            document.getElementById("contactAddResult").innerHTML = "<br>" + result;
+        }
+    };
+    xhr.send(jsonPayload);
+}
+
+function exportContacts() {
+	alert("Coming soon (import contacts in-progress)");
+}
+
+
+
+// Modify contact functions
+function modifyContact(contactId, firstName, lastName, phone, email, address) {
+    // Show popup and fill fields
+    document.getElementById('modifyContactId').value = contactId;
+    document.getElementById('modifyFirstName').value = firstName || '';
+    document.getElementById('modifyLastName').value = lastName || '';
+    document.getElementById('modifyPhone').value = phone || '';
+    document.getElementById('modifyEmail').value = email || '';
+    document.getElementById('modifyAddress').value = address || '';
+    document.getElementById('modifyContactPopup').style.display = 'block';
+}
+
+function closeModifyContactPopup() {
+    document.getElementById('modifyContactPopup').style.display = 'none';
+}
+
 function submitModifyContact(event) {
     event.preventDefault();
     var id = document.getElementById('modifyContactId').value;
@@ -738,16 +892,26 @@ function submitModifyContact(event) {
     xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
     xhr.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            alert('Contact modified.');
-            closeModifyContactPopup();
-            // Refresh current page of contacts and search results
-            listContacts(currentPage);
-            if (document.getElementById('contactListResults') && document.getElementById('contactListResults').innerHTML) {
-                searchContacts();
-            }
+          //  alert('Contact modified.');
+            //closeModifyContactPopup();
+		document.getElementById('modifyContactPopup').style.display = 'none';
+            // Refresh both list and search views
+            if (typeof listContacts === 'function') listContacts();
+            if (typeof searchContacts === 'function') searchContacts();
         }
     };
     xhr.send(jsonPayload);
+}
+
+// Add contact functions
+function showAddContactsPopup() {
+    // Show popup
+    document.getElementById('addContactPopup').style.display = 'block';
+}
+
+function closeAddContactsPopup() {
+    document.getElementById('addContactPopup').style.display = 'none';
+	document.getElementById('contactAddResult').innerHTML = "";
 }
 
 // --- Beach Ball Code ---
@@ -908,7 +1072,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const rawVelY = ((recent.y - older.y) / timeDiff) * momentumScale;
                     
                     // Convert to pixels per frame (assuming 60fps)
-                    velocityX = rawVelX * 16.67; // 1000ms / 60fps Ã¢â€°Ë† 16.67ms per frame
+                    velocityX = rawVelX * 16.67; // 1000ms / 60fps ÃƒÂ¢Ã¢â‚¬Â°Ã‹â€  16.67ms per frame
                     velocityY = rawVelY * 16.67;
                     
                     // Cap maximum velocity to prevent ball from going crazy
@@ -1054,19 +1218,19 @@ document.addEventListener('DOMContentLoaded', function() {
     animate();
     } // End of ball creation conditional
 });
-
+/*
 // Initialize dropdown state on page load
 document.addEventListener('DOMContentLoaded', function() {
     const dropdown = document.getElementById('searchDropdown');
     const button = document.getElementById('searchToggleButton');
     
-    // Ensure dropdown starts hidden and button shows correct text
+    // Ensure dropdown is always visible and button shows correct text
     if (dropdown && button) {
         dropdown.style.display = 'block';
-        button.innerHTML = 'Hide Contact Management';
+        //button.innerHTML = 'Sea Your Contacts';
     }
 });
-
+*/
 // On entering colors page, fade in underwater cap/fill to feel "under the wave"
 document.addEventListener('DOMContentLoaded', function(){
     if (window.location.pathname.includes('color.html')){
@@ -1080,23 +1244,17 @@ document.addEventListener('DOMContentLoaded', function(){
             cap.style.opacity = '0';
             setTimeout(function(){ cap.style.transition = 'opacity 400ms ease'; cap.style.opacity = '0.7'; }, 60);
         }
+        
+        // Set up real-time search functionality
+        var searchInput = document.getElementById('searchText');
+        if (searchInput) {
+            // Add input event listener for real-time search
+            searchInput.addEventListener('input', debouncedSearch);
+            // Load all contacts initially when page loads
+            //setTimeout(listContacts, 100);
+        }
     }
 });
-
-// Dropdown toggle function for contact management
-function toggleSearchDropdown() {
-    const dropdown = document.getElementById('searchDropdown');
-    const button = document.getElementById('searchToggleButton');
-    
-    // Check if dropdown is currently hidden
-    if (dropdown.style.display === 'none') {
-        dropdown.style.display = 'block';
-        button.innerHTML = 'Hide Contact Management';
-    } else {
-        dropdown.style.display = 'none';
-        button.innerHTML = 'Contact Management';
-    }
-}
 
 // Menu toggle function
 function toggleMenu() {
@@ -1110,4 +1268,66 @@ function toggleMenu() {
             document.removeEventListener('click', closeMenu);
         }
     });
+}
+
+
+function deleteContactPrecise()
+{
+	var firstName = document.getElementById('modifyFirstName').value;
+	var lastName = document.getElementById('modifyLastName').value;
+	var phone = document.getElementById('modifyPhone').value;
+	var email = document.getElementById('modifyEmail').value;
+	var address = document.getElementById('modifyAddress').value;
+
+	listContactsPrecise(firstName, lastName, phone, email, address);
+}
+
+
+function listContactsPrecise(firstName, lastName, phone, email, address)
+{
+	//document.getElementById("contactsError").innerHTML = "";
+	//document.getElementById("contactsList").innerHTML = "";
+	
+
+	let contactList = "";
+	let tmp = {search: "", userId: userId}; // Empty search to get all contacts
+	let jsonPayload = JSON.stringify(tmp);
+
+	let url = urlBase + '/SearchContacts.' + extension;
+
+	let xhr = new XMLHttpRequest();
+	xhr.open("POST", url, true);
+	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+	try
+	{
+		xhr.onreadystatechange = function()
+		{
+			if (this.readyState == 4 && this.status == 200)
+			{
+				let jsonObject = JSON.parse(xhr.responseText);
+				if (jsonObject.results && jsonObject.results.length > 0) {
+					for (let i = 0; i < jsonObject.results.length; i++)
+					{
+
+						let contact = jsonObject.results[i]; // Already parsed, no need for JSON.parse
+						if (contact.firstName === firstName && contact.lastName === lastName && phone === phone && email === email && address === address)
+						{
+							deleteContact(contact.id);
+							document.getElementById('modifyContactPopup').style.display = 'none';
+							break;
+						}
+					}
+				} else {
+					//contactList = "No contacts found.";
+					//document.getElementById("contactsError").innerHTML = "No contacts found.";
+				}
+				//animateContactListUpdate("contactsList", contactList);
+			}
+		};
+		xhr.send(jsonPayload);
+	}
+	catch(err)
+	{
+		document.getElementById("contactsError").innerHTML = err.message;
+	}
 }
