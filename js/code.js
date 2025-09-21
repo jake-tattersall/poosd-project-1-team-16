@@ -539,21 +539,29 @@ function listContacts(page = 1, forceOpen = false)
 {
     let dropdown = document.getElementById('contactsList');
     let button = document.getElementById('listContactsButton');
+    let addbutton = document.getElementById('addContactButton');
+    let csvDropdown = document.getElementById('csvSection');
     
     // Handle dropdown visibility - only change if needed
     if (page === 1 && !forceOpen) {
         if (dropdown.style.display === 'block') {
             dropdown.style.display = 'none';
             button.innerHTML = 'List My Contacts';
+            add.style.display = 'none';
+            csvDropdown.style.display = 'none';
             return;
         } else {
             dropdown.style.display = 'block';
             button.innerHTML = 'Hide My Contacts';
+            addbutton.style.display = 'block';
+            csvDropdown.style.display = 'block';
         }
     } else if (forceOpen) {
         if (dropdown.style.display !== 'block') {
             dropdown.style.display = 'block';
             button.innerHTML = 'Hide My Contacts';
+            addbutton.style.display = 'block';
+            csvDropdown.style.display = 'block';
         }
     }    	
 
