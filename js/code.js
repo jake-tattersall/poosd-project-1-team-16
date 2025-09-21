@@ -423,13 +423,13 @@ function searchContacts()
 }
 
 
-function listContacts(page = 1)
+function listContacts(page = 1, forceOpen = false)
 {
     let dropdown = document.getElementById('contactsList');
     let button = document.getElementById('listContactsButton');
     
-    // Check if dropdown is currently hidden
-    if (dropdown.style.display === 'block' && page === 1) {
+    // Only close dropdown if it's a manual button click (page === 1 && !forceOpen)
+    if (dropdown.style.display === 'block' && page === 1 && !forceOpen) {
         dropdown.style.display = 'none';
         button.innerHTML = 'List My Contacts';
         return;
@@ -553,11 +553,11 @@ function createPaginationControls(currentPage, totalPages) {
 
 function changePage(newPage) {
     if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
-        listContacts(newPage);
+        listContacts(newPage, true); // Force open when navigating pages
     }
 }
 
-// Delete a contact by ID and refresh the lists
+// Update the existing deleteContact function to refresh the current page
 function deleteContact(contactId)
 {
     if (!confirm('Delete this contact?')) return;
@@ -593,22 +593,7 @@ function deleteContact(contactId)
     xhr.send(jsonPayload);
 }
 
-// Modify contact functions
-function modifyContact(contactId, firstName, lastName, phone, email, address) {
-    // Show popup and fill fields
-    document.getElementById('modifyContactId').value = contactId;
-    document.getElementById('modifyFirstName').value = firstName || '';
-    document.getElementById('modifyLastName').value = lastName || '';
-    document.getElementById('modifyPhone').value = phone || '';
-    document.getElementById('modifyEmail').value = email || '';
-    document.getElementById('modifyAddress').value = address || '';
-    document.getElementById('modifyContactPopup').style.display = 'block';
-}
-
-function closeModifyContactPopup() {
-    document.getElementById('modifyContactPopup').style.display = 'none';
-}
-
+// Update the existing modifyContact submit function to refresh current page
 function submitModifyContact(event) {
     event.preventDefault();
     var id = document.getElementById('modifyContactId').value;

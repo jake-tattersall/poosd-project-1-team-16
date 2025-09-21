@@ -40,10 +40,14 @@
         $offset = ($currentPage - 1) * $contactsPerPage;
         
         // Get contacts for current page
+        // Options for ordering:
+        // - ORDER BY ID DESC: Most recently added first
+        // - ORDER BY FirstName ASC, LastName ASC: Alphabetical order
+        // - ORDER BY LastName ASC, FirstName ASC: Last name alphabetical
         $stmt = $conn->prepare("SELECT ID, FirstName, LastName, Phone, Email, Address 
                                 FROM Contacts 
                                 WHERE UserID = ?
-                                ORDER BY FirstName ASC, LastName ASC
+                                ORDER BY ID DESC
                                 LIMIT ? OFFSET ?");
         
         $stmt->bind_param("iii", $userId, $contactsPerPage, $offset);
