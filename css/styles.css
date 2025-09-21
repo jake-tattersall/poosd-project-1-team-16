@@ -1481,8 +1481,8 @@ body.light .bubble {
     transform: translateY(0);
     min-height: 100px; /* Prevent drastic height changes */
     max-height: 600px; /* Limit maximum height for better UX */
-    overflow-y: auto; /* Allow scrolling if content is too tall */
-    overflow-x: hidden; /* Hide horizontal scrollbar */
+    /*overflow-y: auto;*/ /* Allow scrolling if content is too tall */ 
+    /*overflow-x: hidden;*/ /* Hide horizontal scrollbar */ 
 }
 
 #contactsList {
