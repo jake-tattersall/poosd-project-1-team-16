@@ -539,7 +539,7 @@ function listContacts(page = 1, forceOpen = false)
 {
     let dropdown = document.getElementById('contactsList');
     let button = document.getElementById('listContactsButton');
-    let addbutton = document.getElementById('addContactButton');
+    let addbutton = document.getElementById('addContactsButton');
     let csvDropdown = document.getElementById('csvSection');
     
     // Handle dropdown visibility - only change if needed
