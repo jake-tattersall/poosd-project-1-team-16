@@ -462,29 +462,41 @@ function listContacts(page = 1, forceOpen = false)
                 currentPage = jsonObject.currentPage || 1;
                 totalPages = jsonObject.totalPages || 1;
                 
+                // Check if this is the initial load or a page change
+                let contactsListElement = document.getElementById("contactsList");
+                let isInitialLoad = !contactsListElement.innerHTML || contactsListElement.innerHTML.trim() === "";
+                
                 if (jsonObject.results && jsonObject.results.length > 0) {
-                    // Create grid header
-                    contactList = `
-                        <div class="contacts-grid">
-                            <div class="grid-header">
-                                <div class="grid-cell header-cell">Photo</div>
-                                <div class="grid-cell header-cell">Name</div>
-                                <div class="grid-cell header-cell">Phone</div>
-                                <div class="grid-cell header-cell">Email</div>
-                                <div class="grid-cell header-cell">Address</div>
-                                <div class="grid-cell header-cell">Actions</div>
+                    if (isInitialLoad) {
+                        // Initial load: create the entire structure
+                        contactList = `
+                            <div class="contacts-grid">
+                                <div class="grid-header">
+                                    <div class="grid-cell header-cell">Photo</div>
+                                    <div class="grid-cell header-cell">Name</div>
+                                    <div class="grid-cell header-cell">Phone</div>
+                                    <div class="grid-cell header-cell">Email</div>
+                                    <div class="grid-cell header-cell">Address</div>
+                                    <div class="grid-cell header-cell">Actions</div>
+                                </div>
+                                <div id="contacts-rows"></div>
                             </div>
-                    `;
+                            <div id="pagination-container"></div>
+                        `;
+                        contactsListElement.innerHTML = contactList;
+                    }
 
+                    // Update only the rows content
+                    let rowsHtml = "";
                     let imagesArray = ["../images/fish1.png", "../images/fish2.png", "../images/fish3.png"];
-                    // Add each contact as a grid row
+                    
                     for (let i = 0; i < jsonObject.results.length; i++)
                     {
                         let num = Math.floor(Math.random() * 3); // 0...2
                         let img = imagesArray[num];
 
                         let contact = jsonObject.results[i];
-                        contactList += `
+                        rowsHtml += `
                             <div class="grid-row">
                                 <div class="grid-cell photo-cell"><img class="icon" src=${img} alt="Avatar"></div>
                                 <div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
@@ -503,16 +515,15 @@ function listContacts(page = 1, forceOpen = false)
                         `;
                     }
                     
-                    contactList += `</div>`; // Close contacts-grid
-                    
-                    // Add pagination controls
-                    contactList += createPaginationControls(currentPage, totalPages);
+                    // Update rows and pagination separately to prevent layout shift
+                    document.getElementById("contacts-rows").innerHTML = rowsHtml;
+                    document.getElementById("pagination-container").innerHTML = createPaginationControls(currentPage, totalPages);
                     
                 } else {
                     contactList = "No contacts found.";
                     document.getElementById("contactsError").innerHTML = "No contacts found.";
+                    contactsListElement.innerHTML = contactList;
                 }
-                document.getElementById("contactsList").innerHTML = contactList;
             }
         };
         xhr.send(jsonPayload);
@@ -533,7 +544,7 @@ function createPaginationControls(currentPage, totalPages) {
             <button type="button" class="pagination-btn ${currentPage <= 1 ? 'disabled' : ''}" 
                     onclick="changePage(${currentPage - 1})" 
                     ${currentPage <= 1 ? 'disabled' : ''}>
-                ← Previous
+                Previous
             </button>
             
             <div class="page-info">
@@ -543,7 +554,7 @@ function createPaginationControls(currentPage, totalPages) {
             <button type="button" class="pagination-btn ${currentPage >= totalPages ? 'disabled' : ''}" 
                     onclick="changePage(${currentPage + 1})" 
                     ${currentPage >= totalPages ? 'disabled' : ''}>
-                Next →
+                Next
             </button>
         </div>
     `;

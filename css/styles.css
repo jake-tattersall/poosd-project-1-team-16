@@ -1772,6 +1772,20 @@ body.light .section-title{ color:#0f172a; }
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Smooth transitions for contact rows */
+#contacts-rows {
+    transition: opacity 150ms ease;
+}
+
+.contacts-grid {
+    position: relative;
+}
+
+/* Ensure consistent height to prevent layout shift */
+.grid-row {
+    min-height: 90px;
+}
+
 .pagination-btn {
     padding: 8px 16px;
     border-radius: 8px;
