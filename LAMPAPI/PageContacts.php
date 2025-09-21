@@ -47,7 +47,7 @@
         $stmt = $conn->prepare("SELECT ID, FirstName, LastName, Phone, Email, Address 
                                 FROM Contacts 
                                 WHERE UserID = ?
-                                ORDER BY ID ASC
+                                ORDER BY ID DESC
                                 LIMIT ? OFFSET ?");
         
         $stmt->bind_param("iii", $userId, $contactsPerPage, $offset);
