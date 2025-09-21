@@ -47,6 +47,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Remove the animation flag after the transition window
             setTimeout(function(){
                 document.body.classList.remove('theme-animated');
+                let crabimg = document.getElementById('CrabRaveImg');
+                if (crabimg) {
+                    if (theme === 'light') {
+                        crabimg.src = 'images/Island2.svg';
+                    } else {
+                        crabimg.src = 'images/Island21.svg';
+                    }
+                }
             }, 2200);
         });
     }
