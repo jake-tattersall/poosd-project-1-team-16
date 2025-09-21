@@ -343,7 +343,7 @@ body.light .star {
 
 .grid-header {
     display: grid;
-    grid-template-columns: 0.7fr 0.7fr 0.7fr 0.9fr 0.8fr 0.7fr;
+    grid-template-columns: 0.7fr 0.7fr 0.7fr 0.9fr 0.8fr;
     gap: 1px;
     background: rgba(255, 255, 255, 0.2);
     font-weight: bold;
