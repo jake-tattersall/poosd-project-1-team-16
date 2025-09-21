@@ -547,7 +547,7 @@ function listContacts(page = 1, forceOpen = false)
         if (dropdown.style.display === 'block') {
             dropdown.style.display = 'none';
             button.innerHTML = 'List My Contacts';
-            add.style.display = 'none';
+            addbutton.style.display = 'none';
             csvDropdown.style.display = 'none';
             return;
         } else {
