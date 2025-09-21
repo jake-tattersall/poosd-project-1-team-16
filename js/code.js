@@ -50,9 +50,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 let crabimg = document.getElementById('CrabRaveImg');
                 if (crabimg) {
                     if (theme === 'light') {
-                        crabimg.src = 'images/Island2.png';
+                        crabimg.src = 'images/Island2.svg';
                     } else {
-                        crabimg.src = 'images/Island21.png';
+                        crabimg.src = 'images/Island21.svg';
                     }
                 }
             }, 2200);
