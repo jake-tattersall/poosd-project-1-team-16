@@ -6,6 +6,10 @@ let firstName = "";
 let lastName = "";
 let theme = localStorage.getItem('theme') || 'light'; // Default to light mode
 
+// Global pagination state
+let currentPage = 1;
+let totalPages = 1;
+
 document.addEventListener('DOMContentLoaded', function() {
     // Apply saved theme on load
     if (theme === 'light') {
@@ -419,103 +423,261 @@ function searchContacts()
 }
 
 
-function listContacts()
+function listContacts(page = 1, forceOpen = false)
 {
-	//document.getElementById("contactsError").innerHTML = "";
-	//document.getElementById("contactsList").innerHTML = "";
-	
-	let dropdown = document.getElementById('contactsList');
-    	let button = document.getElementById('listContactsButton');
+    let dropdown = document.getElementById('contactsList');
+    let button = document.getElementById('listContactsButton');
     
-   	 // Check if dropdown is currently hidden
-	 // Check if dropdown is currently hidden
-    	if (dropdown.style.display === 'block') {
-			dropdown.style.display = 'none';
-        	button.innerHTML = 'List My Contacts';
-        	return;
-    	} else {
-        	dropdown.style.display = 'block';
-        	button.innerHTML = 'Hide My Contacts';
-    	}    	
+    // Handle dropdown visibility - only change if needed
+    if (page === 1 && !forceOpen) {
+        if (dropdown.style.display === 'block') {
+            dropdown.style.display = 'none';
+            button.innerHTML = 'List My Contacts';
+            return;
+        } else {
+            dropdown.style.display = 'block';
+            button.innerHTML = 'Hide My Contacts';
+        }
+    } else if (forceOpen) {
+        if (dropdown.style.display !== 'block') {
+            dropdown.style.display = 'block';
+            button.innerHTML = 'Hide My Contacts';
+        }
+    }    	
 
-  	document.getElementById("contactsError").innerHTML = "";
-        document.getElementById("contactsList").innerHTML = "";
+    // Show loading state for pagination (not initial load)
+    let contactsListElement = document.getElementById("contactsList");
+    let isInitialLoad = !contactsListElement.innerHTML || contactsListElement.innerHTML.trim() === "";
+    
+    // Add loading indicator for pagination
+    if (!isInitialLoad && page !== currentPage) {
+        let rowsContainer = document.getElementById("contacts-rows");
+        if (rowsContainer) {
+            rowsContainer.style.opacity = '0.6';
+            rowsContainer.style.pointerEvents = 'none';
+        }
+        
+        // Update pagination to show loading
+        let paginationContainer = document.getElementById("pagination-container");
+        if (paginationContainer) {
+            let buttons = paginationContainer.querySelectorAll('.pagination-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            });
+        }
+    }
 
-	let contactList = "";
-	let tmp = {search: "", userId: userId}; // Empty search to get all contacts
-	let jsonPayload = JSON.stringify(tmp);
+    document.getElementById("contactsError").innerHTML = "";
 
-	let url = urlBase + '/SearchContacts.' + extension;
+    let tmp = { page: page, userId: userId };
+    let jsonPayload = JSON.stringify(tmp);
+    let url = urlBase + '/PageContacts.' + extension;
 
-	let xhr = new XMLHttpRequest();
-	xhr.open("POST", url, true);
-	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
-	try
-	{
-		xhr.onreadystatechange = function()
-		{
-			if (this.readyState == 4 && this.status == 200)
-			{
-				let jsonObject = JSON.parse(xhr.responseText);
-				if (jsonObject.results && jsonObject.results.length > 0) {
-					// Create grid header
-					contactList = `
-						<div class="contacts-grid">
-							<div class="grid-header">
-								<div class="grid-cell header-cell">Photo</div>
-								<div class="grid-cell header-cell">Name</div>
-								<div class="grid-cell header-cell">Phone</div>
-								<div class="grid-cell header-cell">Email</div>
-								<div class="grid-cell header-cell">Address</div>
-								<div class="grid-cell header-cell">Actions</div>
-							</div>
-					`;
-
-					let imagesArray = ["../images/fish1.png", "../images/fish2.png", "../images/fish3.png"];
-					// Add each contact as a grid row
-					for (let i = 0; i < jsonObject.results.length; i++)
-					{
-						let num = Math.floor(Math.random() * 3); // 0...2
-						let img = imagesArray[num];
-
-						let contact = jsonObject.results[i]; // Already parsed, no need for JSON.parse
-						contactList += `
-							<div class="grid-row">
-								<div class="grid-cell photo-cell"><img class="icon" src=${img} alt="Avatar"></div>
-								<div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
-								<div class="grid-cell phone-cell">${contact.phone}</div>
-								<div class="grid-cell email-cell">${contact.email}</div>
-								<div class="grid-cell address-cell">${contact.address}</div>
-								<div class="grid-cell actions-cell">
-									<button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
-                                                                                <img src="../images/Delete.svg" width="30" height="30">
-                                                                        </button>
-                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
-                                                                                 <img src="../images/Edit.svg" width="30" height="30">
-                                                                        </button>   
-								</div>
-							</div>
-						`;
-					}
-
-					
-					contactList += `</div>`; // Close contacts-grid
-				} else {
-					contactList = "No contacts found.";
-					document.getElementById("contactsError").innerHTML = "No contacts found.";
-				}
-				document.getElementById("contactsList").innerHTML = contactList;
-			}
-		};
-		xhr.send(jsonPayload);
-	}
-	catch(err)
-	{
-		document.getElementById("contactsError").innerHTML = err.message;
-	}
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+    
+    try {
+        xhr.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                let jsonObject = JSON.parse(xhr.responseText);
+                
+                // Update pagination state
+                currentPage = jsonObject.currentPage || 1;
+                totalPages = jsonObject.totalPages || 1;
+                
+                if (jsonObject.results && jsonObject.results.length > 0) {
+                    updateContactsDisplay(jsonObject.results, isInitialLoad);
+                } else {
+                    handleEmptyResults(isInitialLoad, contactsListElement);
+                }
+                
+                // Remove loading state
+                let rowsContainer = document.getElementById("contacts-rows");
+                if (rowsContainer) {
+                    rowsContainer.style.opacity = '1';
+                    rowsContainer.style.pointerEvents = 'auto';
+                }
+            }
+        };
+        xhr.send(jsonPayload);
+    } catch(err) {
+        document.getElementById("contactsError").innerHTML = err.message;
+        
+        // Remove loading state on error
+        let rowsContainer = document.getElementById("contacts-rows");
+        if (rowsContainer) {
+            rowsContainer.style.opacity = '1';
+            rowsContainer.style.pointerEvents = 'auto';
+        }
+    }
 }
 
-// Delete a contact by ID and refresh the lists
+function updateContactsDisplay(results, isInitialLoad) {
+    let contactsListElement = document.getElementById("contactsList");
+    let imagesArray = ["../images/fish1.png", "../images/fish2.png", "../images/fish3.png"];
+    
+    if (isInitialLoad) {
+        // Create the entire structure for initial load
+        let contactList = `
+            <div class="contacts-grid">
+                <div class="grid-header">
+                    <div class="grid-cell header-cell">Photo</div>
+                    <div class="grid-cell header-cell">Name</div>
+                    <div class="grid-cell header-cell">Phone</div>
+                    <div class="grid-cell header-cell">Email</div>
+                    <div class="grid-cell header-cell">Address</div>
+                    <div class="grid-cell header-cell">Actions</div>
+                </div>
+                <div id="contacts-rows"></div>
+            </div>
+            <div id="pagination-container"></div>
+        `;
+        contactsListElement.innerHTML = contactList;
+    }
+
+    // Use smooth row updates instead of recreation
+    updateContactRows(results, imagesArray);
+    
+    // Update pagination separately to avoid flicker
+    updatePaginationControls();
+}
+
+function updateContactRows(results, imagesArray) {
+    let rowsContainer = document.getElementById("contacts-rows");
+    if (!rowsContainer) return;
+    
+    let existingRows = rowsContainer.querySelectorAll('.grid-row');
+    let newContactCount = results.length;
+    let existingRowCount = existingRows.length;
+    
+    // Batch DOM updates to minimize reflows
+    let fragment = document.createDocumentFragment();
+    let rowsToUpdate = [];
+    
+    // Update existing rows efficiently
+    for (let i = 0; i < Math.min(newContactCount, existingRowCount); i++) {
+        let contact = results[i];
+        let num = Math.floor(Math.random() * 3);
+        let img = imagesArray[num];
+        let row = existingRows[i];
+        
+        // Store update info instead of immediately updating DOM
+        rowsToUpdate.push({
+            row: row,
+            contact: contact,
+            img: img
+        });
+    }
+    
+    // Apply all row updates at once
+    rowsToUpdate.forEach(update => {
+        update.row.innerHTML = createRowHTML(update.contact, update.img);
+    });
+    
+    // Handle adding new rows if needed
+    if (newContactCount > existingRowCount) {
+        for (let i = existingRowCount; i < newContactCount; i++) {
+            let contact = results[i];
+            let num = Math.floor(Math.random() * 3);
+            let img = imagesArray[num];
+            
+            let newRow = document.createElement('div');
+            newRow.className = 'grid-row';
+            newRow.innerHTML = createRowHTML(contact, img);
+            fragment.appendChild(newRow);
+        }
+        rowsContainer.appendChild(fragment);
+    }
+    // Handle removing excess rows
+    else if (newContactCount < existingRowCount) {
+        for (let i = existingRowCount - 1; i >= newContactCount; i--) {
+            rowsContainer.removeChild(existingRows[i]);
+        }
+    }
+}
+
+function createRowHTML(contact, img) {
+    return `
+        <div class="grid-cell photo-cell"><img class="icon" src="${img}" alt="Avatar"></div>
+        <div class="grid-cell name-cell">${contact.firstName} ${contact.lastName}</div>
+        <div class="grid-cell phone-cell">${contact.phone}</div>
+        <div class="grid-cell email-cell">${contact.email}</div>
+        <div class="grid-cell address-cell">${contact.address}</div>
+        <div class="grid-cell actions-cell">
+            <button type="button" style="display:inline-block" class="buttons" onclick="deleteContact(${contact.id});">
+                <img src="../images/Delete.svg" width="30" height="30">
+            </button>
+            <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
+                <img src="../images/Edit.svg" width="30" height="30">
+            </button>   
+        </div>
+    `;
+}
+
+function updatePaginationControls() {
+    let paginationContainer = document.getElementById("pagination-container");
+    if (!paginationContainer) return;
+    
+    // Only update if pagination has actually changed
+    let currentPaginationHTML = createPaginationControls(currentPage, totalPages);
+    if (paginationContainer.innerHTML !== currentPaginationHTML) {
+        paginationContainer.innerHTML = currentPaginationHTML;
+    }
+}
+
+function handleEmptyResults(isInitialLoad, contactsListElement) {
+    if (isInitialLoad) {
+        document.getElementById("contactsError").innerHTML = "No contacts found.";
+        contactsListElement.innerHTML = "No contacts found.";
+    } else {
+        // If we're on a page that no longer has results (e.g., after deletion),
+        // go back to the previous page
+        if (currentPage > 1) {
+            listContacts(currentPage - 1, true);
+            return;
+        }
+        document.getElementById("contactsError").innerHTML = "No contacts found.";
+        contactsListElement.innerHTML = "No contacts found.";
+    }
+}
+
+function createPaginationControls(currentPage, totalPages) {
+    if (totalPages <= 1) {
+        return ""; // No pagination needed for single page
+    }
+    
+    let paginationHtml = `
+        <div class="pagination-controls">
+            <button type="button" class="pagination-btn ${currentPage <= 1 ? 'disabled' : ''}" 
+                    onclick="changePage(${currentPage - 1})" 
+                    ${currentPage <= 1 ? 'disabled' : ''}>
+                Previous
+            </button>
+            
+            <div class="page-info">
+                Page ${currentPage} of ${totalPages}
+            </div>
+            
+            <button type="button" class="pagination-btn ${currentPage >= totalPages ? 'disabled' : ''}" 
+                    onclick="changePage(${currentPage + 1})" 
+                    ${currentPage >= totalPages ? 'disabled' : ''}>
+                Next
+            </button>
+        </div>
+    `;
+    
+    return paginationHtml;
+}
+
+function changePage(newPage) {
+    if (newPage >= 1 && newPage <= totalPages && newPage !== currentPage) {
+        listContacts(newPage, true); // Force open when navigating pages
+    }
+}
+
+// Update the existing deleteContact function to refresh the current page
 function deleteContact(contactId)
 {
     if (!confirm('Delete this contact?')) return;
@@ -532,11 +694,12 @@ function deleteContact(contactId)
             try {
                 let jsonObject = JSON.parse(xhr.responseText);
                 if (this.status == 200 && jsonObject.error === "") {
-                    // Refresh visible lists if present
-                    if (document.getElementById('contactsList')) {
-                        listContacts();
-                    }
-                    if (document.getElementById('contactListResults')) {
+                    // Check if we need to go back a page after deleting the last item on current page
+                    // This will be handled by the listContacts function when it gets empty results
+                    listContacts(currentPage);
+                    
+                    // Also refresh search results if they're visible
+                    if (document.getElementById('contactListResults') && document.getElementById('contactListResults').innerHTML) {
                         searchContacts();
                     }
                 } else {
@@ -550,22 +713,7 @@ function deleteContact(contactId)
     xhr.send(jsonPayload);
 }
 
-// Modify contact functions
-function modifyContact(contactId, firstName, lastName, phone, email, address) {
-    // Show popup and fill fields
-    document.getElementById('modifyContactId').value = contactId;
-    document.getElementById('modifyFirstName').value = firstName || '';
-    document.getElementById('modifyLastName').value = lastName || '';
-    document.getElementById('modifyPhone').value = phone || '';
-    document.getElementById('modifyEmail').value = email || '';
-    document.getElementById('modifyAddress').value = address || '';
-    document.getElementById('modifyContactPopup').style.display = 'block';
-}
-
-function closeModifyContactPopup() {
-    document.getElementById('modifyContactPopup').style.display = 'none';
-}
-
+// Update the existing modifyContact submit function to refresh current page
 function submitModifyContact(event) {
     event.preventDefault();
     var id = document.getElementById('modifyContactId').value;
@@ -592,9 +740,11 @@ function submitModifyContact(event) {
         if (this.readyState == 4 && this.status == 200) {
             alert('Contact modified.');
             closeModifyContactPopup();
-            // Refresh both list and search views
-            if (typeof listContacts === 'function') listContacts();
-            if (typeof searchContacts === 'function') searchContacts();
+            // Refresh current page of contacts and search results
+            listContacts(currentPage);
+            if (document.getElementById('contactListResults') && document.getElementById('contactListResults').innerHTML) {
+                searchContacts();
+            }
         }
     };
     xhr.send(jsonPayload);
