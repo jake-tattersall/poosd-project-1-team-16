@@ -640,7 +640,6 @@ function updateContactsDisplay(results, isInitialLoad) {
                     <div class="grid-cell header-cell">Phone</div>
                     <div class="grid-cell header-cell">Email</div>
                     <div class="grid-cell header-cell">Address</div>
-                    <div class="grid-cell header-cell">Actions</div>
                 </div>
                 <div id="contacts-rows"></div>
             </div>
