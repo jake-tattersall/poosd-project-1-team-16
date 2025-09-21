@@ -133,18 +133,18 @@ function handleSearchKeyDown(event) {
 function animateContactListUpdate(elementId, content) {
     const element = document.getElementById(elementId);
     if (!element) return;
-    
+
     // Remove any existing animation classes
     element.classList.remove('updating', 'fade-in');
-    
+
     // Quick fade out and in with minimal height disruption
     element.style.opacity = '0.7';
-    
+
     setTimeout(() => {
         element.innerHTML = content;
         element.style.opacity = '';
         element.classList.add('fade-in');
-        
+
         // Clean up animation class after animation completes
         setTimeout(() => {
             element.classList.remove('fade-in');
@@ -345,124 +345,6 @@ function smoothTransition(url) {
     }, 500);
 }
 
-function doRegister() {
-    
-    let firstName = document.getElementById("firstName").value;
-    let lastName = document.getElementById("lastName").value;
-    let loginName = document.getElementById("loginName").value.trim();
-    let loginPassword = document.getElementById("loginPassword").value;
-
-    // Clear previous result message and input error outlines
-    const resultEl = document.getElementById("registerResult");
-    resultEl.innerHTML = "";
-    resultEl.classList.remove('error-text');
-    ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
-        var el = document.getElementById(id);
-        if (el) el.classList.remove('input-error');
-    });
-
-    // Basic validation
-    if (!firstName || !lastName || !loginName || !loginPassword) {
-        const msg = "Please fill in all fields.";
-        resultEl.classList.add('error-text');
-        resultEl.textContent = msg;
-        resultEl.style.color = '#f43f5e';
-        resultEl.style.fontSize = '0.8em';
-        ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
-            var el = document.getElementById(id);
-            if (el && !el.value) el.classList.add('input-error');
-        });
-        return;
-    }
-    // No email format validation; username is treated as a plain login
-
-    let tmp = {firstName:firstName, lastName:lastName, login:loginName, password:loginPassword};
-    let jsonPayload = JSON.stringify( tmp );
-
-    let url = urlBase + '/register.' + extension;
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", url, true);
-    xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
-    xhr.onreadystatechange = function() {
-        if (this.readyState == 4) {
-            try {
-                let jsonObject = JSON.parse(xhr.responseText);
-                if (xhr.status == 200 && jsonObject.error === "") {
-                    // On successful registration, auto-login then transition to colors page
-                    let loginPayload = JSON.stringify({ login: loginName, password: loginPassword });
-                    let loginUrl = urlBase + '/Login.' + extension;
-                    let xhr2 = new XMLHttpRequest();
-                    xhr2.open("POST", loginUrl, true);
-                    xhr2.setRequestHeader("Content-type", "application/json; charset=UTF-8");
-                    xhr2.onreadystatechange = function(){
-                        if (this.readyState == 4) {
-                            try {
-                                let loginObj = JSON.parse(xhr2.responseText);
-                                if (xhr2.status == 200 && loginObj && loginObj.id && loginObj.id > 0) {
-                                    // Set globals defined in code.js then persist and navigate
-                                    userId = loginObj.id;
-                                    firstName = loginObj.firstName || firstName;
-                                    lastName = loginObj.lastName || lastName;
-				//if (document.getElementById("userName")) {
-                       // document.getElementById("userName").innerHTML = "Logged in as " + firstName + " " + lastName;
-               // }
-                                    saveCookie();
-                                    // Do not show a success message; transition like login
-                                    smoothTransition('color.html');
-                                } else {
-                                    // Fallback: show error if auto-login fails
-                                    document.getElementById('registerResult').innerHTML = (loginObj && loginObj.error) ? loginObj.error : 'Auto-login failed.';
-                                }
-                            } catch(e) {
-                                document.getElementById('registerResult').innerHTML = 'Auto-login failed.';
-                            }
-                        }
-                    };
-                    xhr2.send(loginPayload);
-                } else {
-                    // Style error cohesively and, if duplicate account, highlight inputs
-                    var err = jsonObject.error || "Registration failed.";
-                    resultEl.classList.add('error-text');
-                    resultEl.textContent = err;
-                    resultEl.style.color = '#f43f5e';
-                    resultEl.style.fontSize = '0.8em';
-                    if (/username already exists/i.test(err)){
-                        ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
-                            var el = document.getElementById(id);
-                            if (el) el.classList.add('input-error');
-                        });
-                    }
-                }
-            } catch (e) {
-                resultEl.classList.add('error-text');
-                resultEl.textContent = "Registration failed.";
-                resultEl.style.color = '#f43f5e';
-                resultEl.style.fontSize = '0.8em';
-            }
-        }
-    };
-    xhr.send(jsonPayload);
-}
-
-// Remove error outline as the user types
-document.addEventListener('DOMContentLoaded', function(){
-    ["firstName","lastName","loginName","loginPassword"].forEach(function(id){
-        var el = document.getElementById(id);
-        if (!el) return;
-        el.addEventListener('input', function(){
-            el.classList.remove('input-error');
-        });
-    });
-});
-
-// Enter key handler for registration form
-function handleRegisterKeyDown(event) {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        doRegister();
-    }
-}
-
 
 function importContacts() {
 	document.getElementById('contents').textContent = "";
@@ -624,9 +506,9 @@ function searchContacts()
 								<div class="grid-cell email-cell">${contact.email}</div>
 								<div class="grid-cell address-cell">${contact.address}</div>
 								<div class="grid-cell actions-cell">
-                                                                        <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
-                                                                                 <img src="../images/Edit1.svg" width="30" height="30">
-                                                                        </button>   
+                                <button type="button" style="display:inline-block" class="buttons" onclick="modifyContact(${contact.id}, '${contact.firstName}', '${contact.lastName}', '${contact.phone}', '${contact.email}', '${contact.address}');">
+                                            <img src="../images/Edit1.svg" width="30" height="30">
+                                </button>   
 								</div>
 							</div>
 						`;
@@ -1045,7 +927,7 @@ function submitModifyContact(event) {
     xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
     xhr.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            alert('Contact modified.');
+            // alert('Contact modified.');
             closeModifyContactPopup();
             // Refresh current page of contacts and search results
             listContacts(currentPage);
@@ -1442,6 +1324,67 @@ function listContactsPrecise(firstName, lastName, phone, email, address)
 	//document.getElementById("contactsError").innerHTML = "";
 	//document.getElementById("contactsList").innerHTML = "";
 	
+
+	let contactList = "";
+	let tmp = {search: "", userId: userId}; // Empty search to get all contacts
+	let jsonPayload = JSON.stringify(tmp);
+
+	let url = urlBase + '/SearchContacts.' + extension;
+
+	let xhr = new XMLHttpRequest();
+	xhr.open("POST", url, true);
+	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+	try
+	{
+		xhr.onreadystatechange = function()
+		{
+			if (this.readyState == 4 && this.status == 200)
+			{
+				let jsonObject = JSON.parse(xhr.responseText);
+				if (jsonObject.results && jsonObject.results.length > 0) {
+					for (let i = 0; i < jsonObject.results.length; i++)
+					{
+
+						let contact = jsonObject.results[i]; // Already parsed, no need for JSON.parse
+						if (contact.firstName === firstName && contact.lastName === lastName && phone === phone && email === email && address === address)
+						{
+							deleteContact(contact.id);
+							document.getElementById('modifyContactPopup').style.display = 'none';
+							break;
+						}
+					}
+				} else {
+					//contactList = "No contacts found.";
+					//document.getElementById("contactsError").innerHTML = "No contacts found.";
+				}
+				//animateContactListUpdate("contactsList", contactList);
+			}
+		};
+		xhr.send(jsonPayload);
+	}
+	catch(err)
+	{
+		document.getElementById("contactsError").innerHTML = err.message;
+	}
+}
+
+function deleteContactPrecise()
+{
+	var firstName = document.getElementById('modifyFirstName').value;
+	var lastName = document.getElementById('modifyLastName').value;
+	var phone = document.getElementById('modifyPhone').value;
+	var email = document.getElementById('modifyEmail').value;
+	var address = document.getElementById('modifyAddress').value;
+
+	listContactsPrecise(firstName, lastName, phone, email, address);
+}
+
+
+function listContactsPrecise(firstName, lastName, phone, email, address)
+{
+	//document.getElementById("contactsError").innerHTML = "";
+	//document.getElementById("contactsList").innerHTML = "";
+
 
 	let contactList = "";
 	let tmp = {search: "", userId: userId}; // Empty search to get all contacts
