@@ -886,6 +886,7 @@ function addContact() {
                     document.getElementById("phone").value = "";
                     document.getElementById("email").value = "";
                     document.getElementById("address").value = "";
+					location.reload();
                 } else {
                     result = jsonObject.error || "Failed to add contact.";
                 }
