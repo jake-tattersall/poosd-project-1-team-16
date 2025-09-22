@@ -70,6 +70,10 @@ body.scrollable{
 html, body {
     max-width: 100%;
     overflow-x: hidden;
+	background-repeat: no-repeat;
+	background-size: 1700px 900px;
+	background-attachment: fixed;
+  	background-position: center 150%;
 }
 
 /* Page transition animations */
@@ -647,6 +651,11 @@ body.light .menu-dropdown .menu-item{
     z-index: 25; /* Above waves */
     pointer-events: auto; /* Ensure this only affects its own content */
     transition: background 0.8s ease, box-shadow 0.8s ease, color 0.8s ease;
+}
+
+#seaweed1 #seaweed2 
+{
+	z-index: 0;
 }
 
 #registerDiv
@@ -1651,7 +1660,7 @@ body.light .dropdown-section{
 }
 
 body.light .dropdown-section h3{
-    color: #2dc0ae;
+    color: #111111;
 }
 body.light #inner-title{
     color: #0f172a;
@@ -1709,7 +1718,7 @@ select{
 
 /* For Modify Contacts Popup */
 body.light h3 {
-    color: #32c9b6;
+    color: #111111;
 }
 
 h3 {
