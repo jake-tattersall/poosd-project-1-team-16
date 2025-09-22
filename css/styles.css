@@ -1651,7 +1651,7 @@ body.light .dropdown-section{
 }
 
 body.light .dropdown-section h3{
-    color: #2dc0ae;
+    color: #111111;
 }
 body.light #inner-title{
     color: #0f172a;
@@ -1709,7 +1709,7 @@ select{
 
 /* For Modify Contacts Popup */
 body.light h3 {
-    color: #32c9b6;
+    color: #111111;
 }
 
 h3 {
