@@ -649,6 +649,11 @@ body.light .menu-dropdown .menu-item{
     transition: background 0.8s ease, box-shadow 0.8s ease, color 0.8s ease;
 }
 
+#seaweed1 #seaweed2 
+{
+	z-index: 0;
+}
+
 #registerDiv
 {
     font-size: 30px;
