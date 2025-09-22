@@ -71,9 +71,9 @@ html, body {
     max-width: 100%;
     overflow-x: hidden;
 	background-repeat: no-repeat;
-	background-size: 1200px;
+	background-size: 1700px 700px;
 	background-attachment: fixed;
-  	background-position: bottom;
+  	background-position: center 120%;
 }
 
 /* Page transition animations */
