@@ -22,8 +22,10 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Apply saved theme on load
     if (theme === 'light') {
         document.body.classList.add('light');
+		document.getElementById('islandIcon').innerHTML = "<img src='images/Island2.svg' width='50' height='50' alt='User' style='vertical-align:middle; cursor:default;''>";
     } else {
         document.body.classList.remove('light');
+		document.getElementById('islandIcon').innerHTML = "<img src='images/Island21.svg' width='50' height='50' alt='User' style='vertical-align:middle; cursor:default;''>";
     }
 
 	//document.getElementById('searchContactsButton').innerHTML = '<img src="images/Show.svg" width="25" height="25" style="display:inline; vertical-align:middle;"><p style="display:inline; vertical-align:middle;">&ensp; Show my Contacts </p>';
