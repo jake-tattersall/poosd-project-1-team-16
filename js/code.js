@@ -568,7 +568,9 @@ function listContacts(page = 1, forceOpen = false)
 
     // Show loading state for pagination (not initial load)
     let contactsListElement = document.getElementById("contactsList");
-    let isInitialLoad = !contactsListElement.innerHTML || contactsListElement.innerHTML.trim() === "";
+    let isInitialLoad = !contactsListElement.innerHTML 
+                        || contactsListElement.innerHTML.trim() === ""
+                        || contactsListElement.innerHTML.trim() === "No contacts found.";
     
     // Add loading indicator for pagination
     if (!isInitialLoad && page !== currentPage) {
