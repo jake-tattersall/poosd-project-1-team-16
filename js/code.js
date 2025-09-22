@@ -350,6 +350,7 @@ function importContacts() {
 	document.getElementById('contents').textContent = "";
 	document.getElementById("uploadButton").click();
 	document.getElementById('uploadButton').addEventListener('change', function eventHandler(event) {
+		event.stopImmediatePropagation();
 		const file = event.target.files[0];
 		if (file) {
                 Papa.parse(file, {
