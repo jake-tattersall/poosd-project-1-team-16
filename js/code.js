@@ -922,11 +922,11 @@ function exportContacts() {
 					let csv = '';
     
 			    // Extract headers
-			    const headers = Object.keys(jsonData[0]);
+			    const headers = Object.keys(jsonObject[0]);
 			    csv += headers.join(',') + '\n';
     
 			    // Extract values
-			    jsonData.forEach(obj => {
+			    jsonObject.forEach(obj => {
 		        const values = headers.map(header => obj[header]);
 		        csv += values.join(',') + '\n';
 				});
