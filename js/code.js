@@ -879,14 +879,13 @@ function addContact() {
                     let dropdown = document.getElementById('contactsList');
                     if (dropdown.style.display === 'block') {
                         dropdown.style.display = 'none';
-                        listContacts();
                     }
+                    listContacts(1, true); // Refresh to first page and force open
                     document.getElementById("firstName").value = "";
                     document.getElementById("lastName").value = "";
                     document.getElementById("phone").value = "";
                     document.getElementById("email").value = "";
                     document.getElementById("address").value = "";
-					location.reload();
                 } else {
                     result = jsonObject.error || "Failed to add contact.";
                 }
