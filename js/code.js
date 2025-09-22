@@ -637,7 +637,7 @@ function listContacts(page = 1, forceOpen = false)
 
 function updateContactsDisplay(results, isInitialLoad) {
     let contactsListElement = document.getElementById("contactsList");
-    let imagesArray = ["../images/fish1.png", "../images/fish2.png", "../images/fish3.png"];
+    let imagesArray = ["../images/fish1.png", "../images/fish2.png", "../images/fish3.png", "../images/fish4.png", "../images/fish5.png", "../images/fish6.png", "../images/fish7.png", "../images/fish8.png"];
     
     if (isInitialLoad) {
         // Create the entire structure for initial load
