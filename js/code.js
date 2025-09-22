@@ -828,7 +828,7 @@ function deleteContact(contactId)
                 if (this.status == 200 && jsonObject.error === "") {
                     // Check if we need to go back a page after deleting the last item on current page
                     // This will be handled by the listContacts function when it gets empty results
-                    listContacts(currentPage);
+                    listContacts(currentPage, true);
                     
                     // Also refresh search results if they're visible
                     if (document.getElementById('contactListResults') && document.getElementById('contactListResults').innerHTML) {
