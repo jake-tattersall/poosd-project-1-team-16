@@ -916,34 +916,35 @@ function exportContacts() {
 		{
 			if (this.readyState == 4 && this.status == 200)
 			{
-				// Code from https://www.geeksforgeeks.org/javascript/how-to-convert-json-object-to-csv-in-javascript/
+				// Code modified from https://www.geeksforgeeks.org/javascript/how-to-create-and-download-csv-file-in-javascript/
 				let jsonObject = JSON.parse(xhr.responseText);
 				if (jsonObject.results && jsonObject.results.length > 0) {
 					let csv = '';
-    
-			    // Extract headers
-			    const headers = Object.keys(jsonObject[0]);
+					alert(jsonObject.results);
+					alert(JSON.stringify(jsonObject.results));
+			
+			    const headers = ['First Name', 'Last Name', 'Phone', 'Email', 'Address'];
 			    csv += headers.join(',') + '\n';
     
 			    // Extract values
-			    jsonObject.forEach(obj => {
-		        const values = headers.map(header => obj[header]);
-		        csv += values.join(',') + '\n';
-				});
+				for (let i = 0; i < jsonObject.results.length; i++)
+				{
+					let values = [jsonObject.results[i].firstName, jsonObject.results[i].lastName, jsonObject.results[i].phone, jsonObject.results[i].email, jsonObject.results[i].address];
+			        csv += values.join(',') + '\n';
+				}
+
+			  	const blob = new Blob([csv], { type: 'text/csv' });
     
-				const download = (data) => {
-			  const blob = new Blob([data], { type: 'text/csv' });
+			 	const url = URL.createObjectURL(blob);
     
-			  const url = URL.createObjectURL(blob);
-    
-			  const a = document.createElement('a');
+			  	const a = document.createElement('a');
     
 				a.href = url;
-			  a.download = 'MySeaContacts.csv';
+				a.download = 'MySeaContacts.csv';
     
-			  // Trigger the download by clicking the anchor tag
-			  a.click();
-}
+				// Trigger the download by clicking the anchor tag
+				a.click();
+					
 				} else {
 					contactList = "No contacts found.";
 				}
@@ -956,8 +957,6 @@ function exportContacts() {
 		document.getElementById("contactsError").innerHTML = err.message;
 	}
 }
-
-
 
 // Modify contact functions
 function modifyContact(contactId, firstName, lastName, phone, email, address) {
