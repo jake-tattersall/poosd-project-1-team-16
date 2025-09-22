@@ -70,6 +70,10 @@ body.scrollable{
 html, body {
     max-width: 100%;
     overflow-x: hidden;
+	background-repeat: no-repeat;
+	background-size: 1200px;
+	background-attachment: fixed;
+  	background-position: bottom;
 }
 
 /* Page transition animations */
