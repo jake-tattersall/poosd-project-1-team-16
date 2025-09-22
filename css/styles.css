@@ -936,6 +936,10 @@ td:last-child
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }
 
+#seaweed1 #seaweed2 {
+	z-index: 0;
+}
+
 @keyframes slideDown {
     from {
         opacity: 0;
@@ -1651,7 +1655,7 @@ body.light .dropdown-section{
 }
 
 body.light .dropdown-section h3{
-    color: #2dc0ae;
+    color: #111111;
 }
 body.light #inner-title{
     color: #0f172a;
@@ -1709,7 +1713,7 @@ select{
 
 /* For Modify Contacts Popup */
 body.light h3 {
-    color: #32c9b6;
+    color: #111111;
 }
 
 h3 {
