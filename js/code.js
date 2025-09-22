@@ -759,7 +759,7 @@ function updatePaginationControls() {
 
 function handleEmptyResults(isInitialLoad, contactsListElement) {
     if (isInitialLoad) {
-        document.getElementById("contactsError").innerHTML = "No contacts found.";
+        //document.getElementById("contactsError").innerHTML = "No contacts found.";
         contactsListElement.innerHTML = "No contacts found.";
     } else {
         // If we're on a page that no longer has results (e.g., after deletion),
@@ -768,7 +768,7 @@ function handleEmptyResults(isInitialLoad, contactsListElement) {
             listContacts(currentPage - 1, true);
             return;
         }
-        document.getElementById("contactsError").innerHTML = "No contacts found.";
+        //document.getElementById("contactsError").innerHTML = "No contacts found.";
         contactsListElement.innerHTML = "No contacts found.";
     }
 }
