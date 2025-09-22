@@ -22,38 +22,49 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Apply saved theme on load
     if (theme === 'light') {
         document.body.classList.add('light');
-		document.getElementById('islandIcon').innerHTML = "<img src='images/Island2.svg' width='50' height='50' alt='User' style='vertical-align:middle; cursor:default;''>";
+		var islandIconEl = document.getElementById('islandIcon');
+		if (islandIconEl) islandIconEl.innerHTML = "<img src='images/Island2.svg' width='50' height='50' alt='User' style='vertical-align:middle; cursor:default;''>";
     } else {
         document.body.classList.remove('light');
-		document.getElementById('islandIcon').innerHTML = "<img src='images/Island21.svg' width='50' height='50' alt='User' style='vertical-align:middle; cursor:default;''>";
+		var islandIconEl = document.getElementById('islandIcon');
+		if (islandIconEl) islandIconEl.innerHTML = "<img src='images/Island21.svg' width='50' height='50' alt='User' style='vertical-align:middle; cursor:default;''>";
     }
 
 	//document.getElementById('searchContactsButton').innerHTML = '<img src="images/Show.svg" width="25" height="25" style="display:inline; vertical-align:middle;"><p style="display:inline; vertical-align:middle;">&ensp; Show my Contacts </p>';
 
     // Ensure initial page load does not animate sun/moon
     document.body.classList.remove('theme-animated');
-    // Wire checkbox switch if present
+    // Wire primary checkbox switch if present
     var toggle = document.getElementById('themeToggle');
-    if (toggle) {
-        toggle.checked = (theme === 'light');
-        toggle.addEventListener('change', function(e) {
+    function bindThemeToggle(el){
+        if (!el) return;
+        el.checked = (theme === 'light');
+        el.addEventListener('change', function(e) {
             // Temporarily enable animations during user-initiated toggle
             document.body.classList.add('theme-animated');
             if (e.target.checked) {
                 document.body.classList.add('light');
                 localStorage.setItem('theme', 'light');
-				document.getElementById('islandIcon').innerHTML = "<img src='images/Island2.svg' width='50' height='50' alt='User' style='vertical-align:middle; cursor:default;''>";
+                var islandIconEl2 = document.getElementById('islandIcon');
+                if (islandIconEl2) islandIconEl2.innerHTML = "<img src='images/Island2.svg' width='50' height='50' alt='User' style='vertical-align:middle; cursor:default;''>";
             } else {
                 document.body.classList.remove('light');
                 localStorage.setItem('theme', 'dark');
-				document.getElementById('islandIcon').innerHTML = "<img src='images/Island21.svg' width='50' height='50' alt='User' style='vertical-align:middle; cursor:default;''>";
+                var islandIconEl3 = document.getElementById('islandIcon');
+                if (islandIconEl3) islandIconEl3.innerHTML = "<img src='images/Island21.svg' width='50' height='50' alt='User' style='vertical-align:middle; cursor:default;''>";
             }
             // Remove the animation flag after the transition window
             setTimeout(function(){
                 document.body.classList.remove('theme-animated');
             }, 2200);
+            // Keep any companion toggles in sync
+            syncToggleCheckbox();
         });
     }
+    if (toggle) { bindThemeToggle(toggle); }
+    // Wire any secondary theme toggles (e.g., in Profile card)
+    var secondaryToggles = document.querySelectorAll('.theme-toggle-secondary');
+    secondaryToggles.forEach(function(el){ bindThemeToggle(el); });
 
     // Clickable sun/moon toggles
     var sunHit = document.querySelector('.sun-hit');
@@ -74,8 +85,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function syncToggleCheckbox(){
+        var isLight = document.body.classList.contains('light');
         var t = document.getElementById('themeToggle');
-        if (t) t.checked = document.body.classList.contains('light');
+        if (t) t.checked = isLight;
+        document.querySelectorAll('.theme-toggle-secondary').forEach(function(el){ el.checked = isLight; });
     }
 
     // Hover glow via body classes to apply drop-shadow on icons
@@ -102,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
     syncToggleCheckbox();
     
     // Clear login field error highlighting when user starts typing (like register page)
-    ["loginName","loginPassword"].forEach(function(id){
+    ["loginName","loginPassword","firstName","phone","email"].forEach(function(id){
         var el = document.getElementById(id);
         if (!el) return;
         el.addEventListener('input', function(){
@@ -312,10 +325,6 @@ function readCookie()
 				btn.textContent = 'Log Out';
 				btn.addEventListener('click', function(){ doLogout(); });
 				menu.appendChild(btn);
-			}
-			var logoutContainer = document.getElementById('logoutContainer');
-			if (logoutContainer && logoutContainer.parentNode) {
-				logoutContainer.parentNode.removeChild(logoutContainer);
 			}
 		}
 	}
@@ -850,15 +859,54 @@ function deleteContact(contactId)
 }
 
 function addContact() {
-
     let add_firstName = document.getElementById("firstName").value;
     let add_lastName = document.getElementById("lastName").value;
     let add_phone = document.getElementById("phone").value;
     let add_email = document.getElementById("email").value;
     let add_address = document.getElementById("address").value;
+    
+    // Required first name validation (match login/register style)
+    document.getElementById("contactAddResult").innerHTML = "";
+    document.getElementById("firstName").classList.remove('input-error');
+    document.getElementById("phone").classList.remove('input-error');
+    document.getElementById("email").classList.remove('input-error');
+    if (!add_firstName || add_firstName.trim() === ""){
+        document.getElementById("contactAddResult").innerHTML = "First Name is required.";
+        document.getElementById("firstName").classList.add('input-error');
+        return;
+    }
+
+    // Validate phone and email formats when provided
+    const phoneVal = (add_phone || "").trim();
+    const emailVal = (add_email || "").trim();
+    let hasAnyInvalid = false;
+    let messages = [];
+    // Phone pattern: 123-456-7890
+    if (phoneVal) {
+        var phoneOk = /^\d{3}-\d{3}-\d{4}$/.test(phoneVal);
+        if (!phoneOk){
+            hasAnyInvalid = true;
+            messages.push("Phone format: XXX-XXX-XXXX");
+            document.getElementById("phone").classList.add('input-error');
+        }
+    }
+    // Email basic pattern
+    if (emailVal) {
+        var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
+        if (!emailOk){
+            hasAnyInvalid = true;
+            messages.push("Email format: name@example.com");
+            document.getElementById("email").classList.add('input-error');
+        }
+    }
+    if (hasAnyInvalid){
+        const distinct = Array.from(new Set(messages));
+        document.getElementById("contactAddResult").innerHTML = distinct.join("<br>");
+        return;
+    }
     readCookie(); // This will update UserID
 
-    document.getElementById("contactAddResult").innerHTML = ""; // Clear previous result
+    document.getElementById("contactAddResult").innerHTML = ""; // Clear previous result (redundant after validation)
 
     let tmp = {
         firstName: add_firstName,

@@ -513,11 +513,16 @@ body.light .address-cell {
 }
 
 body.light #contactAddResult {
-	color: black;
+    color: #b91c1c;
 }
 
 #contactAddResult {
-	color: white;
+    color: #f87171;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.9em;
+    text-align: center;
+    display: block;
+    margin: 12px 0 0 0;
 }
 
 /* Hamburger menu button */
