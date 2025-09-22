@@ -347,7 +347,7 @@ function smoothTransition(url) {
 
 
 function importContacts() {
-	document.getElementById('contents').textContent = "";
+	//document.getElementById('contents').textContent = "";
 	document.getElementById("uploadButton").click();
 	document.getElementById('uploadButton').addEventListener('change', function eventHandler(event) {
 		event.stopImmediatePropagation();
