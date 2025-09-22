@@ -707,8 +707,14 @@ function updateContactRows(results, imagesArray) {
     if (newContactCount > existingRowCount) {
         for (let i = existingRowCount; i < newContactCount; i++) {
             let contact = results[i];
-            let num = Math.floor(Math.random() * 3);
-            let img = imagesArray[num];
+            let num = 0;
+			if (contact.firstName !== null) {
+				num = (contact.firstName).length % 8; // 0...2
+			}
+			else {
+				num = 2;
+			}
+			let img = imagesArray[num];
             
             let newRow = document.createElement('div');
             newRow.className = 'grid-row';
