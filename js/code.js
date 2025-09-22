@@ -680,8 +680,14 @@ function updateContactRows(results, imagesArray) {
     // Update existing rows efficiently
     for (let i = 0; i < Math.min(newContactCount, existingRowCount); i++) {
         let contact = results[i];
-        let num = Math.floor(Math.random() * 3);
-        let img = imagesArray[num];
+        let num = 0;
+		if (contact.firstName !== null) {
+			num = (contact.firstName).length % 8; // 0...2
+		}
+		else {
+			num = 2;
+		}
+		let img = imagesArray[num];
         let row = existingRows[i];
         
         // Store update info instead of immediately updating DOM
