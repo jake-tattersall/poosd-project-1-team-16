@@ -358,7 +358,7 @@ function importContacts() {
                     complete: function(results) {
 						let csvResults = JSON.stringify(results.data);
 						//alert(csvResults);
-						document.getElementById('contents').innerText = results.data.length;
+						//document.getElementById('contents').innerText = results.data.length;
 						//let jsonObject = JSON.parse(csvResults);
 						//alert(results.data);
 						
