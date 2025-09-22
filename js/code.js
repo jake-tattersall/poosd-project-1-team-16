@@ -900,7 +900,61 @@ function addContact() {
 }
 
 function exportContacts() {
-	alert("Coming soon (import contacts in-progress)");
+	
+	let contactList = "";
+	let tmp = {search: "", userId: userId}; // Empty search to get all contacts
+	let jsonPayload = JSON.stringify(tmp);
+
+	let url = urlBase + '/SearchContacts.' + extension;
+
+	let xhr = new XMLHttpRequest();
+	xhr.open("POST", url, true);
+	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+	try
+	{
+		xhr.onreadystatechange = function()
+		{
+			if (this.readyState == 4 && this.status == 200)
+			{
+				// Code from https://www.geeksforgeeks.org/javascript/how-to-convert-json-object-to-csv-in-javascript/
+				let jsonObject = JSON.parse(xhr.responseText);
+				if (jsonObject.results && jsonObject.results.length > 0) {
+					let csv = '';
+    
+			    // Extract headers
+			    const headers = Object.keys(jsonData[0]);
+			    csv += headers.join(',') + '\n';
+    
+			    // Extract values
+			    jsonData.forEach(obj => {
+		        const values = headers.map(header => obj[header]);
+		        csv += values.join(',') + '\n';
+				});
+    
+				const download = (data) => {
+			  const blob = new Blob([data], { type: 'text/csv' });
+    
+			  const url = URL.createObjectURL(blob);
+    
+			  const a = document.createElement('a');
+    
+				a.href = url;
+			  a.download = 'MySeaContacts.csv';
+    
+			  // Trigger the download by clicking the anchor tag
+			  a.click();
+}
+				} else {
+					contactList = "No contacts found.";
+				}
+			}
+		};
+		xhr.send(jsonPayload);
+	}
+	catch(err)
+	{
+		document.getElementById("contactsError").innerHTML = err.message;
+	}
 }
 
 
