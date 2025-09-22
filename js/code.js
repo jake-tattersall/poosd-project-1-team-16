@@ -40,9 +40,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.target.checked) {
                 document.body.classList.add('light');
                 localStorage.setItem('theme', 'light');
+				document.getElementById('islandIcon').innerHTML = "<img src='images/Island2.svg' width='50' height='50' alt='User' style='vertical-align:middle; cursor:default;''>";
             } else {
                 document.body.classList.remove('light');
                 localStorage.setItem('theme', 'dark');
+				document.getElementById('islandIcon').innerHTML = "<img src='images/Island21.svg' width='50' height='50' alt='User' style='vertical-align:middle; cursor:default;''>";
             }
             // Remove the animation flag after the transition window
             setTimeout(function(){
