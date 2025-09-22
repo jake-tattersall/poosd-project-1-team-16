@@ -877,9 +877,7 @@ function addContact() {
                 if (xhr.status == 200 && jsonObject.error === "") {
                     result = jsonObject.message || "Contact added successfully!";
                     let dropdown = document.getElementById('contactsList');
-                    if (dropdown.style.display === 'block') {
-                        dropdown.style.display = 'none';
-                    }
+                    dropdown.style.display = 'block'; // Ensure dropdown is open
                     listContacts(1, true); // Refresh to first page and force open
                     document.getElementById("firstName").value = "";
                     document.getElementById("lastName").value = "";
